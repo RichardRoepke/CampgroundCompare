@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= yield(:title) %></title>
+    <title><%= generate_title(yield(:title)) %></title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -10,11 +10,26 @@
   </head>
 
   <body>
-    <%= #render 'layouts/header'
-    %>
-      <div class="maincontent">
+    <%= render 'layouts/header' %>
+
+    <br />
+      <div class="container-fluid">
         <% flash.each do |message_type, message| %>
-          <div class="alert"><%= message %></div>
+          <% if message_type == 'alert'%>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <%= message %>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          <% else%>
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+              <%= message %>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          <% end %>
         <% end %>
 
         <h1><%= yield(:title) %></h1>
@@ -22,7 +37,12 @@
 
         <%= yield %>
 
-        <%= debug(params) if Rails.env.development? %>
+        <% if Rails.env.development? %>
+        <hr/>
+            <div class="card card-body">
+              <%= debug(params) %>
+            </div>
+        <% end %>
       </div>
   </body>
 </html>
