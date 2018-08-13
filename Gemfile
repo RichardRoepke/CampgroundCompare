@@ -22,6 +22,11 @@ gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
+
+# Bootstrap css framework
+gem 'bootstrap'
+gem 'jquery-rails'
+
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'
 # Use ActiveModel has_secure_password
@@ -37,10 +42,11 @@ gem 'typhoeus'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
 
-# 'Could not find a JavaScript runtime' error was solved by including these two gems.
-# However they may not be strictly needed.
-gem 'therubyracer'
-gem 'execjs'
+# To help run javascript in webpages.
+gem 'therubyracer', platforms: :ruby
+
+# Newer versions of autoprefixer don't seem to work nicely in the enviroment.
+gem 'autoprefixer-rails', '8.6.5'
 
 gem 'devise'
 gem 'will_paginate'
@@ -72,4 +78,4 @@ group :test do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+# gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
