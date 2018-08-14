@@ -1,5 +1,5 @@
 class UserController < ApplicationController
-  before_action :provide_title
+  before_action :provide_title, :is_admin?
 
   def index
     @users = User.all.paginate(page: params[:page], per_page: 15)
