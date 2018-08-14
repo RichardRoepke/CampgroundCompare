@@ -1,5 +1,6 @@
 class UserController < ApplicationController
   before_action :provide_title, :is_admin?
+  #before_action
 
   def index
     @users = User.all.paginate(page: params[:page], per_page: 15)
@@ -13,6 +14,10 @@ class UserController < ApplicationController
   end
 
   def show
+    @user = User.find(params[:id])
+  end
+
+  def search
 
   end
 
@@ -24,6 +29,7 @@ class UserController < ApplicationController
 
   end
 
+  private
   def provide_title
     @title = 'Users'
   end

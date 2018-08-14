@@ -9,15 +9,24 @@
     <tr>
       <th scope="col">ID</th>
       <th scope="col">Email</th>
-      <th scope="col">Admin?</th>
+      <th scope="col">Actions</th>
     </tr>
   </thead>
   <tbody>
   <% @users.each do |user| %>
       <tr>
         <th scope="row"> <%= user.id %> </th>
-        <td> <%= user.email%> </td>
-        <td> <%= user.try(:admin?) %> </td>
+        <td>
+          <%= user.email%>
+          <% if user.try(:admin?)%>
+            <i class="fas fa-key"></i>
+          <% end%>
+        </td>
+        <td>
+          <%= link_to(user_path(user), :class => 'nav-link') do %>
+           <i class="fas fa-info-circle"></i>
+          <% end %>
+        </td>
       </tr>
   <% end %>
  </tbody>
