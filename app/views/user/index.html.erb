@@ -2,4 +2,27 @@
 
 <%= render 'layouts/user_tabs' %>
 
-Nothing here yet.
+<br />
+
+<table class="table table-sm table-striped table-hover">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Email</th>
+      <th scope="col">Admin?</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @users.each do |user| %>
+      <tr>
+        <th scope="row"> <%= user.id %> </th>
+        <td> <%= user.email%> </td>
+        <td> <%= user.try(:admin?) %> </td>
+      </tr>
+  <% end %>
+ </tbody>
+</table>
+
+<hr />
+
+<%= will_paginate(@users, :renderer => WillPaginate::ActionView::Bootstrap4LinkRenderer) %>
