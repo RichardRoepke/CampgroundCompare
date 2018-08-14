@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-info">
   <%= link_to "Campground Compare", root_path, :class => 'navbar-brand' if current_user.present? %>
   <%= link_to "Campground Compare", new_user_session_path, :class => 'navbar-brand' if current_user.blank?%>
 
