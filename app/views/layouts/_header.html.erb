@@ -8,6 +8,9 @@
         <%= link_to 'Manage Users', user_index_path, :class => 'nav-link' if current_user.try(:admin?) %>
       </li>
       <li class="nav-item">
+        <%= link_to 'Change Password', password_path, :class => 'nav-link' if current_user.present? %>
+      </li>
+      <li class="nav-item">
         <%= link_to 'Logout', destroy_user_session_path, method: :delete, :class => 'nav-link' if current_user.present? %>
       </li>
     </ul>

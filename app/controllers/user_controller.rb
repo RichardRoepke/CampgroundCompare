@@ -1,5 +1,6 @@
 class UserController < ApplicationController
-  before_action :provide_title, :is_admin?
+  before_action :provide_title
+  before_action :is_admin?, except: :update
 
   def index
     @users = User.all.paginate(page: params[:page], per_page: 12)
@@ -33,20 +34,37 @@ class UserController < ApplicationController
   end
 
   def update
-    if params[:user].present?
+    puts 'PARAMS: ' + params[:id]
+    puts 'USER: ' + current_user.id.to_s
+    if current_user.admin.present? || current_user.id == params[:id].to_i
       @user = User.find(params[:id])
       if @user.update(user_update)
-        flash[:success] = 'User was updated successfully.'
-        redirect_to user_index_path
-      else
-        flash[:alert] = 'User could not be updated.'
-        @user.errors.full_messages.each do |error|
-          flash[error.to_sym] = error
+        bypass_sign_in(@user) if @user.id == current_user.id
+        if params[:user][:personal].present?
+          flash[:success] = 'Password was updated successfully.'
+          bypass_sign_in(@user)
+          redirect_to password_path
+        else
+          flash[:success] = 'User was updated successfully.'
+          redirect_to user_index_path
         end
-        redirect_to edit_user_path(params[:id])
+      else
+        if params[:user][:personal].present?
+          flash[:alert] = 'Password could not be updated.'
+          @user.errors.full_messages.each do |error|
+            flash[error.to_sym] = error
+          end
+          redirect_to password_path
+        else
+          flash[:alert] = 'User could not be updated.'
+          @user.errors.full_messages.each do |error|
+            flash[error.to_sym] = error
+          end
+          redirect_to edit_user_path(params[:id])
+        end
       end
     else
-      redirect_to user_index_path, alert: 'No user selected.'
+      redirect_to new_user_session_path, alert: 'You need to be signed in to continue.'
     end
   end
 

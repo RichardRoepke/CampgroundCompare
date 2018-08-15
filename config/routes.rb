@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   # You can have the root of your site routed with "root"
   root 'main#home'
+  get '/password', to: 'main#password'
+
   get '/user/search', to: 'user#search'
 
   # bootstrap_form_for goes to users, not user, so this reroutes it to the proper place.
