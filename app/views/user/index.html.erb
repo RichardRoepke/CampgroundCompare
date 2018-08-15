@@ -1,0 +1,47 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/user_tabs' %>
+
+<br />
+
+<table class="table table-sm table-striped table-hover">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Email</th>
+      <th scope="col">Last Updated</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <th scope="row"> <%= user.id %> </th>
+          <td>
+            <%= user.email%>
+            <% if user.try(:admin?)%>
+              <i class="fas fa-key"></i>
+            <% end%>
+          </td>
+          <td> <%= user.updated_at %> </td>
+          <td>
+            <div class="btn-group" role="group" aria-label="User Actions">
+              <%= link_to(user_path(user), :class => 'nav-link') do %>
+               <i class="fas fa-info-circle"></i>
+              <% end %>
+              <%= link_to(edit_user_path(user), :class => 'nav-link') do %>
+               <i class="fas fa-pencil-alt"></i>
+              <% end %>
+              <%= link_to(user_path(user), method: :delete, :class => 'nav-link') do %>
+               <i class="fas fa-times-circle"></i>
+              <% end unless current_user.id == user.id %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<hr />
+
+<%= will_paginate(@users, :renderer => WillPaginate::ActionView::Bootstrap4LinkRenderer) %>

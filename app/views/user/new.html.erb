@@ -1,0 +1,11 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/user_tabs' %>
+
+<%= bootstrap_form_for(@user, inline_errors: false) do |f| %>
+  <%= f.email_field :email %>
+  <%= f.password_field :password %>
+  <%= f.password_field :password_confirmation %>
+  <%= f.check_box :admin %>
+  <%= f.submit %>
+<% end %>

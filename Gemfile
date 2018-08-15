@@ -25,6 +25,8 @@ gem 'jbuilder', '~> 2.5'
 
 # Bootstrap css framework
 gem 'bootstrap'
+gem 'bootstrap_form'
+gem 'bootstrap-will_paginate'
 gem 'jquery-rails'
 
 # Use Redis adapter to run Action Cable in production

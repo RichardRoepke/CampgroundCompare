@@ -1,0 +1,10 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/user_tabs' %>
+
+<br />
+
+<b>ID:</b> <%= @user.id %> <br />
+<b>Email:</b> <%= @user.email %> <br />
+<b>Last Updated:</b> <%= @user.updated_at %> <br />
+<b>Admin?</b> <%= @user.admin %> <br />
