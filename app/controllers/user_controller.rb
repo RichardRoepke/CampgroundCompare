@@ -7,6 +7,18 @@ class UserController < ApplicationController
   end
 
   def new
+    @user = User.new()
+    if params[:user]
+      if @user.update(user_new)
+        flash[:success] = 'User successfuly created.'
+        redirect_to user_index_path
+      else
+        flash.now[:alert] = 'User could not be made.'
+        @user.errors.full_messages.each do |error|
+          flash.now[error.to_sym] = error unless error == 'Encrypted password can\'t be blank'
+        end
+      end
+    end
   end
 
   def edit
@@ -66,5 +78,9 @@ class UserController < ApplicationController
     else
       params.require(:user).permit(:admin)
     end
+  end
+
+  def user_new
+    params.require(:user).permit(:email, :admin, :password, :password_confirmation)
   end
 end

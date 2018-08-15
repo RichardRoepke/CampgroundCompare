@@ -5,9 +5,10 @@
   <li class="nav-item">
     <a class="nav-link <%= is_active('new') %>" href="/user/new"><i class="fas fa-plus"></i> Add New</a>
   </li>
-  <li class="nav-item">
+<!--   <li class="nav-item">
     <a class="nav-link <%= is_active('search')%>" href="/user/search"> <i class="fas fa-search"></i> Search Users </a>
   </li>
+-->
   <% if params[:action] == 'show' %>
     <li class="nav-item">
       <a class="nav-link <%= is_active('show')%> disabled"> <i class="fas fa-info-circle"></i> Information </a>

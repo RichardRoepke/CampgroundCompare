@@ -6,7 +6,10 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'main#home'
   get '/user/search', to: 'user#search'
-  patch '/destroy_validator/', to: 'user#destroy'
+
+  # bootstrap_form_for goes to users, not user, so this reroutes it to the proper place.
+  get '/users', to: 'user#new'
+  post '/users', to: 'user#new'
 
   # Must be last, otherwise it considers /user/search as user/show with id: search.
   resources :user
