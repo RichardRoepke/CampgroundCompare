@@ -3,14 +3,14 @@ class UserController < ApplicationController
   #before_action
 
   def index
-    @users = User.all.paginate(page: params[:page], per_page: 15)
+    @users = User.all.paginate(page: params[:page], per_page: 12)
   end
 
   def new
   end
 
   def edit
-
+    @user = User.find(params[:id])
   end
 
   def show
@@ -25,8 +25,14 @@ class UserController < ApplicationController
 
   end
 
-  def delete
+  def destroy
+    @user = User.find(params[:id])
 
+    if params[:confirmation] == 'yes'
+      email = @user.email
+      @user.destroy
+      redirect_to user_index_path, alert: 'User ' + email.to_s + ' successfully deleted'
+    end
   end
 
   private
