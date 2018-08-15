@@ -1,6 +1,5 @@
 class UserController < ApplicationController
   before_action :provide_title, :is_admin?
-  #before_action
 
   def index
     @users = User.all.paginate(page: params[:page], per_page: 12)
@@ -46,6 +45,8 @@ class UserController < ApplicationController
         end
         redirect_to edit_user_path(params[:id])
       end
+    else
+      redirect_to user_index_path, alert: 'No user selected.'
     end
   end
 
@@ -57,7 +58,8 @@ class UserController < ApplicationController
         if params[:confirm] == '1'
           email = @user.email
           @user.destroy
-          redirect_to user_index_path, alert: 'User ' + email.to_s + ' successfully deleted'
+          flash[:success] = 'User ' + email.to_s + ' successfully deleted'
+          redirect_to user_index_path
         else
           flash.now[:alert] = 'User was not deleted due to a lack of confirmation.'
         end
