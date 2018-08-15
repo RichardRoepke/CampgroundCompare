@@ -34,15 +34,12 @@ class UserController < ApplicationController
   end
 
   def update
-    puts 'PARAMS: ' + params[:id]
-    puts 'USER: ' + current_user.id.to_s
     if current_user.admin.present? || current_user.id == params[:id].to_i
       @user = User.find(params[:id])
       if @user.update(user_update)
         bypass_sign_in(@user) if @user.id == current_user.id
         if params[:user][:personal].present?
           flash[:success] = 'Password was updated successfully.'
-          bypass_sign_in(@user)
           redirect_to password_path
         else
           flash[:success] = 'User was updated successfully.'
@@ -93,10 +90,14 @@ class UserController < ApplicationController
   end
 
   def user_update
-    if params[:user][:password].present?
-      params.require(:user).permit(:admin, :password, :password_confirmation)
+    if current_user.admin.present?
+      if params[:user][:password].present?
+        params.require(:user).permit(:admin, :password, :password_confirmation)
+      else
+        params.require(:user).permit(:admin)
+      end
     else
-      params.require(:user).permit(:admin)
+      params.require(:user).permit(:password, :password_confirmation)
     end
   end
 

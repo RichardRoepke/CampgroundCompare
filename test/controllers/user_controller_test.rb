@@ -6,14 +6,20 @@ class UserControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can create new user' do
-    get new_user_path, params: { user: { email: 'new@email.com', password: 'foobar', password_confirmation: 'foobar', admin: false } }
+    get new_user_path, params: { user: { email: 'new@email.com',
+                                         password: 'foobar',
+                                         password_confirmation: 'foobar',
+                                         admin: false } }
     assert_response :found
     assert flash[:success].present?
     assert_not flash[:alert].present?
   end
 
   test 'cannot create invalid user' do
-    get new_user_path, params: { user: { email: 'new@email.com', password: 'foobar', password_confirmation: 'barfoo', admin: false } }
+    get new_user_path, params: { user: { email: 'new@email.com',
+                                         password: 'foobar',
+                                         password_confirmation: 'barfoo',
+                                         admin: false } }
     assert_response :success
     assert flash[:alert].present?
     assert_not flash[:success].present?
@@ -21,8 +27,8 @@ class UserControllerTest < ActionDispatch::IntegrationTest
 
   test 'can update user' do
     patch user_path(1), params: { user: { admin: true },
-                                        commit: 'Update',
-                                        id: '1'}
+                                  commit: 'Update',
+                                  id: '1'}
     assert_response :found
     assert_redirected_to user_index_path
     assert flash[:success].present?
@@ -37,8 +43,8 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     patch user_path(1), params: { user: { admin: true,
                                           password: 'foobar',
                                           password_confirmation: 'barfoo' },
-                                        commit: 'Update',
-                                        id: '1'}
+                                  commit: 'Update',
+                                  id: '1'}
     assert_response :found
     assert_redirected_to edit_user_path
     assert_not flash[:success].present?
@@ -68,5 +74,50 @@ class UserControllerTest < ActionDispatch::IntegrationTest
     assert_response :found
     assert flash[:alert].present?
     assert_not flash[:success].present?
+  end
+
+  test 'can update own password' do
+    sign_out users(:admin)
+    sign_in users(:one)
+    patch user_path(1), params: { user: { personal: true,
+                                          password: 'foobar',
+                                          password_confirmation: 'foobar' },
+                                  commit: 'Update',
+                                  id: '1'}
+    assert_response :found
+    assert_redirected_to password_path
+    assert flash[:success].present?
+    assert_not flash[:alert].present?
+  end
+
+  test 'cannot set invalid password' do
+    sign_out users(:admin)
+    sign_in users(:one)
+    patch user_path(1), params: { user: { personal: true,
+                                          password: 'foobar',
+                                          password_confirmation: 'barfoo' },
+                                  commit: 'Update',
+                                  id: '1'}
+    assert_response :found
+    assert_redirected_to password_path
+    assert_not flash[:success].present?
+    assert flash[:alert].present?
+  end
+
+  test 'cannot set self as admin' do
+    sign_out users(:admin)
+    sign_in users(:one)
+    patch user_path(1), params: { user: { personal: true,
+                                          admin: true },
+                                  commit: 'Update',
+                                  id: '1'}
+    assert_response :found
+    assert_redirected_to password_path
+    assert flash[:success].present?
+    assert_not flash[:alert].present?
+
+    user = User.find(1)
+    assert_not user.admin.present?
+    assert user.admin.blank?
   end
 end
