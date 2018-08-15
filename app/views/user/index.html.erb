@@ -9,7 +9,7 @@
     <tr>
       <th scope="col">ID</th>
       <th scope="col">Email</th>
-      <th scope="col">Last Log-In</th>
+      <th scope="col">Last Updated</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -23,7 +23,7 @@
               <i class="fas fa-key"></i>
             <% end%>
           </td>
-          <td> <%= user_last_login(user) %> </td>
+          <td> <%= user.updated_at %> </td>
           <td>
             <div class="btn-group" role="group" aria-label="User Actions">
               <%= link_to(user_path(user), :class => 'nav-link') do %>
@@ -37,7 +37,7 @@
               <% end unless current_user.id == user.id %>
             </div>
           </td>
-         </tr>
+        </tr>
       <% end %>
     </tbody>
   </table>

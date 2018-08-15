@@ -22,7 +22,19 @@ class UserController < ApplicationController
   end
 
   def update
-
+    if params[:user].present?
+      @user = User.find(params[:id])
+      if @user.update(user_update)
+        flash[:success] = 'User was updated successfully.'
+        redirect_to user_index_path
+      else
+        flash[:alert] = 'User could not be updated.'
+        @user.errors.full_messages.each do |error|
+          flash[error.to_sym] = error
+        end
+        redirect_to edit_user_path(params[:id])
+      end
+    end
   end
 
   def destroy
@@ -46,5 +58,13 @@ class UserController < ApplicationController
   private
   def provide_title
     @title = 'Users'
+  end
+
+  def user_update
+    if params[:user][:password].present?
+      params.require(:user).permit(:admin, :password, :password_confirmation)
+    else
+      params.require(:user).permit(:admin)
+    end
   end
 end

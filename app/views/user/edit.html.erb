@@ -4,4 +4,12 @@
 
 <br />
 
-<%= @user.inspect %>
+<b>Editing User:</b> <%= @user.email %> <br />
+
+<%= bootstrap_form_for(@user) do |f| %>
+  <%= f.check_box :admin unless @user.id == current_user.id %>
+  <%= f.password_field :password %>
+  <%= f.password_field :password_confirmation %>
+  <%= f.submit %>
+<% end %>
+
