@@ -13,34 +13,34 @@
       <th scope="col">Actions</th>
     </tr>
   </thead>
-  <tbody>
-  <% @users.each do |user| %>
-      <tr>
-        <th scope="row"> <%= user.id %> </th>
-        <td>
-          <%= user.email%>
-          <% if user.try(:admin?)%>
-            <i class="fas fa-key"></i>
-          <% end%>
-        </td>
-        <td> <%= user_last_login(user) %> </td>
-        <td>
-          <div class="btn-group" role="group" aria-label="User Actions">
-            <%= link_to(user_path(user), :class => 'nav-link') do %>
-             <i class="fas fa-info-circle"></i>
-            <% end %>
-            <%= link_to(edit_user_path(user), :class => 'nav-link') do %>
-             <i class="fas fa-pencil-alt"></i>
-            <% end %>
-            <%= link_to(user_path(user), method: :delete, :class => 'nav-link') do %>
-             <i class="fas fa-times-circle"></i>
-            <% end %>
-          </div>
-        </td>
-      </tr>
-  <% end %>
- </tbody>
-</table>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <th scope="row"> <%= user.id %> </th>
+          <td>
+            <%= user.email%>
+            <% if user.try(:admin?)%>
+              <i class="fas fa-key"></i>
+            <% end%>
+          </td>
+          <td> <%= user_last_login(user) %> </td>
+          <td>
+            <div class="btn-group" role="group" aria-label="User Actions">
+              <%= link_to(user_path(user), :class => 'nav-link') do %>
+               <i class="fas fa-info-circle"></i>
+              <% end %>
+              <%= link_to(edit_user_path(user), :class => 'nav-link') do %>
+               <i class="fas fa-pencil-alt"></i>
+              <% end %>
+              <%= link_to(user_path(user), method: :delete, :class => 'nav-link') do %>
+               <i class="fas fa-times-circle"></i>
+              <% end unless current_user.id == user.id %>
+            </div>
+          </td>
+         </tr>
+      <% end %>
+    </tbody>
+  </table>
 
 <hr />
 

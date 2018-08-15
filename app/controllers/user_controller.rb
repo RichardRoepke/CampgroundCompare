@@ -28,10 +28,18 @@ class UserController < ApplicationController
   def destroy
     @user = User.find(params[:id])
 
-    if params[:confirmation] == 'yes'
-      email = @user.email
-      @user.destroy
-      redirect_to user_index_path, alert: 'User ' + email.to_s + ' successfully deleted'
+    unless @user.id == current_user.id
+      if params[:commit] == 'Delete User'
+        if params[:confirm] == '1'
+          email = @user.email
+          @user.destroy
+          redirect_to user_index_path, alert: 'User ' + email.to_s + ' successfully deleted'
+        else
+          flash.now[:alert] = 'User was not deleted due to a lack of confirmation.'
+        end
+      end
+    else
+      redirect_to user_index_path, alert: 'Cannot delete currently logged in user.'
     end
   end
 

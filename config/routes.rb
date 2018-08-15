@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'main#home'
   get '/user/search', to: 'user#search'
+  patch '/destroy_validator/', to: 'user#destroy'
 
   # Must be last, otherwise it considers /user/search as user/show with id: search.
   resources :user

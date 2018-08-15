@@ -4,4 +4,9 @@
 
 <br />
 
-<%= @user.inspect %>
+Are you sure you wish to delete <%= @user.email %> permamently from the list of users?
+
+<%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
+  <%= f.check_box :confirm %>
+  <%= f.submit "Delete User" %>
+<% end %>
