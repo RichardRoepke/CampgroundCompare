@@ -2,7 +2,11 @@ require 'test_helper'
 
 class AmenityValidatorTest < ActiveSupport::TestCase
   def setup
-    @params = { id: 7, name: 'Tester', group: 'Recreation', token: 'yes', description: 'A test amenity.' }
+    @params = { id: 7,
+                name: 'Tester',
+                group: 'Recreation',
+                token: 'yes',
+                description: 'A test amenity.' }
     @validator = AmenityValidator.new(@params)
   end
 
