@@ -16,7 +16,7 @@ class CobrandValidator
   def initialize(input)
     @id = IdValidator.new(input[:id])
     @name = input[:name]
-    @short = input[:short]
+    @short = input[:nameShort]
     @code = input[:code]
     @notes = input[:notes]
     @description = input[:description]
