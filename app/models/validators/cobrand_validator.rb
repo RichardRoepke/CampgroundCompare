@@ -1,25 +1,24 @@
-class AmenityValidator
+class CobrandValidator
   include ActiveModel::Validations
 
   attr_accessor :name
-  attr_accessor :group
-  attr_accessor :token
+  attr_accessor :short
+  attr_accessor :code
+  attr_accessor :notes
   attr_accessor :description
 
-  validates :name, presence: true
-  validates :group, presence: true
-
   validates :name, length: { maximum: 255 }
-  validates :group, inclusion: { in: %w{ Facility Recreation Rental } }
-  validates :token, length: { maximum: 255 }, allow_blank: true
+  validates :short, length: { maximum: 255 }
+  validates :code, length: { maximum: 255 }
 
   validate :valid_id
 
   def initialize(input)
     @id = IdValidator.new(input[:id])
     @name = input[:name]
-    @group = input[:group]
-    @token = input[:token]
+    @short = input[:short]
+    @code = input[:code]
+    @notes = input[:notes]
     @description = input[:description]
   end
 

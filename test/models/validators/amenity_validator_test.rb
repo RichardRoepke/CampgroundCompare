@@ -8,16 +8,11 @@ class AmenityValidatorTest < ActiveSupport::TestCase
 
   test 'validator should set up properly' do
     assert @validator.valid?
-    assert @validator.id = @params[:id]
-    assert @validator.name = @params[:name]
-    assert @validator.group = @params[:group]
-    assert @validator.token = @params[:token]
-    assert @validator.description = @params[:description]
-  end
-
-  test 'id must be present' do
-    @validator.id = nil
-    assert_not @validator.valid?
+    assert @validator.id == @params[:id]
+    assert @validator.name == @params[:name]
+    assert @validator.group == @params[:group]
+    assert @validator.token == @params[:token]
+    assert @validator.description == @params[:description]
   end
 
   test 'name must be present' do
@@ -34,22 +29,6 @@ class AmenityValidatorTest < ActiveSupport::TestCase
     @params = { id: 4, name: 'Test', group: 'Facility' }
     @validator = AmenityValidator.new(@params)
     assert @validator.valid?
-  end
-
-  test 'id must be a number' do
-    @validator.id = generate_random_string(1, 19)
-    assert_not @validator.valid?
-  end
-
-  test 'id must be a positive number' do
-    @validator.id = 3
-    assert @validator.valid?
-
-    @validator.id = 0
-    assert_not @validator.valid?
-
-    @validator.id = -3
-    assert_not @validator.valid?
   end
 
   test 'name must be at most 255 characters' do
