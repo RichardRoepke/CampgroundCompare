@@ -1,6 +1,7 @@
 class LocationValidator
   include ActiveModel::Validations
 
+  attr_accessor :uuid
   attr_accessor :type
   attr_accessor :name
   attr_accessor :bounce
@@ -17,6 +18,8 @@ class LocationValidator
   attr_accessor :latitude
   attr_accessor :longitude
   attr_accessor :description
+  attr_accessor :description_short
+  attr_accessor :directions
   attr_accessor :alt_name
   attr_accessor :former_name
   attr_accessor :rating
@@ -32,6 +35,7 @@ class LocationValidator
   attr_accessor :reviews
   attr_accessor :tags
 
+  validates :uuid, presence: true
   validates :type, presence: true
   validates :name, presence: true
   validates :address, presence: true
@@ -41,6 +45,7 @@ class LocationValidator
   validates :country, presence: true
   validates :country_code, presence: true
 
+  validates :uuid, length: { maximum: 255 }
   validates :type, inclusion: { in: %w{ Campground GasStation Store RestStop Casino } }
   validates :name, length: { maximum: 255 }
   validates :bounce, length: { maximum: 255 }, allow_blank: true
@@ -60,7 +65,6 @@ class LocationValidator
   validates :former_name, length: { maximum: 255 }, allow_blank: true
   validates :rating, numericality: true, allow_blank: true
 
-  validate :valid_uuid
   validate :valid_amenities
   validate :valid_cobrands
   validate :valid_images
@@ -71,7 +75,7 @@ class LocationValidator
   validate :valid_tags
 
   def initialize(input)
-    @uuid = IdValidator.new(input[:uuid])
+    @uuid = input[:uuid]
     @type = input[:type]
     @name = input[:name]
     @bounce = input[:bounceCode]
@@ -88,6 +92,8 @@ class LocationValidator
     @latitude = input[:latitude]
     @longitude = input[:longitude]
     @description = input[:description]
+    @description_short = input[:descriptionShort]
+    @directions = input[:directions]
     @alt_name = input[:alternativeName]
     @former_name = input[:formerName]
     @rating = input[:rating]
@@ -138,23 +144,7 @@ class LocationValidator
     end if input[:tags].present?
   end
 
-  def uuid
-    @uuid.id
-  end
-
-  def uuid=(int)
-    @uuid.id = int
-  end
-
   private
-
-  def valid_uuid
-    unless @uuid.valid?
-      @uuid.errors.each do |type, message|
-        errors.add(type, message)
-      end
-    end
-  end
 
   def valid_amenities
     if @amenities.present?

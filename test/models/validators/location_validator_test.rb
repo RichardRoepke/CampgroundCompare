@@ -2,7 +2,7 @@ require 'test_helper'
 
 class LocationValidatorTest < ActiveSupport::TestCase
   def setup
-    @params = { uuid: 7,
+    @params = { uuid: 'Whoops',
                 type: 'Campground',
                 name: 'Test Campground',
                 bounceCode: 'Code',
@@ -19,6 +19,8 @@ class LocationValidatorTest < ActiveSupport::TestCase
                 latitude: 3.3,
                 longitude: 7.7,
                 description: 'No description',
+                descriptionShort: 'None.',
+                directions: 'Absolutely none.',
                 alternativeName: 'None',
                 formerName: 'None',
                 rating: 2.5,
@@ -105,26 +107,28 @@ class LocationValidatorTest < ActiveSupport::TestCase
     @validator.valid?
 
     assert @validator.valid?
-    assert @validator.uuid = @params[:uuid]
-    assert @validator.type = @params[:type]
-    assert @validator.name = @params[:name]
-    assert @validator.bounce = @params[:bounceCode]
-    assert @validator.address = @params[:address]
-    assert @validator.city = @params[:city]
-    assert @validator.postal = @params[:postalCode]
-    assert @validator.state = @params[:stateName]
-    assert @validator.state_code = @params[:stateCode]
-    assert @validator.country = @params[:countryName]
-    assert @validator.country_code = @params[:countryCode]
-    assert @validator.phone = @params[:phone]
-    assert @validator.email = @params[:email]
-    assert @validator.website = @params[:website]
-    assert @validator.latitude = @params[:latitude]
-    assert @validator.longitude = @params[:longitude]
-    assert @validator.description = @params[:description]
-    assert @validator.alt_name = @params[:alternativeName]
-    assert @validator.former_name = @params[:formerName]
-    assert @validator.rating = @params[:rating]
+    assert @validator.uuid == @params[:uuid]
+    assert @validator.type == @params[:type]
+    assert @validator.name == @params[:name]
+    assert @validator.bounce == @params[:bounceCode]
+    assert @validator.address == @params[:address]
+    assert @validator.city == @params[:city]
+    assert @validator.postal == @params[:postalCode]
+    assert @validator.state == @params[:stateName]
+    assert @validator.state_code == @params[:stateCode]
+    assert @validator.country == @params[:countryName]
+    assert @validator.country_code == @params[:countryCode]
+    assert @validator.phone == @params[:phone]
+    assert @validator.email == @params[:email]
+    assert @validator.website == @params[:website]
+    assert @validator.latitude == @params[:latitude]
+    assert @validator.longitude == @params[:longitude]
+    assert @validator.description == @params[:description]
+    assert @validator.description_short == @params[:descriptionShort]
+    assert @validator.directions == @params[:directions]
+    assert @validator.alt_name == @params[:alternativeName]
+    assert @validator.former_name == @params[:formerName]
+    assert @validator.rating == @params[:rating]
   end
 
   test 'amenities should be processed correctly' do
@@ -212,7 +216,7 @@ class LocationValidatorTest < ActiveSupport::TestCase
   end
 
   test 'minimum inputs validates properly' do
-    @params = { uuid: 7,
+    @params = { uuid: 'Whoops',
                 type: 'Campground',
                 name: 'Test Campground',
                 address: '555 Test Street',
