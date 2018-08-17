@@ -13,13 +13,12 @@ class ReviewValidator
   validates :username, presence: true
   validates :rating, presence: true
   validates :body, presence: true
-  validates :title, presence: true
   validates :created, presence: true
   validates :reviewed, presence: true
 
   validates :username, length: { maximum: 255 }
   validates :rating, numericality: { only_integer: true }
-  validates :title, length: { maximum: 255 }
+  validates :title, length: { maximum: 255 }, allow_blank: true
   validates :reviewed, inclusion: { in: [true, false] }
 
   validate :rating_proper_range

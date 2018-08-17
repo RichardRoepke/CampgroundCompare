@@ -42,11 +42,6 @@ class ReviewValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'title must be present' do
-    @validator.title = nil
-    assert_not @validator.valid?
-  end
-
   test 'created must be present' do
     @validator.created = nil
     assert_not @validator.valid?
