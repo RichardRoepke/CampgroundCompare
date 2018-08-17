@@ -56,6 +56,34 @@ class NearbyValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
+  test 'longitude must be a number' do
+    @validator.longitude = 'number'
+    assert_not @validator.valid?
+
+    @validator.longitude = { number: 7 }
+    assert_not @validator.valid?
+
+    @validator.longitude = [4]
+    assert_not @validator.valid?
+
+    @validator.longitude = 2
+    assert @validator.valid?
+  end
+
+  test 'latitude must be a number' do
+    @validator.latitude = 'number'
+    assert_not @validator.valid?
+
+    @validator.latitude = { number: 7 }
+    assert_not @validator.valid?
+
+    @validator.latitude = [4]
+    assert_not @validator.valid?
+
+    @validator.latitude = 2
+    assert @validator.valid?
+  end
+
   test 'email must be at most 255 characters' do
     @validator.email = generate_random_string(255)
     assert @validator.valid?

@@ -18,6 +18,8 @@ class NearbyValidator
   validates :name, length: { maximum: 255 }
   validates :address, length: { maximum: 255 }, allow_blank: true
   validates :city, length: { maximum: 255 }, allow_blank: true
+  validates :latitude, numericality: true, allow_blank: true
+  validates :longitude, numericality: true, allow_blank: true
   validates :email, length: { maximum: 255 }, allow_blank: true
   validates :phone, length: { maximum: 255 }, allow_blank: true
   validates :website, length: { maximum: 255 }, allow_blank: true

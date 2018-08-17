@@ -10,7 +10,7 @@ class ReviewValidatorTest < ActiveSupport::TestCase
                 arrival: '1111-11-11',
                 departure: '1111-11-11',
                 underReview: true,
-                location: 4}
+                location: 4 }
     @validator = ReviewValidator.new(@params)
   end
 

@@ -33,6 +33,10 @@ class ImageValidator
   private
 
   def valid_id
-    return @id.valid?
+    unless @id.valid?
+      @id.errors.each do |type, message|
+        errors.add(type, message)
+      end
+    end
   end
 end

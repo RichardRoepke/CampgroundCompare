@@ -2,7 +2,12 @@ require 'test_helper'
 
 class CobrandValidatorTest < ActiveSupport::TestCase
   def setup
-    @params = { id: 7, name: 'Tester', nameShort: 'Test', code: 'yes', notes: 'None.', description: 'A test amenity.' }
+    @params = { id: 7,
+                name: 'Tester',
+                nameShort: 'Test',
+                code: 'yes',
+                notes: 'None.',
+                description: 'A test cobrand.' }
     @validator = CobrandValidator.new(@params)
   end
 

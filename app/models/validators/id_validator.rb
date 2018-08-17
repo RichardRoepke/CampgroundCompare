@@ -3,6 +3,7 @@ class IdValidator
 
   attr_accessor :id
 
+  validates :id, presence: true
   validates :id, numericality: { only_integer: true }
 
   validate :positive_id
