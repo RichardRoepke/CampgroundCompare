@@ -7,7 +7,7 @@ class MarkedParkController < ApplicationController
 
   def show
     park = MarkedPark.find(params[:id])
-    @park = get_individual_park(park.uuid)
+    @park = LocationValidator.new(get_individual_park(park.uuid))
   end
 
   private

@@ -19,7 +19,7 @@ class AmenityValidator
     @id = IdValidator.new(input[:id])
     @name = input[:name]
     @group = input[:group]
-    @token = input[:token]
+    @token = input[:tripAdvisorToken] || input[:token]
     @description = input[:description]
   end
 
