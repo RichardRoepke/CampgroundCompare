@@ -1,5 +1,14 @@
-<% provide(:title, "Index") %>
+<% provide(:title, "Changes Index") %>
 
 <%= render 'layouts/compare_tabs' %>
 
-Nothing here yet.
+<% if @index.present? %>
+  <%= @index.inspect %>
+  <hr />
+  <%= @index.size%>
+<% else %>
+  <br />
+  Nothing has been loaded in the index.
+<% end %>
+
+<hr />

@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
   get '/index', to: 'comparer#index'
   get '/entry', to: 'comparer#entry'
+  get '/generate', to: 'comparer#generate'
+  post '/generate/index', to: 'comparer#generate_index'
 
   get '/user/search', to: 'user#search'
 
