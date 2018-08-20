@@ -1,1 +1,10 @@
-Foobar.
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link <%= is_active('index') %>" href="/marked_park"><i class="fas fa-list"></i> Index</a>
+  </li>
+  <% if params[:action] == 'show' %>
+    <li class="nav-item">
+      <a class="nav-link <%= is_active('show')%> disabled"> <i class="fas fa-info-circle"></i> Information </a>
+    </li>
+  <% end %>
+</ul>
