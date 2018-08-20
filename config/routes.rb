@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   root 'main#home'
   get '/password', to: 'main#password'
 
+  get '/index', to: 'comparer#index'
+  get '/entry', to: 'comparer#entry'
+
   get '/user/search', to: 'user#search'
 
   # bootstrap_form_for goes to users, not user, so this reroutes it to the proper place.
