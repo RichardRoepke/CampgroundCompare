@@ -8,3 +8,7 @@ User.create!({email: 'user@user.org', password: 'asdfasdf', password_confirmatio
   mail = (0...(3 + rand(12))).map { (65 + rand(26)).chr }.join
   User.create!({email: 'SEED_' + mail + '@jibberish.org', password: 'asdfasdf', password_confirmation: 'asdfasdf', admin: false})
 end
+
+10.times do |num|
+  MarkedPark.create!({uuid: num.to_s, name: 'PARK:' + num.to_s, status: 'FINE'})
+end

@@ -1,11 +1,9 @@
-<% provide(:title, "Generate New Index") %>
+<% provide(:title, "Check for Updated Parks") %>
 
-<%= render 'layouts/compare_tabs' %>
-
-<%= bootstrap_form_tag(url: '/generate/index', layout: :horizontal) do |f| %>
+<%= bootstrap_form_tag(url: '/check/since', layout: :horizontal) do |f| %>
   <%= f.date_field :date_since, label: 'Changes Since: ', value: @since %>
   <%= f.check_box :ignore_wait, value: @wait do %>
     Select this checkbox to ignore warnings
   <% end %>
-  <%= f.primary 'Generate' %>
+  <%= f.primary 'Check' %>
 <% end %>

@@ -1,0 +1,28 @@
+<% provide(:title, @title) %>
+
+<!--  <%= render 'layouts/park_tabs' %> -->
+
+<br />
+
+<table class="table table-sm table-striped table-hover">
+  <thead>
+    <tr>
+      <th scope="col">UUID</th>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+    <tbody>
+      <% @parks.each do |park| %>
+        <tr>
+          <td> <%= park.uuid %> </td>
+          <td> <%= park.name %> </td>
+          <td> <%= park.status %> </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<hr />
+
+<%= paginate @parks %>
