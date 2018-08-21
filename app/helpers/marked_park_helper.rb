@@ -103,6 +103,21 @@ module MarkedParkHelper
     end
   end
 
+  def generate_rates_entry
+    return Proc.new do |rate|
+      concat(rate.name)
+      concat(tag('br'))
+      concat(rate.start + ' to ' + rate.end)
+      concat(tag('br'))
+      concat('Minimum Rate: ' + rate.min_rate)
+      concat(tag('br'))
+      concat('Maximum Rate: ' + rate.max_rate)
+      concat(tag('br'))
+      concat('Persons Included: ' + rate.persons.to_s)
+      concat(tag('br'))
+    end
+  end
+
   def generate_reviews_entry
     return Proc.new do |review|
       concat(review.username + ' (' + review.rating.to_s + ')')

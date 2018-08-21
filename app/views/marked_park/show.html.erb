@@ -17,6 +17,8 @@
 
   <%= collapse_button_generator('Payments') if @park.payments.present? %>
 
+  <%= collapse_button_generator('Rates') if @park.rates.present? %>
+
   <%= collapse_button_generator('Reviews') if @park.reviews.present? %>
 
   <%= collapse_button_generator('Tags') if @park.tags.present? %>
@@ -32,6 +34,8 @@
   <%= collapse_generator('Nearbies', generate_nearbies_entry, @park.nearbies) if @park.nearbies.present? %>
 
   <%= collapse_generator('Payments', generate_payments_entry, @park.payments) if @park.payments.present? %>
+
+  <%= collapse_generator('Rates', generate_rates_entry, @park.rates) if @park.rates.present? %>
 
   <%= collapse_generator('Reviews', generate_reviews_entry, @park.reviews) if @park.reviews.present? %>
 

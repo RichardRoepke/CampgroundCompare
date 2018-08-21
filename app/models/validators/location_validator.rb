@@ -71,6 +71,7 @@ class LocationValidator
   validate :valid_memberships
   validate :valid_nearbies
   validate :valid_payments
+  validate :valid_rates
   validate :valid_reviews
   validate :valid_tags
 
@@ -168,6 +169,10 @@ class LocationValidator
 
   def valid_payments
     check_validator_array(@payments)
+  end
+
+  def valid_rates
+    check_validator_array(@rates)
   end
 
   def valid_reviews
