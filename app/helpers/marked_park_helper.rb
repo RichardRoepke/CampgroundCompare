@@ -5,14 +5,17 @@ module MarkedParkHelper
     controls = body.downcase + 'Collapse'
 
     link_to(body, url, { class: 'btn btn-secondary',
-                         'data-toggle'.to_sym => "collapse",
+                         'data-toggle'.to_sym => 'collapse',
+                         'data-parent'.to_sym => '#accordion',
                          role: "button",
                          'aria-expanded'.to_sym => "false",
                          'aria-controls'.to_sym => controls })
   end
 
   def collapse_generator(name, body_function, array)
-    content_tag(:div, { class: 'collapse', id: name.downcase + 'Collapse' }) do
+    content_tag(:div, { class: 'collapse',
+                        id: name.downcase + 'Collapse',
+                        'data-parent'.to_sym => '#accordion' }) do
       content_tag(:div, class: 'card card-body') do
         content_tag(:ul, class: 'list-group') do
           array.each do |item|
