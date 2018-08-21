@@ -85,4 +85,13 @@ module MarkedParkHelper
       concat(membership.name + ' (' + membership.type + ')')
     end
   end
+
+  def generate_nearbies_entry
+    return Proc.new do |nearby|
+      # Central Catalogue only sends the names of nearbies at the moment.
+      # When/if it sends more information, this section should be expanded.
+      concat(nearby.name)
+      concat(tag('br'))
+    end
+  end
 end

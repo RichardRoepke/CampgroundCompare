@@ -5,21 +5,25 @@
 <br />
 
 <div class="panel-group" id="accordion">
-  <%= collapse_button_generator('Amenities') %>
+  <%= collapse_button_generator('Amenities') if @park.amenities.present? %>
 
-  <%= collapse_button_generator('Cobrands') %>
+  <%= collapse_button_generator('Cobrands') if @park.cobrands.present? %>
 
-  <%= collapse_button_generator('Images') %>
+  <%= collapse_button_generator('Images') if @park.images.present? %>
 
-  <%= collapse_button_generator('Memberships') %>
+  <%= collapse_button_generator('Memberships') if @park.memberships.present? %>
 
-  <%= collapse_generator('Amenities', generate_amenities_entry, @park.amenities) %>
+  <%= collapse_button_generator('Nearbies') if @park.nearbies.present? %>
 
-  <%= collapse_generator('Cobrands', generate_cobrands_entry, @park.cobrands) %>
+  <%= collapse_generator('Amenities', generate_amenities_entry, @park.amenities) if @park.amenities.present? %>
 
-  <%= collapse_generator('Images', generate_images_entry, @park.images) %>
+  <%= collapse_generator('Cobrands', generate_cobrands_entry, @park.cobrands) if @park.cobrands.present? %>
 
-  <%= collapse_generator('Memberships', generate_memberships_entry, @park.memberships) %>
+  <%= collapse_generator('Images', generate_images_entry, @park.images) if @park.images.present? %>
+
+  <%= collapse_generator('Memberships', generate_memberships_entry, @park.memberships) if @park.memberships.present? %>
+
+  <%= collapse_generator('Nearbies', generate_nearbies_entry, @park.nearbies) if @park.nearbies.present? %>
 </div>
 
 <br />
