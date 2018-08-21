@@ -102,4 +102,33 @@ module MarkedParkHelper
       concat(tag('br'))
     end
   end
+
+  def generate_reviews_entry
+    return Proc.new do |review|
+      concat(review.username + ' (' + review.rating.to_s + ')')
+      concat(tag('br'))
+
+      if review.title.present?
+        concat(review.title)
+        concat(tag('br'))
+      end
+
+      concat(review.body)
+      concat(tag('br'))
+      concat('Created On: ' + review.created)
+      concat(tag('br'))
+
+      if review.arrival.present?
+        concat('Arrival: ' + review.arrival)
+        concat(tag('br'))
+      end
+
+      if review.departure.present?
+        concat('Departure: ' + review.departure)
+        concat(tag('br'))
+      end
+
+      concat('UNDER REVIEW') if review.reviewed.present?
+    end
+  end
 end
