@@ -4,79 +4,17 @@
 
 <br />
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#amenitiesCollapse" role="button" aria-expanded="false" aria-controls="amenitiesCollapse">
-  Amenities
-</a>
+<%= collapse_button_generator('Amenities') %>
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
+<%= collapse_button_generator('Cobrands') %>
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Images
-</a>
+<%= collapse_button_generator('Images') %>
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
+<%= collapse_generator('Amenities', generate_amenities_entry, @park.amenities) %>
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
+<%= collapse_generator('Cobrands', generate_cobrands_entry, @park.cobrands) %>
 
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
-
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
-
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
-
-<a class="btn btn-secondary" data-toggle="collapse" href="#cobrandsCollapse" role="button" aria-expanded="false" aria-controls="cobrandsCollapse">
-  Cobrands
-</a>
-
-<div class="collapse" id="amenitiesCollapse">
-  <div class="card card-body">
-    <ul class="list-group">
-      <% @park.amenities.each do |amenity| %>
-        <li class="list-group-item">
-          <%= amenity.id.to_s + ': ' + amenity.name + ': ' + amenity.group %> <br />
-          <% if amenity.token.present? %>
-            Trip Adviser Token: <%= amenity.token  %> <br />
-          <% end %>
-          <% if amenity.description.present? %>
-            Description: <%= amenity.description %> <br />
-          <% end %>
-        </li>
-      <% end%>
-    </ul>
-  </div>
-</div>
-
-<div class="collapse" id="cobrandsCollapse">
-  <div class="card card-body">
-    <ul class="list-group">
-      <% @park.cobrands.each do |cobrand| %>
-        <li class="list-group-item">
-          <%= cobrand.id.to_s + ': ' + cobrand.name %>
-          <%= ' (' + cobrand.short + ')' if cobrand.short.present? %>
-          <%= ' (' + cobrand.code + ')' if cobrand.code.present? %><br />
-          <% if cobrand.description.present? %>
-            Description: <%= cobrand.description %> <br />
-          <% end %>
-          <% if cobrand.notes.present? %>
-            Note: <%= cobrand.notes %> <br />
-          <% end %>
-        </li>
-      <% end%>
-    </ul>
-  </div>
-</div>
+<%= collapse_generator('Images', generate_images_entry, @park.images)%>
 
 <br />
 
