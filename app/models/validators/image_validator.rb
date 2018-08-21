@@ -6,12 +6,9 @@ class ImageValidator
   attr_accessor :title
   attr_accessor :caption
 
-  validates :alt, presence: true
-  validates :caption, presence: true
-
-  validates :alt, length: { maximum: 255 }
+  validates :alt, length: { maximum: 255 }, allow_blank: true
   validates :title, length: { maximum: 255 }, allow_blank: true
-  validates :caption, length: { maximum: 255 }
+  validates :caption, length: { maximum: 255 }, allow_blank: true
 
   validate :valid_id
 

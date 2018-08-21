@@ -33,7 +33,6 @@ module MarkedParkHelper
 
   def generate_amenities_entry
     return Proc.new do |amenity|
-      puts 'FUNCTION: ' + amenity.id.to_s
       concat(amenity.id.to_s + ': ' + amenity.name + ': ' + amenity.group)
       concat(tag('br'))
 
@@ -70,8 +69,14 @@ module MarkedParkHelper
 
   def generate_images_entry
     return Proc.new do |image|
-      concat(image.id)
+      concat(image.id.to_s)
+      concat(': ' + image.title) if image.title.present?
+      concat(' (' + image.alt + ')') if image.alt.present?
       concat(tag('br'))
+      if image.caption.present?
+        concat(image.caption)
+        concat(tag('br'))
+      end
     end
   end
 end

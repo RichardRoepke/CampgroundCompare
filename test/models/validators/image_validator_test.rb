@@ -14,16 +14,6 @@ class ImageValidatorTest < ActiveSupport::TestCase
     assert @validator.caption == @params[:caption]
   end
 
-  test 'alt should be present' do
-    @validator.alt = nil
-    assert_not @validator.valid?
-  end
-
-  test 'caption should be present' do
-    @validator.caption = nil
-    assert_not @validator.valid?
-  end
-
   test 'alt must be at most 255 characters' do
     @validator.alt = generate_random_string(255)
     assert @validator.valid?
