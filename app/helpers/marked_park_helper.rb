@@ -131,4 +131,16 @@ module MarkedParkHelper
       concat('UNDER REVIEW') if review.reviewed.present?
     end
   end
+
+  def generate_tags_entry
+    return Proc.new do |unit|
+      concat(unit.id.to_s + ": " + unit.name)
+      concat(tag('br'))
+
+      if unit.description.present?
+        concat(unit.description)
+        concat(tag('br'))
+      end
+    end
+  end
 end
