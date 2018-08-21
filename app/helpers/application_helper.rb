@@ -8,10 +8,27 @@ module ApplicationHelper
     end
   end
 
-  def link_to_in_li(body, url, html_options = {})
-    active = "active" if current_page?(url)
-    content_tag :li, class: active do
-      link_to body, url, html_options
+  def header_generator(body, url)
+    content_tag :li, class: 'nav-item' do
+      link_to(body, url, class: 'nav-link')
     end
+  end
+
+  def tab_generator(body, url, icon='')
+    active = ' active' if current_page?(url)
+    if url.present?
+      content_tag :li, class: 'nav-item' do
+        link_to(icon_handler(body, icon), url, class: 'nav-link' + active.to_s)
+      end
+    else
+      content_tag :li, class: 'nav-item' do
+        content_tag(:div, icon_handler(body, icon), class: 'nav-link disabled active' )
+      end
+    end
+  end
+
+  def icon_handler(body, icon)
+    return content_tag('i', '', class: icon) + ' ' + body if icon.present?
+    return body
   end
 end

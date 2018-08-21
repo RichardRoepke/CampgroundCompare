@@ -1,27 +1,11 @@
 <ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link <%= is_active('index') %>" href="/user"><i class="fas fa-list"></i> Index</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link <%= is_active('new') %>" href="/user/new"><i class="fas fa-plus"></i> Add New</a>
-  </li>
-<!--   <li class="nav-item">
-    <a class="nav-link <%= is_active('search')%>" href="/user/search"> <i class="fas fa-search"></i> Search Users </a>
-  </li>
--->
-  <% if params[:action] == 'show' %>
-    <li class="nav-item">
-      <a class="nav-link <%= is_active('show')%> disabled"> <i class="fas fa-info-circle"></i> Information </a>
-    </li>
-  <% end %>
-  <% if params[:action] == 'edit' %>
-    <li class="nav-item">
-      <a class="nav-link <%= is_active('edit')%> disabled"> <i class="fas fa-pencil-alt"></i> Edit User </a>
-    </li>
-  <% end %>
-  <% if params[:action] == 'destroy' %>
-    <li class="nav-item">
-      <a class="nav-link <%= is_active('destroy')%> disabled"> <i class="fas fa-times-circle"></i> Delete User </a>
-    </li>
-  <% end %>
+  <%= tab_generator("Index", user_index_path, "fas fa-list") %>
+
+  <%= tab_generator("Add New", new_user_path, "fas fa-plus") %>
+
+  <%= tab_generator("Information", nil, "fas fa-info-circle") if params[:action] == 'show' %>
+
+  <%= tab_generator("Edit User", nil, "fas fa-pencil-alt") if params[:action] == 'edit' %>
+
+  <%= tab_generator("Delete User", nil, "fas fa-times-circle") if params[:action] == 'destroy' %>
 </ul>

@@ -4,18 +4,16 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <%= link_to 'Check for Changes', check_path, :class => 'nav-link' if current_user.present? %>
-      </li>
-      <li class="nav-item">
-        <%= link_to 'Parks', marked_park_index_path, :class => 'nav-link' if current_user.present? %>
-      </li>
-      <li class="nav-item">
-        <%= link_to 'Manage Users', user_index_path, :class => 'nav-link' if current_user.try(:admin?) %>
-      </li>
-      <li class="nav-item">
-        <%= link_to 'Change Password', password_path, :class => 'nav-link' if current_user.present? %>
-      </li>
+      <%= header_generator('Check for Changes', check_path) if current_user.present?%>
+
+      <%= header_generator('Parks', marked_park_index_path) if current_user.present? %>
+
+      <%= header_generator('Manage Users', user_index_path) if current_user.try(:admin?) %>
+
+      <%= header_generator('Change Password', password_path) if current_user.present? %>
+
+      <% #A special case for links, where the method is not get.
+        %>
       <li class="nav-item">
         <%= link_to 'Logout', destroy_user_session_path, method: :delete, :class => 'nav-link' if current_user.present? %>
       </li>
