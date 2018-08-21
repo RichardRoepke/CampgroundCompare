@@ -11,11 +11,15 @@
 
   <%= collapse_button_generator('Images') %>
 
+  <%= collapse_button_generator('Memberships') %>
+
   <%= collapse_generator('Amenities', generate_amenities_entry, @park.amenities) %>
 
   <%= collapse_generator('Cobrands', generate_cobrands_entry, @park.cobrands) %>
 
-  <%= collapse_generator('Images', generate_images_entry, @park.images)%>
+  <%= collapse_generator('Images', generate_images_entry, @park.images) %>
+
+  <%= collapse_generator('Memberships', generate_memberships_entry, @park.memberships) %>
 </div>
 
 <br />

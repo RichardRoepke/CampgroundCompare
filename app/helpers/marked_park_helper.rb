@@ -79,4 +79,10 @@ module MarkedParkHelper
       end
     end
   end
+
+  def generate_memberships_entry
+    return Proc.new do |membership|
+      concat(membership.name + ' (' + membership.type + ')')
+    end
+  end
 end
