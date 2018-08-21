@@ -47,11 +47,6 @@ class ReviewValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'reviewed must be present' do
-    @validator.reviewed = nil
-    assert_not @validator.valid?
-  end
-
   test 'username must be at most 255 characters' do
     @validator.username = generate_random_string(255)
     assert @validator.valid?

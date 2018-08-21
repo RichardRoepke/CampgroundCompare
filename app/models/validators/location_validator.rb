@@ -147,56 +147,45 @@ class LocationValidator
   private
 
   def valid_amenities
-    if @amenities.present?
-      errors.add(:amenities, 'wrong amenities.') unless check_validator_array(@amenities)
-    end
+    check_validator_array(@amenities)
   end
 
   def valid_cobrands
-    if @cobrands.present?
-      errors.add(:cobrands, 'wrong cobrands.') unless check_validator_array(@cobrands)
-    end
+    check_validator_array(@cobrands)
   end
 
   def valid_images
-    if @images.present?
-      errors.add(:images, 'wrong images.') unless check_validator_array(@images)
-    end
+    check_validator_array(@images)
   end
 
   def valid_memberships
-    if @memberships.present?
-      errors.add(:memberships, 'wrong memberships.') unless check_validator_array(@memberships)
-    end
+    check_validator_array(@memberships)
   end
 
   def valid_nearbies
-    if @nearbies.present?
-      errors.add(:nearbies, 'wrong nearbies.') unless check_validator_array(@nearbies)
-    end
+    check_validator_array(@nearbies)
   end
 
   def valid_payments
-    if @payments.present?
-      errors.add(:payments, 'wrong payments.') unless check_validator_array(@payments)
-    end
+    check_validator_array(@payments)
   end
 
   def valid_reviews
-    if @reviews.present?
-      errors.add(:reviews, 'wrong reviews.') unless check_validator_array(@reviews)
-    end
+    check_validator_array(@reviews)
   end
 
   def valid_tags
-    if @tags.present?
-      errors.add(:tags, 'wrong tags.') unless check_validator_array(@tags)
-    end
+    check_validator_array(@tags)
   end
 
   def check_validator_array(array)
     array.each do |validator|
-      return false unless validator.valid?
+      unless validator.valid?
+        validator.errors.each do |tag, error|
+          errors.add(tag, error)
+        end
+        return false
+      end
     end
 
     return true # Will only be reached if all of the validators were valid.

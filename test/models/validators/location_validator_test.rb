@@ -274,4 +274,10 @@ class LocationValidatorTest < ActiveSupport::TestCase
     @validator.country_code = nil
     assert_not @validator.valid?
   end
+
+  test 'check_validator_array processes errors correctly' do
+    @validator.amenities[0].name = nil
+    assert_not @validator.valid?
+    assert @validator.errors.full_messages == ["Name can't be blank"]
+  end
 end
