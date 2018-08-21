@@ -107,4 +107,22 @@ class NearbyValidatorTest < ActiveSupport::TestCase
     @validator.website = generate_random_string(256)
     assert_not @validator.valid?
   end
+
+  test 'long and lat must be both present or both blank' do
+    @validator.longitude = nil
+    @validator.latitude = nil
+    assert @validator.valid?
+
+    @validator.longitude = '2'
+    @validator.latitude = nil
+    assert_not @validator.valid?
+
+    @validator.longitude = nil
+    @validator.latitude = '3'
+    assert_not @validator.valid?
+
+    @validator.longitude = '3'
+    @validator.latitude = '4'
+    assert @validator.valid?
+  end
 end

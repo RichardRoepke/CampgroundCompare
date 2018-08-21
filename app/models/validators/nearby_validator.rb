@@ -24,6 +24,8 @@ class NearbyValidator
   validates :phone, length: { maximum: 255 }, allow_blank: true
   validates :website, length: { maximum: 255 }, allow_blank: true
 
+  validate :pair_lat_long
+
   def initialize(input)
     @name = input[:name]
     @address = input[:address]
@@ -34,6 +36,13 @@ class NearbyValidator
     @email = input[:email]
     @phone = input[:phone]
     @website = input[:website]
+  end
+
+  def pair_lat_long
+    # XNOR Long and Lat. True if both are present or neither are. False otherwise.
+    unless (@longitude.present? && @latitude.present?) || (@longitude.blank? && @latitude.blank?)
+      errors.add(:lat_long, 'Longitude and Latitude must both be present or both be blank.')
+    end
   end
 
 end

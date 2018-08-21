@@ -32,7 +32,11 @@ class ReviewValidator
     @created = input[:createdOn]
     @arrival = input[:arrival]
     @departure = input[:departure]
-    @reviewed = input[:underReview]
+    if input[:underReview].is_a?(String)
+      @reviewed = input[:underReview] == 'true'
+    else
+      @reviewed = !!input[:underReview]
+    end
     @location = IdValidator.new(input[:location])
   end
 
