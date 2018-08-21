@@ -94,4 +94,12 @@ module MarkedParkHelper
       concat(tag('br'))
     end
   end
+
+  def generate_payments_entry
+    return Proc.new do |payment|
+      concat(payment.name) if payment.name.present?
+      concat(' (' + payment.abbreviation + ')') if payment.abbreviation.present?
+      concat(tag('br'))
+    end
+  end
 end
