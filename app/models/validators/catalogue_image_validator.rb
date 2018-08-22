@@ -1,4 +1,4 @@
-class ImageValidator
+class CatalogueImageValidator
   include ActiveModel::Validations
 
   # Actual file/url validation will be implemented later.

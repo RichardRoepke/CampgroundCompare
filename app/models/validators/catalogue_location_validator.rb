@@ -1,4 +1,4 @@
-class LocationValidator
+class CatalogueLocationValidator
   include ActiveModel::Validations
 
   attr_accessor :uuid
@@ -111,7 +111,7 @@ class LocationValidator
 
     @images = []
     input[:images].each do |image|
-      @images.push ImageValidator.new(image)
+      @images.push CatalogueImageValidator.new(image)
     end if input[:images].present?
 
     @memberships = []
@@ -136,7 +136,7 @@ class LocationValidator
 
     @reviews = []
     input[:reviews].each do |review|
-      @reviews.push ReviewValidator.new(review)
+      @reviews.push CatalogueReviewValidator.new(review)
     end if input[:reviews].present?
 
     @tags = []

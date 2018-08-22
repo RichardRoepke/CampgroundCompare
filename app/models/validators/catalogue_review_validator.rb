@@ -1,4 +1,4 @@
-class ReviewValidator
+class CatalogueReviewValidator
   include ActiveModel::Validations
 
   attr_accessor :username

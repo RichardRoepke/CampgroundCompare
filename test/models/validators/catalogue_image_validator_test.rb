@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class ImageValidatorTest < ActiveSupport::TestCase
+class CatalogueImageValidatorTest < ActiveSupport::TestCase
   def setup
     @params = { id: 7, alt: 'alternative', title: 'Image Title', caption: 'No' }
-    @validator = ImageValidator.new(@params)
+    @validator = CatalogueImageValidator.new(@params)
   end
 
   test 'validator should set up properly' do

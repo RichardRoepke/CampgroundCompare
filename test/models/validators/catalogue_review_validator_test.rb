@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ReviewValidatorTest < ActiveSupport::TestCase
+class CCReviewValidatorTest < ActiveSupport::TestCase
   def setup
     @params = { username: 'Test User',
                 rating: 5,
@@ -11,7 +11,7 @@ class ReviewValidatorTest < ActiveSupport::TestCase
                 departure: '1111-11-11',
                 underReview: true,
                 location: 4 }
-    @validator = ReviewValidator.new(@params)
+    @validator = CatalogueReviewValidator.new(@params)
   end
 
   test 'validator should set up properly' do

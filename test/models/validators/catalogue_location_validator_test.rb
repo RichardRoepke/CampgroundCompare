@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class LocationValidatorTest < ActiveSupport::TestCase
+class CatalogueLocationValidatorTest < ActiveSupport::TestCase
   def setup
     @params = { uuid: 'Whoops',
                 type: 'Campground',
@@ -100,7 +100,7 @@ class LocationValidatorTest < ActiveSupport::TestCase
                        { id: 7,
                          name: 'Tester',
                          description: 'A test tag.' }] }
-    @validator = LocationValidator.new(@params)
+    @validator = CatalogueLocationValidator.new(@params)
   end
 
   test 'validator should set up properly' do
@@ -225,7 +225,7 @@ class LocationValidatorTest < ActiveSupport::TestCase
                 stateCode: 'KA',
                 countryName: 'USA',
                 countryCode: 'US' }
-    @validator = LocationValidator.new(@params)
+    @validator = CatalogueLocationValidator.new(@params)
 
     assert @validator.valid?
   end
