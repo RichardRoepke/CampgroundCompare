@@ -1,5 +1,9 @@
 module MarkedParkHelper
 
+  def generate_badge(text)
+    content_tag('span', text, class: 'badge badge-primary')
+  end
+
   def collapse_button_generator(body)
     url = '#' + body.downcase + 'Collapse'
     controls = body.downcase + 'Collapse'

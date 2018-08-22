@@ -14,11 +14,12 @@ class MainController < ApplicationController
           if changes[0].is_a?(String)
             redirect_to check_path(date_since: params[:date_since], wait: params[:ignore_wait]), alert: changes[0]
           else
+            added = 0
             changes.each do |entry|
               new_entry = MarkedPark.new(entry)
-              new_entry.save
+              added += 1 if new_entry.save
             end
-            redirect_to marked_park_index_path
+            redirect_to marked_park_index_path, alert: added.to_s + ' new parks were marked as changed.'
           end
         end
       else

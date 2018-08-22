@@ -16,7 +16,7 @@
     <tbody>
       <% @parks.each do |park| %>
         <tr>
-          <td> <%= park.uuid %> </td>
+          <th scope="row"> <%= park.uuid %> <%= generate_badge(park.status) %> </th>
           <td> <%= park.name %> </td>
           <td> <%= park.status %> </td>
           <td>
