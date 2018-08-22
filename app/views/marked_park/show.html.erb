@@ -4,6 +4,69 @@
 
 <br />
 
+<h4> <%= @park.name %> </h4>
+
+<%= @park.uuid + ' (' + @park.type + ')' %> <br />
+
+<% if @park.alt_name.present?%>
+  <%= 'Alternative Name: ' + @park.alt_name %>
+  <br />
+<% end %>
+
+<% if @park.former_name.present?%>
+  <%= 'Former Name: ' + @park.former_name %>
+  <br />
+<% end %>
+
+<% if @park.bounce.present? %>
+  <%= 'Bounce: ' + @park.bounce %>
+  <br />
+<% end %>
+
+<%= 'Address: ' + @park.address + ', ' + @park.city + ', ' + @park.state + ' (' + @park.state_code + '), ' + @park.country + ' (' + @park.country_code + ')' %> <br />
+
+<% if @park.phone.present? %>
+  <%= 'Phone Number: ' + @park.phone%>
+  <br />
+<% end %>
+
+<% if @park.email.present?%>
+  <%= 'Email: ' + @park.email %>
+  <br />
+<% end %>
+
+<% if @park.website.present?%>
+  <%= 'Website: ' + @park.website %>
+  <br />
+<% end %>
+
+<% if @park.latitude.present? && @park.longitude.present?%>
+  <%= 'GPS Coordinates: (' + @park.latitude.to_s + ', ' + @park.longitude.to_s + ')' %>
+  <br />
+<% end %>
+
+<% if @park.description.present?%>
+  <%= 'Description: ' + @park.description %>
+  <br />
+<% end %>
+
+<% if @park.description_short.present?%>
+  <%= 'Short Description: ' + @park.description_short %>
+  <br />
+<% end %>
+
+<% if @park.directions.present?%>
+  <%= 'Directions: ' + @park.directions %>
+  <br />
+<% end %>
+
+<% if @park.rating.present?%>
+  <%= 'Rating: ' + @park.rating %>
+  <br />
+<% end %>
+
+<br />
+
 <div class="panel-group" id="accordion">
   <%= collapse_button_generator('Amenities') if @park.amenities.present? %>
 

@@ -22,7 +22,8 @@ module MarkedParkHelper
             concat(content_tag(:li, class: 'list-group-item') do
               # content_tag seems to generate tags where it was called, so the
               # use of Proc and .call is needed to get it to appear in the
-              # proper location.
+              # proper location. I suspect that it is due to the use of
+              # concat but those are needed to bundle everything properly together.
               body_function.call(item)
             end)
           end
