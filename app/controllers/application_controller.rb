@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Make sure to convert null to nil somehow.
   def hash_string_to_sym(input_hash)
     result_hash = {}
 

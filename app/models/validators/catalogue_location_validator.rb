@@ -65,6 +65,7 @@ class CatalogueLocationValidator
   validates :former_name, length: { maximum: 255 }, allow_blank: true
   validates :rating, numericality: true, allow_blank: true
 
+  validate :pair_lat_long
   validate :valid_amenities
   validate :valid_cobrands
   validate :valid_images
@@ -146,6 +147,13 @@ class CatalogueLocationValidator
   end
 
   private
+
+  def pair_lat_long
+    # XNOR Long and Lat. True if both are present or neither are. False otherwise.
+    unless (@longitude.present? && @latitude.present?) || (@longitude.blank? && @latitude.blank?)
+      errors.add(:lat_long, 'Longitude and Latitude must both be present or both be blank.')
+    end
+  end
 
   def valid_amenities
     check_validator_array(@amenities)
