@@ -19,8 +19,16 @@ class MainController < ApplicationController
               new_entry = MarkedPark.new(entry)
               added += 1 if new_entry.save
             end
-            redirect_to marked_park_index_path, alert: added.to_s + ' new parks were marked as changed.'
+            if added > 0
+              redirect_to marked_park_index_path, alert: added.to_s + ' new parks were marked as changed.'
+            else
+              redirect_to check_path(date_since: params[:date_since], wait: params[:ignore_wait]), alert: 'All found parks were already included.'
+            end
           end
+        else
+          redirect_to check_path(date_since: params[:date_since],
+                                  wait: params[:ignore_wait]),
+                                  alert: 'No valid parks found.'
         end
       else
         redirect_to check_path(date_since: params[:date_since],
@@ -49,23 +57,33 @@ class MainController < ApplicationController
   def get_changed_since(date, page = 1, per_page = 100)
     result_array = []
 
-    request = Typhoeus::Request.get('https://centralcatalogue.com/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
-                                    headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
+    request = Typhoeus::Request.get('http://centralcatalogue.com/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
+                                    headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
                                     :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
 
-    temp_response = JSON.parse(request.response_body)
-    response = hash_string_to_sym(temp_response)
+    if request.response_code == 200
+      temp_response = JSON.parse(request.response_body)
+      response = hash_string_to_sym(temp_response)
 
-    response[:data].each do |value|
-      result_array.push(uuid: value[:uuid], name: value[:name], status: 'FINE')
-    end
-
-    if response[:totalPages] > page
-      if response[:totalPages] > 10 && params[:ignore_wait] != '1'
-        result_array = ['Operation aborted due to the excessive time required. If you wish to proceed, please select the checkbox when resubmitting the form.']
-      else
-        result_array = result_array + get_changed_since(date, (page + 1))
+      response[:data].each do |value|
+        result_array.push(uuid: value[:uuid],
+                          name: value[:name],
+                          slug: value[:slug],
+                          status: nil) unless value[:slug].blank? # No slug, no way to check RV Parky
       end
+
+      if response[:totalPages] > page
+        if response[:totalPages] > 10 && params[:ignore_wait] != '1'
+          result_array = ['Operation aborted due to the excessive time required. If you wish to proceed, please select the checkbox when resubmitting the form.']
+        else
+          next_page_array = get_changed_since(date, (page + 1))
+          # If next_page_array is a string then an error must have occured so
+          # don't append it to the current array.
+          result_array = result_array + next_page_array unless next_page_array[0].is_a?(String)
+        end
+      end
+    else
+      result_array = ['Response failed.']
     end
 
     return result_array
