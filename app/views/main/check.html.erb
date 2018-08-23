@@ -1,0 +1,9 @@
+<% provide(:title, "Check for Updated Parks") %>
+
+<%= bootstrap_form_tag(url: '/check/since', layout: :horizontal) do |f| %>
+  <%= f.date_field :date_since, label: 'Changes Since: ', value: @since %>
+  <%= f.check_box :ignore_wait, value: @wait do %>
+    Select this checkbox to ignore warnings
+  <% end %>
+  <%= f.primary 'Check' %>
+<% end %>

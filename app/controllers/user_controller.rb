@@ -3,7 +3,7 @@ class UserController < ApplicationController
   before_action :is_admin?, except: :update
 
   def index
-    @users = User.all.paginate(page: params[:page], per_page: 12)
+    @users = User.page(params[:page]).per(12)
   end
 
   def new

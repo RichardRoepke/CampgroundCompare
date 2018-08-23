@@ -1,0 +1,5 @@
+<ul class="nav nav-tabs">
+  <%= tab_generator("Index", marked_park_index_path, "fas fa-list") %>
+
+  <%= tab_generator("Information", nil, "fas fa-info-circle") if params[:action] == 'show' %>
+</ul>

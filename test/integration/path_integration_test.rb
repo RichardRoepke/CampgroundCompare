@@ -39,7 +39,7 @@ class PathIntegrationTest < ActionDispatch::IntegrationTest
     get user_path(1)
     assert_response :success
 
-    put user_path(1)
+    put user_path(1), params: { user: { password: nil } }
     assert_response :found
 
     delete user_path(3)

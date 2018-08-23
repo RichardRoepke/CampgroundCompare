@@ -1,0 +1,36 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<table class="table table-sm table-striped table-hover">
+  <thead>
+    <tr>
+      <th scope="col">UUID</th>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+    <tbody>
+      <% @parks.each do |park| %>
+        <tr>
+          <th scope="row"> <%= park.uuid %> <%= generate_badge(park.status) %> </th>
+          <td> <%= park.name %> </td>
+          <td> <%= park.status %> </td>
+          <td>
+            <div class="btn-group" role="group" aria-label="User Actions">
+              <%= link_to(marked_park_path(park), :class => 'nav-link') do %>
+               <i class="fas fa-info-circle"></i>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<hr />
+
+<%= paginate @parks %>

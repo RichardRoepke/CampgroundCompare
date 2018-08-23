@@ -11,5 +11,9 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
-  # Add more helper methods to be used by all tests here...
+  # generates a random string between min and (min + range) characters
+  def generate_random_string(min, range = 0)
+    return (0...min).map { (65 + rand(26)).chr }.join if range == 0
+    return (0...(min + rand(range + 1))).map { (65 + rand(26)).chr }.join
+  end
 end

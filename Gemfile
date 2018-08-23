@@ -50,8 +50,11 @@ gem 'therubyracer', platforms: :ruby
 # Newer versions of autoprefixer don't seem to work nicely in the enviroment.
 gem 'autoprefixer-rails', '8.6.5'
 
+# To manage user login, sessions, validation, etc, etc.
 gem 'devise'
-gem 'will_paginate'
+
+# To generate pagination for users and items.
+gem 'kaminari'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

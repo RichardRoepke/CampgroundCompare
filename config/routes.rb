@@ -6,6 +6,8 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'main#home'
   get '/password', to: 'main#password'
+  get '/check', to: 'main#check'
+  post '/check/since', to: 'main#check_since'
 
   get '/user/search', to: 'user#search'
 
@@ -15,6 +17,7 @@ Rails.application.routes.draw do
 
   # Must be last, otherwise it considers /user/search as user/show with id: search.
   resources :user
+  resources :marked_park
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

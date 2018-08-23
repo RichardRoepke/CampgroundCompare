@@ -18,10 +18,10 @@
         <tr>
           <th scope="row"> <%= user.id %> </th>
           <td>
-            <%= user.email%>
-            <% if user.try(:admin?)%>
+            <%= user.email %>
+            <% if user.try(:admin?) %>
               <i class="fas fa-key"></i>
-            <% end%>
+            <% end %>
           </td>
           <td> <%= user.updated_at %> </td>
           <td>
@@ -44,4 +44,4 @@
 
 <hr />
 
-<%= will_paginate(@users, :renderer => WillPaginate::ActionView::Bootstrap4LinkRenderer) %>
+<%= paginate @users %>
