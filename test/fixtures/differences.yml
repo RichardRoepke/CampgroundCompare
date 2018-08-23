@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  catalogue_field: MyString
+  rvparky_field: MyString
+  kind: 1
+
+two:
+  catalogue_field: MyString
+  rvparky_field: MyString
+  kind: 1
