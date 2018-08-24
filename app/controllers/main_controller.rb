@@ -21,7 +21,7 @@ class MainController < ApplicationController
                                            slug: entry[:slug],
                                            status: nil })
               new_entry.update_status(entry, nil)
-              added += 1 if new_entry.save
+              added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
             end
             if added > 0
               redirect_to marked_park_index_path, alert: added.to_s + ' new parks were marked as changed.'
@@ -48,6 +48,9 @@ class MainController < ApplicationController
     redirect_to check_path(date_since: params[:date_since],
                               wait: params[:ignore_wait]),
                               alert: 'A problem occurred. Please adjust your parameters try again.'
+    puts '========================================================================='
+    puts exception.inspect
+    puts '========================================================================='
   end
 
   def home

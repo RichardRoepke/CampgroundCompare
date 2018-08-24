@@ -98,7 +98,7 @@ class CatalogueLocationValidator
     @directions = input[:directions]
     @alt_name = input[:alternativeName]
     @former_name = input[:formerName]
-    @rating = input[:rating]
+    @rating = input[:rating].to_f
 
     @amenities = []
     input[:amenities].each do |amenity|
@@ -144,6 +144,10 @@ class CatalogueLocationValidator
     input[:tags].each do |tag|
       @tags.push TagValidator.new(tag)
     end if input[:tags].present?
+  end
+
+  def review_count
+    return @reviews.size
   end
 
   private
