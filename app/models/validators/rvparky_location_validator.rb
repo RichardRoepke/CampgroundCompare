@@ -42,22 +42,18 @@ class RvparkyLocationValidator
   attr_accessor :reviews
 
   validates :rating, presence: true
-  validates :daily_rate, presence: true
   validates :category, presence: true
   validates :city, presence: true
   validates :sites, presence: true
-  validates :postal_code, presence: true
-  validates :address, presence: true
   validates :slug, presence: true
   validates :name, presence: true
   validates :region, presence: true
-  validates :review_count, presence: true
 
   validates :rating, numericality: true
   validates :longitude, numericality: true, allow_blank: true
   validates :latitude, numericality: true, allow_blank: true
   validates :sites, numericality: { only_integer: true }
-  validates :review_count, numericality: { only_integer: true }
+  validates :review_count, numericality: { only_integer: true }, allow_blank: true
 
   validate :pair_lat_long
   validate :valid_amenities
@@ -151,7 +147,7 @@ class RvparkyLocationValidator
   def valid_amenities
     @amenities.each do |amenity|
       errors.add(:amenity, amenity + ' is not exactly three characters') unless amenity.length == 3
-    end
+    end if @amenities.present?
   end
 
   def valid_dates
@@ -177,26 +173,34 @@ class RvparkyLocationValidator
   end
 
   def valid_images
-    check_validator_array(@images)
+    check_validator_array(@images, 'Images') if @images.present?
   end
 
   def valid_reviews
-    check_validator_array(@reviews)
+    if @reviews.present?
+      check_validator_array(@reviews, 'Reviews')
 
-    errors.add(:review_count, 'Number of reviews and the actual number do not match') unless @reviews.size == @review_count
+      errors.add(:review_count, 'Number of reviews and the actual number do not match') unless @reviews.size == @review_count
+    end
   end
 
-  def check_validator_array(array)
+  def check_validator_array(array, title)
+    faults = []
+
     array.each do |validator|
       unless validator.valid?
         validator.errors.each do |tag, error|
-          errors.add(tag, error)
+          faults.push({ tag: tag, error: error })
         end
-        return false
       end
     end
 
-    return true # Will only be reached if all of the validators were valid.
+    unless faults.blank?
+      errors.add(title.to_sym, 'were not all valid.')
+      faults.each do |fault|
+        errors.add(fault[:tag], fault[:error])
+      end
+    end
   end
 
   def check_date(date)

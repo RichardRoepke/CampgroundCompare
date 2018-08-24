@@ -16,7 +16,11 @@ class MainController < ApplicationController
           else
             added = 0
             changes.each do |entry|
-              new_entry = MarkedPark.new(entry)
+              new_entry = MarkedPark.new({ uuid: entry[:uuid],
+                                           name: entry[:name],
+                                           slug: entry[:slug],
+                                           status: nil })
+              new_entry.update_status(entry, nil)
               added += 1 if new_entry.save
             end
             if added > 0
@@ -57,7 +61,7 @@ class MainController < ApplicationController
   def get_changed_since(date, page = 1, per_page = 100)
     result_array = []
 
-    request = Typhoeus::Request.get('http://centralcatalogue.com/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
+    request = Typhoeus::Request.get('http://centralcatalogue.com:3200/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
                                     headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
                                     :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
 
@@ -66,10 +70,7 @@ class MainController < ApplicationController
       response = hash_string_to_sym(temp_response)
 
       response[:data].each do |value|
-        result_array.push(uuid: value[:uuid],
-                          name: value[:name],
-                          slug: value[:slug],
-                          status: nil) unless value[:slug].blank? # No slug, no way to check RV Parky
+        result_array.push(value) unless value[:slug].blank? # No slug, no way to check RV Parky
       end
 
       if response[:totalPages] > page

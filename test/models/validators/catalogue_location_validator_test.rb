@@ -278,7 +278,7 @@ class CatalogueLocationValidatorTest < ActiveSupport::TestCase
   test 'check_validator_array processes errors correctly' do
     @validator.amenities[0].name = nil
     assert_not @validator.valid?
-    assert @validator.errors.full_messages == ["Name can't be blank"]
+    assert @validator.errors.full_messages == ['Amenities were not all valid.', "Name can't be blank"]
   end
 
   test 'long and lat must be both present or both blank' do

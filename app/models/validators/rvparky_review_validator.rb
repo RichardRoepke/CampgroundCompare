@@ -14,10 +14,9 @@ class RvparkyReviewValidator
   validates :rating, presence: true
   validates :author_name, presence: true
   validates :date, presence: true
-  validates :author, presence: true
 
   validates :rating, numericality: { only_integer: true }
-  validates :author, numericality: { only_integer: true }
+  validates :author, numericality: { only_integer: true }, allow_blank: true
 
   validate :rating_proper_range
   validate :valid_location

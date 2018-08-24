@@ -12,7 +12,6 @@ class CatalogueReviewValidator
 
   validates :username, presence: true
   validates :rating, presence: true
-  validates :body, presence: true
   validates :created, presence: true
 
   validates :username, length: { maximum: 255 }

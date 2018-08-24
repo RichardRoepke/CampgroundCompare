@@ -46,11 +46,6 @@ class RvparkyReviewValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'author must be present' do
-    @validator.author = nil
-    assert_not @validator.valid?
-  end
-
   test 'rating must be a number' do
     @validator.rating = generate_random_string(5, 15)
     assert_not @validator.valid?
