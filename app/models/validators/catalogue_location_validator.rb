@@ -98,7 +98,7 @@ class CatalogueLocationValidator
     @directions = input[:directions]
     @alt_name = input[:alternativeName]
     @former_name = input[:formerName]
-    @rating = input[:rating]
+    @rating = input[:rating].to_f
 
     @amenities = []
     input[:amenities].each do |amenity|
@@ -146,6 +146,10 @@ class CatalogueLocationValidator
     end if input[:tags].present?
   end
 
+  def review_count
+    return @reviews.size
+  end
+
   private
 
   def pair_lat_long
@@ -156,51 +160,57 @@ class CatalogueLocationValidator
   end
 
   def valid_amenities
-    check_validator_array(@amenities)
+    check_validator_array(@amenities, 'Amenities') if @amenities.present?
   end
 
   def valid_cobrands
-    check_validator_array(@cobrands)
+    check_validator_array(@cobrands, 'Cobrands') if @cobrands.present?
   end
 
   def valid_images
-    check_validator_array(@images)
+    check_validator_array(@images, 'Images') if @images.present?
   end
 
   def valid_memberships
-    check_validator_array(@memberships)
+    check_validator_array(@memberships, 'Memberships') if @memberships.present?
   end
 
   def valid_nearbies
-    check_validator_array(@nearbies)
+    check_validator_array(@nearbies, 'Nearbies') if @nearbies.present?
   end
 
   def valid_payments
-    check_validator_array(@payments)
+    check_validator_array(@payments, 'Payments') if @payments.present?
   end
 
   def valid_rates
-    check_validator_array(@rates)
+    check_validator_array(@rates, 'Rates') if @rates.present?
   end
 
   def valid_reviews
-    check_validator_array(@reviews)
+    check_validator_array(@reviews, 'Reviews') if @reviews.present?
   end
 
   def valid_tags
-    check_validator_array(@tags)
+    check_validator_array(@tags, 'Tags') if @tags.present?
   end
 
-  def check_validator_array(array)
+  def check_validator_array(array, title)
+    faults = []
+
     array.each do |validator|
       unless validator.valid?
         validator.errors.each do |tag, error|
-          errors.add(tag, error)
+          faults.push({ tag: tag, error: error })
         end
-        return false
       end
     end
 
-    return true # Will only be reached if all of the validators were valid.
+    unless faults.blank?
+      errors.add(title.to_sym, 'were not all valid.')
+      faults.each do |fault|
+        errors.add(fault[:tag], fault[:error])
+      end
+    end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_20_180323) do
+ActiveRecord::Schema.define(version: 2018_08_23_181500) do
 
   create_table "marked_parks", force: :cascade do |t|
     t.string "uuid"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 2018_08_20_180323) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug"
   end
 
   create_table "users", force: :cascade do |t|

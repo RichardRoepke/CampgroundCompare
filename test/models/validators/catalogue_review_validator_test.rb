@@ -37,11 +37,6 @@ class CCReviewValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'body must be present' do
-    @validator.body = nil
-    assert_not @validator.valid?
-  end
-
   test 'created must be present' do
     @validator.created = nil
     assert_not @validator.valid?

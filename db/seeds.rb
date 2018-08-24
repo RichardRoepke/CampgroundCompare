@@ -20,7 +20,3 @@ User.create!({ email: 'user@user.org',
                 password_confirmation: 'asdfasdf',
                 admin: false})
 end
-
-MarkedPark.create!({ uuid: 'b9dd9a9d-8629-4591-a8fb-760a24e2a37e',
-                     name: 'Rochester Place Resort',
-                     status: 'TEST' })

@@ -179,11 +179,6 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'daily_rate must be present' do
-    @validator.daily_rate = nil
-    assert_not @validator.valid?
-  end
-
   test 'category must be present' do
     @validator.category = nil
     assert_not @validator.valid?
@@ -199,16 +194,6 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'postal_code must be present' do
-    @validator.postal_code = nil
-    assert_not @validator.valid?
-  end
-
-  test 'address must be present' do
-    @validator.address = nil
-    assert_not @validator.valid?
-  end
-
   test 'slug must be present' do
     @validator.slug = nil
     assert_not @validator.valid?
@@ -221,11 +206,6 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
 
   test 'region must be present' do
     @validator.region = nil
-    assert_not @validator.valid?
-  end
-
-  test 'review_count must be present' do
-    @validator.review_count = nil
     assert_not @validator.valid?
   end
 
