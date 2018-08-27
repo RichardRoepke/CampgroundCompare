@@ -8,7 +8,6 @@ class RvparkyImageValidator
   validates :url, presence: true
   validates :thumb, presence: true
 
-
   def initialize(input)
     @url = input[:url]
     @thumb = input[:thumbUrl]

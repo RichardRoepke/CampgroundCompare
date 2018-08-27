@@ -90,7 +90,7 @@ class MarkedPark < ApplicationRecord
     result = { catalogue_blank: 0,
                rvparky_blank: 0,
                mismatch: 0,
-               differences: [] }
+               differences: false }
 
     fields.each do |catalogue_field, rvparky_field|
       catalogue_value = catalogue.public_send(catalogue_field)
@@ -104,7 +104,8 @@ class MarkedPark < ApplicationRecord
           result[:catalogue_blank] += 1 if catalogue_value.blank?
           result[:rvparky_blank] += 1 if rvparky_value.blank?
           result[:mismatch] += 1 if catalogue_value.present? && rvparky_value.present?
-          result[:differences].push({ ('C' + catalogue_field).to_sym => catalogue_value, ('R' + rvparky_field).to_sym => rvparky_value })
+          #result[:differences].push({ ('C' + catalogue_field).to_sym => catalogue_value, ('R' + rvparky_field).to_sym => rvparky_value })
+          result[:differences] = true
         end
       end
     end

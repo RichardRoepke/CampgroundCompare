@@ -6,8 +6,20 @@ class MarkedParkController < ApplicationController
   end
 
   def show
+    @catalogue = nil
+    @rvparky = nil
+
     park = MarkedPark.find(params[:id])
-    @park = CatalogueLocationValidator.new(get_individual_park(park.uuid))
+
+    if park.uuid.present?
+      catalogue_temp = get_catalogue_park(park.uuid)
+      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
+    end
+
+    if park.slug.present?
+      rvparky_temp = get_rvparky_park(park.slug)
+      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
+    end
   end
 
   private
@@ -15,13 +27,32 @@ class MarkedParkController < ApplicationController
     @title = 'Parks'
   end
 
-  def get_individual_park(uuid)
+  def get_catalogue_park(uuid)
+    output = nil
     request = Typhoeus::Request.get('https://centralcatalogue.com/api/v1/locations/' + uuid,
                                     headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
                                     :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
 
-    temp_response = JSON.parse(request.response_body)
+    if request.response_code == 200
+      temp_response = JSON.parse(request.response_body)
 
-    return hash_string_to_sym(temp_response)
+      output = hash_string_to_sym(temp_response)
+    end
+
+    return output
+  end
+
+  def get_rvparky_park(slug)
+    output = nil
+    request = Typhoeus::Request.get('https://www.rvparky.com/_ws2/Location/' + slug.to_s,
+                                    :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
+    if request.response_code == 200
+      temp_response = JSON.parse(request.response_body)
+
+      temp = hash_string_to_sym(temp_response)
+      output = temp[:location]
+    end
+
+    return output
   end
 end

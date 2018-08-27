@@ -4,9 +4,9 @@ module MarkedParkHelper
     content_tag('span', text, class: 'badge badge-primary')
   end
 
-  def collapse_button_generator(body)
-    url = '#' + body.downcase + 'Collapse'
-    controls = body.downcase + 'Collapse'
+  def collapse_button_generator(body, modifier = '')
+    url = '#' + body.downcase + modifier + 'Collapse'
+    controls = body.downcase + modifier + 'Collapse'
 
     link_to(body, url, { class: 'btn btn-secondary',
                          'data-toggle'.to_sym => 'collapse',
@@ -16,9 +16,9 @@ module MarkedParkHelper
                          'aria-controls'.to_sym => controls })
   end
 
-  def collapse_generator(name, body_function, array)
+  def collapse_generator(name, body_function, array, modifier = '')
     content_tag(:div, { class: 'collapse',
-                        id: name.downcase + 'Collapse',
+                        id: name.downcase + modifier + 'Collapse',
                         'data-parent'.to_sym => '#accordion' }) do
       content_tag(:div, class: 'card card-body') do
         content_tag(:ul, class: 'list-group') do
@@ -72,7 +72,7 @@ module MarkedParkHelper
     end
   end
 
-  def generate_images_entry
+  def generate_cimages_entry
     return Proc.new do |image|
       concat(image.id.to_s)
       concat(': ' + image.title) if image.title.present?
@@ -82,6 +82,15 @@ module MarkedParkHelper
         concat(image.caption)
         concat(tag('br'))
       end
+    end
+  end
+
+  def generate_rimages_entry
+    return Proc.new do |image|
+      concat('Url: ' + image.url)
+      concat(tag('br'))
+      concat('Thumb Url: ' + image.thumb)
+      concat(tag('br'))
     end
   end
 
@@ -123,7 +132,7 @@ module MarkedParkHelper
     end
   end
 
-  def generate_reviews_entry
+  def generate_creviews_entry
     return Proc.new do |review|
       concat(review.username + ' (' + review.rating.to_s + ')')
       concat(tag('br'))
@@ -149,6 +158,48 @@ module MarkedParkHelper
       end
 
       concat('UNDER REVIEW') if review.reviewed.present?
+    end
+  end
+
+  def generate_rreviews_entry
+    return Proc.new do |review|
+      concat(review.author_name + ' (' + review.rating.to_s + ')')
+      concat(tag('br'))
+
+      if review.author.present?
+        concat('ID: ' + review.author.to_s)
+        concat(tag('br'))
+      end
+
+      if review.title.present?
+        concat(review.title)
+        concat(tag('br'))
+      end
+
+      if review.text.present?
+        concat(review.text)
+        concat(tag('br'))
+      end
+
+      concat('Created On: ' + review.date)
+      concat(tag('br'))
+
+      if review.start.present?
+        concat('Arrival: ' + review.start)
+        concat(tag('br'))
+      end
+
+      if review.end.present?
+        concat('Departure: ' + review.end)
+        concat(tag('br'))
+      end
+
+      if review.comments.present?
+        concat('Comments:')
+        concat(tag('br'))
+        concat(review.comments.to_s)
+        concat(tag('br'))
+      end
     end
   end
 
