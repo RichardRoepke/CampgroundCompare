@@ -72,7 +72,7 @@ class MarkedPark < ApplicationRecord
     return 'NOTHING IS FINE'
   end
 
-  def calculate_differences(catalogue, rvparky)
+  def calculate_differences(catalogue, rvparky, object=false)
     fields = [['website', 'website'],
               ['former_name', 'former'],
               ['rating', 'rating'],
@@ -90,7 +90,7 @@ class MarkedPark < ApplicationRecord
     result = { catalogue_blank: 0,
                rvparky_blank: 0,
                mismatch: 0,
-               differences: false }
+               differences: [] }
 
     fields.each do |catalogue_field, rvparky_field|
       catalogue_value = catalogue.public_send(catalogue_field)
@@ -104,12 +104,25 @@ class MarkedPark < ApplicationRecord
           result[:catalogue_blank] += 1 if catalogue_value.blank?
           result[:rvparky_blank] += 1 if rvparky_value.blank?
           result[:mismatch] += 1 if catalogue_value.present? && rvparky_value.present?
-          #result[:differences].push({ ('C' + catalogue_field).to_sym => catalogue_value, ('R' + rvparky_field).to_sym => rvparky_value })
-          result[:differences] = true
+          result[:differences].push(true) if object.blank?
+          if object.present?
+            diff = Difference.new({ catalogue_field: catalogue_field,
+                                                     catalogue_value: catalogue_value,
+                                                     rvparky_field: rvparky_field,
+                                                     rvparky_value: rvparky_value,
+                                                     kind: value_compare_helper(catalogue_value, rvparky_value) })
+            result[:differences].push(diff) if diff.valid?
+          end
         end
       end
     end
 
     return result
+  end
+
+  def value_compare_helper(catalogue_value, rvparky_value)
+    return 'RVParky Blank' if rvparky_value.blank?
+    return 'Catalogue Blank' if catalogue_value.blank?
+    return 'Value Mismatch'
   end
 end

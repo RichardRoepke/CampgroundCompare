@@ -22,6 +22,54 @@ class MarkedParkController < ApplicationController
     end
   end
 
+  def edit
+    @catalogue = nil
+    @rvparky = nil
+
+    park = MarkedPark.find(params[:id])
+
+    if park.uuid.present? && park.slug.present?
+      catalogue_temp = get_catalogue_park(park.uuid)
+      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
+    end
+
+    if park.slug.present?
+      rvparky_temp = get_rvparky_park(park.slug)
+      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
+    end
+
+    if @rvparky.present? && @catalogue.present?
+      @differences = park.calculate_differences(@catalogue, @rvparky, true)
+      @differences[:differences].each do |diff|
+        puts diff.inspect
+      end
+    end
+  end
+
+  def quick
+    @catalogue = nil
+    @rvparky = nil
+
+    park = MarkedPark.find(params[:id])
+
+    if park.uuid.present? && park.slug.present?
+      catalogue_temp = get_catalogue_park(park.uuid)
+      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
+    end
+
+    if park.slug.present?
+      rvparky_temp = get_rvparky_park(park.slug)
+      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
+    end
+
+    if @rvparky.present? && @catalogue.present?
+      @differences = park.calculate_differences(@catalogue, @rvparky, true)
+      @differences[:differences].each do |diff|
+        puts diff.inspect
+      end
+    end
+  end
+
   private
   def provide_title
     @title = 'Parks'

@@ -1,0 +1,34 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
+        <% @differences[:differences].each do |diff| %>
+          <%= f.text_area :test, id: 'R' + diff.rvparky_field, hide_label: true %>
+          <%= f.submit "Transfer", type: 'button', data: { element: 'R' + diff.rvparky_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
+          <i><%= diff.catalogue_value %></i>
+          <hr />
+        <% end %>
+      <% end %>
+    </div>
+    <div class="col">
+      <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
+        <% @differences[:differences].each do |diff| %>
+          <%= f.text_area :test, id: 'C' + diff.catalogue_field, hide_label: true %>
+          <% if diff.kind == 'Value Mismatch'%>
+            <%= f.submit "Transfer", type: 'button', data: { element: 'C' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
+            <i><%= diff.rvparky_value %></i>
+          <% else %>
+            <%= f.submit "Transfer", type: 'button', data: { element: 'C' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-primary" %>
+          <% end %>
+          <hr />
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

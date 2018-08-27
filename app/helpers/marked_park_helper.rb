@@ -36,6 +36,12 @@ module MarkedParkHelper
     end
   end
 
+  def generate_input_field
+    return Proc.new do |field_name, subsitute_value|
+      content_tag()
+    end
+  end
+
   def generate_amenities_entry
     return Proc.new do |amenity|
       concat(amenity.id.to_s + ': ' + amenity.name + ': ' + amenity.group)
