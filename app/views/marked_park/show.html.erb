@@ -4,105 +4,259 @@
 
 <br />
 
-<h4> <%= @park.name %> </h4>
+<% if @catalogue.present? %>
+  <h3>Catalogue Information:</h3>
 
-<%= @park.uuid + ' (' + @park.type + ')' %> <br />
+  <h4> <%= @catalogue.name %> </h4>
 
-<% if @park.alt_name.present?%>
-  <%= 'Alternative Name: ' + @park.alt_name %>
+  <%= @catalogue.uuid + ' (' + @catalogue.type + ')' %> <br />
+
+  <% if @catalogue.alt_name.present?%>
+    <%= 'Alternative Name: ' + @catalogue.alt_name %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.former_name.present?%>
+    <%= 'Former Name: ' + @catalogue.former_name %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.bounce.present? %>
+    <%= 'Bounce: ' + @catalogue.bounce %>
+    <br />
+  <% end %>
+
+  <%= 'Address: ' + @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.state + ' (' + @catalogue.state_code + '), ' + @catalogue.country + ' (' + @catalogue.country_code + ')' %>
+
+  <%= @catalogue.postal if @catalogue.postal.present? %><br />
+
+  <% if @catalogue.phone.present? %>
+    <%= 'Phone Number: ' + @catalogue.phone%>
+    <br />
+  <% end %>
+
+  <% if @catalogue.email.present?%>
+    <%= 'Email: ' + @catalogue.email %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.website.present?%>
+    <%= 'Website: ' + @catalogue.website %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.latitude.present? && @catalogue.longitude.present?%>
+    <%= 'GPS Coordinates: (' + @catalogue.latitude.to_s + ', ' + @catalogue.longitude.to_s + ')' %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.description.present?%>
+    <%= 'Description: ' + @catalogue.description %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.description_short.present?%>
+    <%= 'Short Description: ' + @catalogue.description_short %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.directions.present?%>
+    <%= 'Directions: ' + @catalogue.directions %>
+    <br />
+  <% end %>
+
+  <% if @catalogue.rating.present?%>
+    <%= 'Rating: ' + @catalogue.rating.to_s %>
+    <br />
+  <% end %>
+
   <br />
+
+  <div class="panel-group" id="accordion">
+    <%= collapse_button_generator('Amenities') if @catalogue.amenities.present? %>
+
+    <%= collapse_button_generator('Cobrands') if @catalogue.cobrands.present? %>
+
+    <%= collapse_button_generator('Images', 'C') if @catalogue.images.present? %>
+
+    <%= collapse_button_generator('Memberships') if @catalogue.memberships.present? %>
+
+    <%= collapse_button_generator('Nearbies') if @catalogue.nearbies.present? %>
+
+    <%= collapse_button_generator('Payments') if @catalogue.payments.present? %>
+
+    <%= collapse_button_generator('Rates') if @catalogue.rates.present? %>
+
+    <%= collapse_button_generator('Reviews', 'C') if @catalogue.reviews.present? %>
+
+    <%= collapse_button_generator('Tags') if @catalogue.tags.present? %>
+
+    <%= collapse_generator('Amenities', generate_amenities_entry, @catalogue.amenities) if @catalogue.amenities.present? %>
+
+    <%= collapse_generator('Cobrands', generate_cobrands_entry, @catalogue.cobrands) if @catalogue.cobrands.present? %>
+
+    <%= collapse_generator('Images', generate_cimages_entry, @catalogue.images, 'C') if @catalogue.images.present? %>
+
+    <%= collapse_generator('Memberships', generate_memberships_entry, @catalogue.memberships) if @catalogue.memberships.present? %>
+
+    <%= collapse_generator('Nearbies', generate_nearbies_entry, @catalogue.nearbies) if @catalogue.nearbies.present? %>
+
+    <%= collapse_generator('Payments', generate_payments_entry, @catalogue.payments) if @catalogue.payments.present? %>
+
+    <%= collapse_generator('Rates', generate_rates_entry, @catalogue.rates) if @catalogue.rates.present? %>
+
+    <%= collapse_generator('Reviews', generate_creviews_entry, @catalogue.reviews, 'C') if @catalogue.reviews.present? %>
+
+    <%= collapse_generator('Tags', generate_tags_entry, @catalogue.tags) if @catalogue.tags.present? %>
+  </div>
+
+  <hr />
 <% end %>
 
-<% if @park.former_name.present?%>
-  <%= 'Former Name: ' + @park.former_name %>
+<% if @rvparky.present? %>
+  <h3>RVParky Information:</h3>
+
+  <h4> <%= @rvparky.name %> </h4>
+
+  <%= @rvparky.slug + ' (' + @rvparky.category + ')'%> <br/>
+
+  <% if @rvparky.known_as.present?%>
+    <%= 'Alternative Name: ' + @rvparky.known_as %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.former.present?%>
+    <%= 'Former Name: ' + @rvparky.former %>
+    <br />
+  <% end %>
+
+  <%= 'Address: ' %>
+  <%= @rvparky.address + ', ' if @rvparky.address.present? %>
+  <%= @rvparky.city + ', ' + @rvparky.region %>
+  <%= @rvparky.postal_code if @rvparky.postal_code.present? %><br/>
+
+  <% if @rvparky.phone.present? %>
+    <%= 'Phone Number: ' + @rvparky.phone%>
+    <br />
+  <% end %>
+
+  <% if @rvparky.website.present?%>
+    <%= 'Website: ' + @rvparky.website %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.reservation_url.present? %>
+    <%= 'Reservation: ' + @rvparky.reservation_url %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.latitude.present? && @rvparky.longitude.present?%>
+    <%= 'GPS Coordinates: (' + @rvparky.latitude.to_s + ', ' + @rvparky.longitude.to_s + ')' %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.inseason_date.present? %>
+    <%= 'Inseason: ' + @rvparky.inseason_date %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.offseason_date.present? %>
+    <%= 'Offseason: ' + @rvparky.offseason_date%>
+    <br />
+  <% end %>
+
+  <% if @rvparky.open_dates.present? %>
+    <%= 'Open Dates: ' + @rvparky.open_dates %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.closed.present? %>
+    <%= 'Closed Dates: ' + @rvparky.closed %>
+    <br />
+  <% end %>
+
+  <%= 'Sites: ' + @rvparky.sites.to_s %> <br />
+
+  <% if @rvparky.daily_rate.present? %>
+    <%= 'Daily Rate: ' + @rvparky.daily_rate.to_s %>
+    <%= ' (' + @rvparky.daily_rate_updated + ')' if @rvparky.daily_rate_updated.present? %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.offseason_daily_rate.present? %>
+    <%= 'Offseason Daily Rate: ' + @rvparky.offseason_daily_rate.to_s %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.weekly_rate.present? %>
+    <%= 'Weekly Rate: ' + @rvparky.weekly_rate.to_s %>
+    <%= ' (' + @rvparky.weekly_rate_updated + ')' if @rvparky.weekly_rate_updated.present? %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.offseason_weekly_rate.present? %>
+    <%= 'Offseason Weekly Rate: ' + @rvparky.offseason_weekly_rate.to_s %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.monthly_rate.present? %>
+    <%= 'Monthly Rate: ' + @rvparky.monthly_rate.to_s %>
+    <%= ' (' + @rvparky.monthly_rate_updated + ')' if @rvparky.monthly_rate_updated.present? %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.offseason_monthly_rate.present? %>
+    <%= 'Offseason Monthly Rate: ' + @rvparky.offseason_monthly_rate.to_s  %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.seasonal_rates.present? && @rvparky.seasonal_rates != 0 %>
+    <%= 'Seasonal Rates: ' + @rvparky.seasonal_rates.to_s %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.discounts.present? %>
+    <%= 'Discounts: ' + @rvparky.discounts %>
+    <br />
+  <% end%>
+
+  <% if @rvparky.description.present?%>
+    <%= 'Description: ' + @rvparky.description %>
+    <br />
+  <% end %>
+
+  <%= 'Rating: ' + @rvparky.rating.to_s %> <br />
+
+  <% if @rvparky.review_count.present?%>
+    <%= 'Total Reviews: ' + @rvparky.review_count.to_s %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.amenities.present? %>
+    <h5> Amenities: </h5>
+    <% @rvparky.amenities.each do |amenity| %>
+      <%= amenity.to_s %><%= ', ' unless amenity == @rvparky.amenities.last %>
+    <% end %>
+    <br />
+  <% end %>
+
+  <% if @rvparky.attributes.present? %>
+    <h5> Attributes: </h5>
+    <% @rvparky.attributes.each do |attribute| %>
+      <%= attribute.to_s %><%= ', ' unless attribute == @rvparky.attributes.last %>
+    <% end %>
+    <br />
+  <% end %>
+
   <br />
+
+  <div class="panel-group" id="accordion">
+    <%= collapse_button_generator('Images', 'R') if @rvparky.images.present? %>
+
+    <%= collapse_button_generator('Reviews' , 'R') if @rvparky.reviews.present? %>
+
+    <%= collapse_generator('Images', generate_rimages_entry, @rvparky.images, 'R') if @rvparky.images.present? %>
+
+    <%= collapse_generator('Reviews', generate_rreviews_entry, @rvparky.reviews, 'R') if @rvparky.reviews.present? %>
+  </div>
 <% end %>
-
-<% if @park.bounce.present? %>
-  <%= 'Bounce: ' + @park.bounce %>
-  <br />
-<% end %>
-
-<%= 'Address: ' + @park.address + ', ' + @park.city + ', ' + @park.state + ' (' + @park.state_code + '), ' + @park.country + ' (' + @park.country_code + ')' %> <br />
-
-<% if @park.phone.present? %>
-  <%= 'Phone Number: ' + @park.phone%>
-  <br />
-<% end %>
-
-<% if @park.email.present?%>
-  <%= 'Email: ' + @park.email %>
-  <br />
-<% end %>
-
-<% if @park.website.present?%>
-  <%= 'Website: ' + @park.website %>
-  <br />
-<% end %>
-
-<% if @park.latitude.present? && @park.longitude.present?%>
-  <%= 'GPS Coordinates: (' + @park.latitude.to_s + ', ' + @park.longitude.to_s + ')' %>
-  <br />
-<% end %>
-
-<% if @park.description.present?%>
-  <%= 'Description: ' + @park.description %>
-  <br />
-<% end %>
-
-<% if @park.description_short.present?%>
-  <%= 'Short Description: ' + @park.description_short %>
-  <br />
-<% end %>
-
-<% if @park.directions.present?%>
-  <%= 'Directions: ' + @park.directions %>
-  <br />
-<% end %>
-
-<% if @park.rating.present?%>
-  <%= 'Rating: ' + @park.rating %>
-  <br />
-<% end %>
-
-<br />
-
-<div class="panel-group" id="accordion">
-  <%= collapse_button_generator('Amenities') if @park.amenities.present? %>
-
-  <%= collapse_button_generator('Cobrands') if @park.cobrands.present? %>
-
-  <%= collapse_button_generator('Images') if @park.images.present? %>
-
-  <%= collapse_button_generator('Memberships') if @park.memberships.present? %>
-
-  <%= collapse_button_generator('Nearbies') if @park.nearbies.present? %>
-
-  <%= collapse_button_generator('Payments') if @park.payments.present? %>
-
-  <%= collapse_button_generator('Rates') if @park.rates.present? %>
-
-  <%= collapse_button_generator('Reviews') if @park.reviews.present? %>
-
-  <%= collapse_button_generator('Tags') if @park.tags.present? %>
-
-  <%= collapse_generator('Amenities', generate_amenities_entry, @park.amenities) if @park.amenities.present? %>
-
-  <%= collapse_generator('Cobrands', generate_cobrands_entry, @park.cobrands) if @park.cobrands.present? %>
-
-  <%= collapse_generator('Images', generate_images_entry, @park.images) if @park.images.present? %>
-
-  <%= collapse_generator('Memberships', generate_memberships_entry, @park.memberships) if @park.memberships.present? %>
-
-  <%= collapse_generator('Nearbies', generate_nearbies_entry, @park.nearbies) if @park.nearbies.present? %>
-
-  <%= collapse_generator('Payments', generate_payments_entry, @park.payments) if @park.payments.present? %>
-
-  <%= collapse_generator('Rates', generate_rates_entry, @park.rates) if @park.rates.present? %>
-
-  <%= collapse_generator('Reviews', generate_reviews_entry, @park.reviews) if @park.reviews.present? %>
-
-  <%= collapse_generator('Tags', generate_tags_entry, @park.tags) if @park.tags.present? %>
-</div>
-
-<br />

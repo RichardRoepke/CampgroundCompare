@@ -23,18 +23,8 @@ require 'test_helper'
     assert_not @difference.valid?
   end
 
-  test 'catalogue_value must be present' do
-    @difference.catalogue_value = nil
-    assert_not @difference.valid?
-  end
-
   test 'rvparky_field must be present' do
     @difference.rvparky_field = nil
-    assert_not @difference.valid?
-  end
-
-  test 'rvparky_value must be present' do
-    @difference.rvparky_value = nil
     assert_not @difference.valid?
   end
 

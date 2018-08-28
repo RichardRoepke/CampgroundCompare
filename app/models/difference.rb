@@ -8,9 +8,7 @@ class Difference
   attr_accessor :kind
 
   validates :catalogue_field, presence: true
-  validates :catalogue_value, presence: true
   validates :rvparky_field, presence: true
-  validates :rvparky_value, presence: true
   validates :kind, presence: true
 
   validates :kind, inclusion: { in: %w{ RVParky\ Blank Catalogue\ Blank Value\ Mismatch } }

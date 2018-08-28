@@ -5,6 +5,14 @@ class MarkedPark < ApplicationRecord
     update_status() if self.updated_at < Date.yesterday
   end
 
+  def next
+    MarkedPark.where("id > ?", id).first
+  end
+
+  def prev
+    MarkedPark.where("id < ?", id).last
+  end
+
   def update_status(catalogue_input=nil, rvparky_input=nil)
     inputs = true
 
@@ -27,7 +35,7 @@ class MarkedPark < ApplicationRecord
     elsif catalogue.present?
       self.status = 'SLUG IS INVALID'
     else
-      self.status = 'NO CONNECTION' unless self.status.present?
+      self.status = 'NO CONNECTION'
     end
   end
 
@@ -63,16 +71,23 @@ class MarkedPark < ApplicationRecord
   def calculate_status(catalogue, rvparky)
     if catalogue.valid? && rvparky.valid?
       differ = calculate_differences(catalogue, rvparky)
+      #puts '=============================================================================='
+      #puts differ.inspect
+      #puts '=============================================================================='
       return 'DELETE ME' if differ[:differences].blank?
       return 'INFORMATION MISMATCH' if differ[:mismatch] > 0
-      return 'BLANK FIELDS'
+      return 'BLANK FIELDS' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
+      return 'RVPARKY MISSING' if differ[:rvparky_blank] > 0
+      return 'CATALOGUE BLANK' if differ[:catalogue_blank] > 0
+      return '???'
     end
+
     return 'CATALOGUE IS FINE' if catalogue.valid?
     return 'RVPARKY IS FINE' if rvparky.valid?
     return 'NOTHING IS FINE'
   end
 
-  def calculate_differences(catalogue, rvparky)
+  def calculate_differences(catalogue, rvparky, object=false)
     fields = [['website', 'website'],
               ['former_name', 'former'],
               ['rating', 'rating'],
@@ -104,11 +119,25 @@ class MarkedPark < ApplicationRecord
           result[:catalogue_blank] += 1 if catalogue_value.blank?
           result[:rvparky_blank] += 1 if rvparky_value.blank?
           result[:mismatch] += 1 if catalogue_value.present? && rvparky_value.present?
-          result[:differences].push({ ('C' + catalogue_field).to_sym => catalogue_value, ('R' + rvparky_field).to_sym => rvparky_value })
+          result[:differences].push(true) if object.blank?
+          if object.present?
+            diff = Difference.new({ catalogue_field: catalogue_field,
+                                                     catalogue_value: catalogue_value,
+                                                     rvparky_field: rvparky_field,
+                                                     rvparky_value: rvparky_value,
+                                                     kind: value_compare_helper(catalogue_value, rvparky_value) })
+            result[:differences].push(diff) if diff.valid?
+          end
         end
       end
     end
 
     return result
+  end
+
+  def value_compare_helper(catalogue_value, rvparky_value)
+    return 'RVParky Blank' if rvparky_value.blank?
+    return 'Catalogue Blank' if catalogue_value.blank?
+    return 'Value Mismatch'
   end
 end

@@ -121,6 +121,12 @@ class RvparkyLocationValidator
     @attributes.uniq! # Ensure that all attributes are unique.
 
     @id = IdValidator.new(input[:id])
+
+    # RVParky gives phone numbers as (XXX)YYY-ZZZZ whereas Catalogue gives them as
+    # (XXX) YYY-ZZZZ, with a space between the area-code and rest of the number.
+    # This expression inserts that space, to prevent obviously identical phone numbers
+    # from being flagged as a mismatch.
+    @phone.insert(5, ' ') if @phone.match('\A\(\d{3}\)\d{3}-\d{4}\z')
   end
 
   def id

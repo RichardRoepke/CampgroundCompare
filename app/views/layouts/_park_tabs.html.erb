@@ -1,5 +1,11 @@
 <ul class="nav nav-tabs">
   <%= tab_generator("Index", marked_park_index_path, "fas fa-list") %>
 
+  <%= tab_generator("Recheck Status", marked_park_status_path, 'fas fa-sync') %>
+
   <%= tab_generator("Information", nil, "fas fa-info-circle") if params[:action] == 'show' %>
+
+  <%= tab_generator("Compare", nil, "fas fa-pencil-alt") if params[:action] == 'edit' %>
+
+  <%= tab_generator("Quick Compare", nil, "fas fa-marker") if params[:action] == 'quick' %>
 </ul>

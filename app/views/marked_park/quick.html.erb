@@ -1,0 +1,33 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<h4><%= @park.name %></h4>
+
+<%= bootstrap_form_tag do |f| %>
+  <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>
+  <%= f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary" %>
+  <%= f.submit "Submit Form" %>
+  <%= f.submit "Submit and Next" %>
+
+<hr />
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <h4>CATALOGUE:</h4>
+    </div>
+    <div class="col">
+      <h4>RVPARKY:</h4>
+    </div>
+  </div>
+    <% @differences[:differences].each do |diff| %>
+      <%= generate_quick_fields(f, diff) %>
+      <% unless diff == @differences[:differences].last %>
+        <hr />
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

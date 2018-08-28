@@ -4,9 +4,9 @@ module MarkedParkHelper
     content_tag('span', text, class: 'badge badge-primary')
   end
 
-  def collapse_button_generator(body)
-    url = '#' + body.downcase + 'Collapse'
-    controls = body.downcase + 'Collapse'
+  def collapse_button_generator(body, modifier = '')
+    url = '#' + body.downcase + modifier + 'Collapse'
+    controls = body.downcase + modifier + 'Collapse'
 
     link_to(body, url, { class: 'btn btn-secondary',
                          'data-toggle'.to_sym => 'collapse',
@@ -16,9 +16,9 @@ module MarkedParkHelper
                          'aria-controls'.to_sym => controls })
   end
 
-  def collapse_generator(name, body_function, array)
+  def collapse_generator(name, body_function, array, modifier = '')
     content_tag(:div, { class: 'collapse',
-                        id: name.downcase + 'Collapse',
+                        id: name.downcase + modifier + 'Collapse',
                         'data-parent'.to_sym => '#accordion' }) do
       content_tag(:div, class: 'card card-body') do
         content_tag(:ul, class: 'list-group') do
@@ -34,6 +34,47 @@ module MarkedParkHelper
         end
       end
     end
+  end
+
+  def generate_input_field
+    return Proc.new do |field_name, subsitute_value|
+      content_tag()
+    end
+  end
+
+  def generate_quick_fields(f, diff)
+    content_tag(:div, { class: "row" }) do
+      concat(content_tag(:div, { class: "col" }) do
+        generate_quick_catalogue(f, diff)
+      end)
+      concat(content_tag(:div, { class: "col" }) do
+        generate_quick_rvparky(f, diff)
+      end)
+    end
+  end
+
+  def generate_quick_catalogue(f, diff)
+    transfer_type = { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }
+    transfer_type[:blank] = true if diff.catalogue_value.blank?
+
+    concat(f.text_area(('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true))
+    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.rvparky_value.blank?
+    concat(f.submit("Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.catalogue_value.present?
+    concat(tag('br'))
+    concat(content_tag(:i, 'Original Value: ' + diff.catalogue_value.to_s)) if diff.catalogue_value.present?
+    concat(content_tag(:i, 'Originally Blank')) if diff.catalogue_value.blank?
+  end
+
+  def generate_quick_rvparky(f, diff)
+    transfer_type = { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }
+    transfer_type[:blank] = true if diff.rvparky_value.blank?
+
+    concat(f.text_area(('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true))
+    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.catalogue_value.blank?
+    concat(f.submit("Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.rvparky_value.present?
+    concat(tag('br'))
+    concat(content_tag(:i, 'Original Value: ' + diff.rvparky_value.to_s)) if diff.rvparky_value.present?
+    concat(content_tag(:i, 'Originally Blank')) if diff.rvparky_value.blank?
   end
 
   def generate_amenities_entry
@@ -72,7 +113,7 @@ module MarkedParkHelper
     end
   end
 
-  def generate_images_entry
+  def generate_cimages_entry
     return Proc.new do |image|
       concat(image.id.to_s)
       concat(': ' + image.title) if image.title.present?
@@ -82,6 +123,15 @@ module MarkedParkHelper
         concat(image.caption)
         concat(tag('br'))
       end
+    end
+  end
+
+  def generate_rimages_entry
+    return Proc.new do |image|
+      concat('Url: ' + image.url)
+      concat(tag('br'))
+      concat('Thumb Url: ' + image.thumb)
+      concat(tag('br'))
     end
   end
 
@@ -112,18 +162,30 @@ module MarkedParkHelper
     return Proc.new do |rate|
       concat(rate.name)
       concat(tag('br'))
-      concat(rate.start + ' to ' + rate.end)
-      concat(tag('br'))
-      concat('Minimum Rate: ' + rate.min_rate)
-      concat(tag('br'))
-      concat('Maximum Rate: ' + rate.max_rate)
-      concat(tag('br'))
-      concat('Persons Included: ' + rate.persons.to_s)
-      concat(tag('br'))
+
+      if rate.start.present? && rate.end.present?
+        concat(rate.start + ' to ' + rate.end)
+        concat(tag('br'))
+      end
+
+      if rate.min_rate.present?
+        concat('Minimum Rate: ' + rate.min_rate)
+        concat(tag('br'))
+      end
+
+      if rate.max_rate.present?
+        concat('Maximum Rate: ' + rate.max_rate)
+        concat(tag('br'))
+      end
+
+      if rate.persons.present?
+        concat('Persons Included: ' + rate.persons.to_s)
+        concat(tag('br'))
+      end
     end
   end
 
-  def generate_reviews_entry
+  def generate_creviews_entry
     return Proc.new do |review|
       concat(review.username + ' (' + review.rating.to_s + ')')
       concat(tag('br'))
@@ -149,6 +211,48 @@ module MarkedParkHelper
       end
 
       concat('UNDER REVIEW') if review.reviewed.present?
+    end
+  end
+
+  def generate_rreviews_entry
+    return Proc.new do |review|
+      concat(review.author_name + ' (' + review.rating.to_s + ')')
+      concat(tag('br'))
+
+      if review.author.present?
+        concat('ID: ' + review.author.to_s)
+        concat(tag('br'))
+      end
+
+      if review.title.present?
+        concat(review.title)
+        concat(tag('br'))
+      end
+
+      if review.text.present?
+        concat(review.text)
+        concat(tag('br'))
+      end
+
+      concat('Created On: ' + review.date)
+      concat(tag('br'))
+
+      if review.start.present?
+        concat('Arrival: ' + review.start)
+        concat(tag('br'))
+      end
+
+      if review.end.present?
+        concat('Departure: ' + review.end)
+        concat(tag('br'))
+      end
+
+      if review.comments.present?
+        concat('Comments:')
+        concat(tag('br'))
+        concat(review.comments.to_s)
+        concat(tag('br'))
+      end
     end
   end
 

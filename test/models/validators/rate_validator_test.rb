@@ -26,31 +26,6 @@ class RateValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'start must be present' do
-    @validator.start = nil
-    assert_not @validator.valid?
-  end
-
-  test 'end must be present' do
-    @validator.end = nil
-    assert_not @validator.valid?
-  end
-
-  test 'min_rate must be present' do
-    @validator.min_rate = nil
-    assert_not @validator.valid?
-  end
-
-  test 'max_rate must be present' do
-    @validator.max_rate = nil
-    assert_not @validator.valid?
-  end
-
-  test 'persons must be present' do
-    @validator.persons = nil
-    assert_not @validator.valid?
-  end
-
   test 'min_rate must be a number' do
     @validator.min_rate = 'number'
     assert_not @validator.valid?
