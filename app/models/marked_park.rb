@@ -27,7 +27,7 @@ class MarkedPark < ApplicationRecord
     elsif catalogue.present?
       self.status = 'SLUG IS INVALID'
     else
-      self.status = 'NO CONNECTION' unless self.status.present?
+      self.status = 'NO CONNECTION'
     end
   end
 
@@ -63,10 +63,17 @@ class MarkedPark < ApplicationRecord
   def calculate_status(catalogue, rvparky)
     if catalogue.valid? && rvparky.valid?
       differ = calculate_differences(catalogue, rvparky)
+      #puts '=============================================================================='
+      #puts differ.inspect
+      #puts '=============================================================================='
       return 'DELETE ME' if differ[:differences].blank?
       return 'INFORMATION MISMATCH' if differ[:mismatch] > 0
-      return 'BLANK FIELDS'
+      return 'BLANK FIELDS' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
+      return 'RVPARKY MISSING' if differ[:rvparky_blank] > 0
+      return 'CATALOGUE BLANK' if differ[:catalogue_blank] > 0
+      return '???'
     end
+
     return 'CATALOGUE IS FINE' if catalogue.valid?
     return 'RVPARKY IS FINE' if rvparky.valid?
     return 'NOTHING IS FINE'

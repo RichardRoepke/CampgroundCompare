@@ -7,3 +7,10 @@ $ ->
     token = $(this).data("element")
     foundElement = document.getElementById(token)
     foundElement.value = $(this).data("transfer")
+  $("input[data-global]").click ->
+    if $(this).data("global") == "Transfer Blank"
+      elements = document.querySelectorAll("[data-blank]")
+      for element in elements
+        token = $(element).data("element")
+        foundElement = document.getElementById(token)
+        foundElement.value = $(element).data("transfer")

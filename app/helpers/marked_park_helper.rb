@@ -42,6 +42,56 @@ module MarkedParkHelper
     end
   end
 
+  def generate_quick_fields(f, diff)
+    content_tag(:div, { class: "row" }) do
+      concat(content_tag(:div, { class: "col" }) do
+        generate_quick_catalogue(f, diff)
+      end)
+      concat(content_tag(:div, { class: "col" }) do
+        generate_quick_rvparky(f, diff)
+      end)
+    end
+=begin
+              <%= f.text_area ('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true %>
+              <%= f.submit "Transfer", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-primary" %>
+              <%= f.submit "Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
+              <br />
+              <i>Original Value: <%= diff.catalogue_value %></i>
+            </div>
+            <div class="col">
+              <%= diff.rvparky_field %>:
+              <%= f.text_area ('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true %>
+              <%= f.submit "Transfer", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }, class: "btn btn-outline-primary" %>
+              <%= f.submit "Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
+              <br />
+              <i>Original Value: <%= diff.rvparky_value %></i>
+=end
+  end
+
+  def generate_quick_catalogue(f, diff)
+    transfer_type = { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }
+    transfer_type[:blank] = true if diff.catalogue_value.blank?
+
+    concat(f.text_area(('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true))
+    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.rvparky_value.blank?
+    concat(f.submit("Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary")) if diff.catalogue_value.present?
+    concat(tag('br'))
+    concat(content_tag(:i, 'Original Value: ' + diff.catalogue_value.to_s)) if diff.catalogue_value.present?
+    concat(content_tag(:i, 'Originally Blank')) if diff.catalogue_value.blank?
+  end
+
+  def generate_quick_rvparky(f, diff)
+    transfer_type = { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }
+    transfer_type[:blank] = true if diff.rvparky_value.blank?
+
+    concat(f.text_area(('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true))
+    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.catalogue_value.blank?
+    concat(f.submit("Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary")) if diff.rvparky_value.present?
+    concat(tag('br'))
+    concat(content_tag(:i, 'Original Value: ' + diff.rvparky_value.to_s)) if diff.rvparky_value.present?
+    concat(content_tag(:i, 'Originally Blank')) if diff.rvparky_value.blank?
+  end
+
   def generate_amenities_entry
     return Proc.new do |amenity|
       concat(amenity.id.to_s + ': ' + amenity.name + ': ' + amenity.group)
@@ -127,14 +177,26 @@ module MarkedParkHelper
     return Proc.new do |rate|
       concat(rate.name)
       concat(tag('br'))
-      concat(rate.start + ' to ' + rate.end)
-      concat(tag('br'))
-      concat('Minimum Rate: ' + rate.min_rate)
-      concat(tag('br'))
-      concat('Maximum Rate: ' + rate.max_rate)
-      concat(tag('br'))
-      concat('Persons Included: ' + rate.persons.to_s)
-      concat(tag('br'))
+
+      if rate.start.present? && rate.end.present?
+        concat(rate.start + ' to ' + rate.end)
+        concat(tag('br'))
+      end
+
+      if rate.min_rate.present?
+        concat('Minimum Rate: ' + rate.min_rate)
+        concat(tag('br'))
+      end
+
+      if rate.max_rate.present?
+        concat('Maximum Rate: ' + rate.max_rate)
+        concat(tag('br'))
+      end
+
+      if rate.persons.present?
+        concat('Persons Included: ' + rate.persons.to_s)
+        concat(tag('br'))
+      end
     end
   end
 

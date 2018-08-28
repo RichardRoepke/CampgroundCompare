@@ -67,7 +67,24 @@ class MarkedParkController < ApplicationController
       @differences[:differences].each do |diff|
         puts diff.inspect
       end
+    else
+      redirect_to marked_park_path(park), alert: 'Could not find inforjlk;afsdjfl;kajdf;lasdkjkaf;jklasjklasjkasl;asjkl;asdfj '
     end
+  end
+
+  def status
+    MarkedPark.find_each do |park|
+      park.update_status
+      park.save unless park.status == 'DELETE ME'
+      park.destroy if park.status == 'DELETE ME'
+    end
+
+    redirect_to marked_park_index_path, success: 'All parks have been updated.'
+  rescue => exception
+    puts '========================================================================='
+    puts exception.inspect
+    puts '========================================================================='
+    redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
 
   private

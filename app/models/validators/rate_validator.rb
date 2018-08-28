@@ -9,16 +9,11 @@ class RateValidator
   attr_accessor :persons
 
   validates :name, presence: true
-  validates :start, presence: true
-  validates :end, presence: true
-  validates :min_rate, presence: true
-  validates :max_rate, presence: true
-  validates :persons, presence: true
 
   # Once the valid states/conditions are name are known, validate them here.
-  validates :min_rate, numericality: true
-  validates :max_rate, numericality: true
-  validates :persons, numericality: { only_integer: true }
+  validates :min_rate, numericality: true, allow_blank: true
+  validates :max_rate, numericality: true, allow_blank: true
+  validates :persons, numericality: { only_integer: true }, allow_blank: true
 
   validate :valid_dates
 
