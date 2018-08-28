@@ -5,6 +5,14 @@ class MarkedPark < ApplicationRecord
     update_status() if self.updated_at < Date.yesterday
   end
 
+  def next
+    MarkedPark.where("id > ?", id).first
+  end
+
+  def prev
+    MarkedPark.where("id < ?", id).last
+  end
+
   def update_status(catalogue_input=nil, rvparky_input=nil)
     inputs = true
 

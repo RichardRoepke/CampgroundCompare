@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   post '/users', to: 'user#new'
 
   get '/marked_park/:id/quick', to: 'marked_park#quick', as: :marked_park_quick
+  post '/marked_park/:id/quick', to: 'marked_park#submit_changes'
   get '/marked_park/status', to: 'marked_park#status'
 
   # Must be last, otherwise it considers /user/search as user/show with id: search.

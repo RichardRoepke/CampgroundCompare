@@ -50,25 +50,43 @@ class MarkedParkController < ApplicationController
     @catalogue = nil
     @rvparky = nil
 
-    park = MarkedPark.find(params[:id])
+    @park = MarkedPark.find(params[:id])
 
-    if park.uuid.present? && park.slug.present?
-      catalogue_temp = get_catalogue_park(park.uuid)
+    if @park.uuid.present?
+      catalogue_temp = get_catalogue_park(@park.uuid)
       @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
     end
 
-    if park.slug.present?
-      rvparky_temp = get_rvparky_park(park.slug)
+    if @park.slug.present?
+      rvparky_temp = get_rvparky_park(@park.slug)
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
 
     if @rvparky.present? && @catalogue.present?
-      @differences = park.calculate_differences(@catalogue, @rvparky, true)
-      @differences[:differences].each do |diff|
-        puts diff.inspect
-      end
+      @differences = @park.calculate_differences(@catalogue, @rvparky, true)
     else
-      redirect_to marked_park_path(park), alert: 'Could not find inforjlk;afsdjfl;kajdf;lasdkjkaf;jklasjklasjkasl;asjkl;asdfj '
+      redirect_to marked_park_path(@park), alert: 'Could not find inforjlk;afsdjfl;kajdf;lasdkjkaf;jklasjklasjkasl;asjkl;asdfj '
+    end
+  end
+
+  def submit_changes
+    @park = MarkedPark.find(params[:id])
+
+    puts '==========================================================================='
+    puts params.inspect
+    puts '==========================================================================='
+
+    params.each do |key, value|
+      puts key + ': ' + value if key.include?('Catalogue_')
+      puts key + ': ' + value if key.include?('RVParky_')
+    end
+
+    if params["commit"] == 'Submit and Next'
+      target = @park.next
+      redirect_to marked_park_quick_path(target) unless target.nil?
+      redirect_to marked_park_index_path, alert: 'No further parks found.'
+    else
+      redirect_to marked_park_index_path
     end
   end
 
@@ -79,7 +97,7 @@ class MarkedParkController < ApplicationController
       park.destroy if park.status == 'DELETE ME'
     end
 
-    redirect_to marked_park_index_path, success: 'All parks have been updated.'
+    redirect_to marked_park_index_path, alert: 'All parks have been updated.'
   rescue => exception
     puts '========================================================================='
     puts exception.inspect

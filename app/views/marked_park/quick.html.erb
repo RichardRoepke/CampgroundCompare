@@ -4,10 +4,13 @@
 
 <br />
 
+<h4><%= @park.name %></h4>
+
 <%= bootstrap_form_tag do |f| %>
   <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>
   <%= f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary" %>
-<% end %>
+  <%= f.submit "Submit Form" %>
+  <%= f.submit "Submit and Next" %>
 
 <hr />
 
@@ -20,7 +23,6 @@
       <h4>RVPARKY:</h4>
     </div>
   </div>
-  <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
     <% @differences[:differences].each do |diff| %>
       <%= generate_quick_fields(f, diff) %>
       <% unless diff == @differences[:differences].last %>
