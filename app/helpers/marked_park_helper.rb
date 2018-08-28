@@ -51,21 +51,6 @@ module MarkedParkHelper
         generate_quick_rvparky(f, diff)
       end)
     end
-=begin
-              <%= f.text_area ('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-primary" %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.catalogue_value %></i>
-            </div>
-            <div class="col">
-              <%= diff.rvparky_field %>:
-              <%= f.text_area ('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }, class: "btn btn-outline-primary" %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.rvparky_value %></i>
-=end
   end
 
   def generate_quick_catalogue(f, diff)
@@ -74,7 +59,7 @@ module MarkedParkHelper
 
     concat(f.text_area(('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true))
     concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.rvparky_value.blank?
-    concat(f.submit("Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary")) if diff.catalogue_value.present?
+    concat(f.submit("Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.catalogue_value.present?
     concat(tag('br'))
     concat(content_tag(:i, 'Original Value: ' + diff.catalogue_value.to_s)) if diff.catalogue_value.present?
     concat(content_tag(:i, 'Originally Blank')) if diff.catalogue_value.blank?
@@ -86,7 +71,7 @@ module MarkedParkHelper
 
     concat(f.text_area(('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true))
     concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.catalogue_value.blank?
-    concat(f.submit("Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary")) if diff.rvparky_value.present?
+    concat(f.submit("Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.rvparky_value.present?
     concat(tag('br'))
     concat(content_tag(:i, 'Original Value: ' + diff.rvparky_value.to_s)) if diff.rvparky_value.present?
     concat(content_tag(:i, 'Originally Blank')) if diff.rvparky_value.blank?

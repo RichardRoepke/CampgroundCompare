@@ -5,8 +5,8 @@
 <br />
 
 <%= bootstrap_form_tag do |f| %>
-  <%= f.submit "Transfer All Blank", type: 'button', data: { global: 'Transfer Blank' }, class: "btn btn-primary" %>
-  <%= f.submit "Reset All", type: 'button', data: { global: 'Reset All' }, class: "btn btn-secondary" %>
+  <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>
+  <%= f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary" %>
 <% end %>
 
 <hr />
@@ -23,56 +23,6 @@
   <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
     <% @differences[:differences].each do |diff| %>
       <%= generate_quick_fields(f, diff) %>
-      <!--<div class="row">
-        <% if diff.kind == 'Value Mismatch' %>
-            <div class="col">
-              <%= diff.catalogue_field %>:
-              <%= f.text_area ('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-primary" %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.catalogue_value %></i>
-            </div>
-            <div class="col">
-              <%= diff.rvparky_field %>:
-              <%= f.text_area ('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }, class: "btn btn-outline-primary" %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.rvparky_value %></i>
-            </div>
-        <% elsif diff.kind = 'RVParky Blank' %>
-          <div class="col">
-              <%= diff.catalogue_field %>:
-              <%= f.text_area ('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.catalogue_value %></i>
-            </div>
-            <div class="col">
-              <%= diff.rvparky_field %>:
-              <%= f.text_area ('RVParky_blank_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value, blank: 'true' }, class: "btn btn-outline-primary" %>
-              <br />
-              <i>Originally Blank</i>
-            </div>
-        <% elsif diff.kind = 'Catalogue Blank'%>
-          <div class="col">
-              <%= diff.catalogue_field %>:
-              <%= f.text_area ('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true %>
-              <%= f.submit "Transfer", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value, blank: 'true' }, class: "btn btn-outline-primary" %>
-              <br />
-              <i>Originally blank</i>
-            </div>
-            <div class="col">
-              <%= diff.rvparky_field %>:
-              <%= f.text_area ('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true %>
-              <%= f.submit "Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
-              <br />
-              <i>Original Value: <%= diff.rvparky_value %></i>
-            </div>
-        <% end %>
-      </div> -->
       <% unless diff == @differences[:differences].last %>
         <hr />
       <% end %>
