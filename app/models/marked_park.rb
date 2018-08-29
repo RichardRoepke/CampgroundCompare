@@ -1,6 +1,8 @@
 class MarkedPark < ApplicationRecord
   validates :uuid, uniqueness: true
 
+  has_many :differences
+
   after_find do |park|
     update_status() if self.updated_at < Date.yesterday
   end
@@ -71,10 +73,7 @@ class MarkedPark < ApplicationRecord
   def calculate_status(catalogue, rvparky)
     if catalogue.valid? && rvparky.valid?
       differ = calculate_differences(catalogue, rvparky)
-      #puts '=============================================================================='
-      #puts differ.inspect
-      #puts '=============================================================================='
-      return 'DELETE ME' if differ[:differences].blank?
+      return 'DELETE ME' if self.differences.blank?
       return 'INFORMATION MISMATCH' if differ[:mismatch] > 0
       return 'BLANK FIELDS' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
       return 'RVPARKY MISSING' if differ[:rvparky_blank] > 0
@@ -104,8 +103,7 @@ class MarkedPark < ApplicationRecord
 
     result = { catalogue_blank: 0,
                rvparky_blank: 0,
-               mismatch: 0,
-               differences: [] }
+               mismatch: 0 }
 
     fields.each do |catalogue_field, rvparky_field|
       catalogue_value = catalogue.public_send(catalogue_field)
@@ -119,15 +117,11 @@ class MarkedPark < ApplicationRecord
           result[:catalogue_blank] += 1 if catalogue_value.blank?
           result[:rvparky_blank] += 1 if rvparky_value.blank?
           result[:mismatch] += 1 if catalogue_value.present? && rvparky_value.present?
-          result[:differences].push(true) if object.blank?
-          if object.present?
-            diff = Difference.new({ catalogue_field: catalogue_field,
-                                                     catalogue_value: catalogue_value,
-                                                     rvparky_field: rvparky_field,
-                                                     rvparky_value: rvparky_value,
-                                                     kind: value_compare_helper(catalogue_value, rvparky_value) })
-            result[:differences].push(diff) if diff.valid?
-          end
+          self.differences.push(Difference.new({ catalogue_field: catalogue_field,
+                                                 catalogue_value: catalogue_value,
+                                                 rvparky_field: rvparky_field,
+                                                 rvparky_value: rvparky_value,
+                                                 kind: value_compare_helper(catalogue_value, rvparky_value) }))
         end
       end
     end
@@ -136,8 +130,8 @@ class MarkedPark < ApplicationRecord
   end
 
   def value_compare_helper(catalogue_value, rvparky_value)
-    return 'RVParky Blank' if rvparky_value.blank?
-    return 'Catalogue Blank' if catalogue_value.blank?
-    return 'Value Mismatch'
+    return :rvparky_blank if rvparky_value.blank?
+    return :catalogue if catalogue_value.blank?
+    return :mismatch
   end
 end

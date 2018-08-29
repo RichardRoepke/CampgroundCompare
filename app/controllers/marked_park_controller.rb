@@ -20,6 +20,10 @@ class MarkedParkController < ApplicationController
       rvparky_temp = get_rvparky_park(park.slug)
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
+
+    if park.differences.present?
+      @differences = park.differences
+    end
   end
 
   def edit

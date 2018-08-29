@@ -259,4 +259,36 @@
 
     <%= collapse_generator('Reviews', generate_rreviews_entry, @rvparky.reviews, 'R') if @rvparky.reviews.present? %>
   </div>
+
+  <hr />
+<% end %>
+
+<% if @differences.present?%>
+  <h4>Differences:</h4>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <h6>CATALOGUE:</h6>
+    </div>
+    <div class="col">
+      <h6>RVPARKY:</h6>
+    </div>
+  </div>
+  <% @differences.each do |diff| %>
+    <div class="row">
+      <div class="col">
+        <%= diff.catalogue_field + ': ' %>
+        <%= diff.catalogue_value.to_s unless diff.catalogue_value.blank? %>
+        <%= '[Blank]' if diff.catalogue_value.blank? %>
+      </div>
+      <div class="col">
+        <%= diff.rvparky_field + ': '%>
+        <%= diff.rvparky_value.to_s unless diff.rvparky_value.blank? %>
+        <%= '[Blank]' if diff.rvparky_value.blank? %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
 <% end %>
