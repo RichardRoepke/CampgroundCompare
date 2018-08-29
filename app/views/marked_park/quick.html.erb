@@ -24,7 +24,7 @@
     </div>
   </div>
     <% @differences.each do |diff| %>
-      <% unless diff.match? || diff.catalogue_field == 'review_count' %>
+      <% unless diff.match? || diff.catalogue_field == 'review_count' || diff.catalogue_field == 'rating' %>
         <%= generate_quick_fields(f, diff) %>
         <% unless diff == @differences.last %>
           <hr />
