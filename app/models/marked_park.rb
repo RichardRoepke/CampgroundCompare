@@ -1,6 +1,8 @@
 class MarkedPark < ApplicationRecord
   validates :uuid, uniqueness: true
 
+  has_many :differences
+
   after_find do |park|
     update_status() if self.updated_at < Date.yesterday
   end
@@ -71,73 +73,103 @@ class MarkedPark < ApplicationRecord
   def calculate_status(catalogue, rvparky)
     if catalogue.valid? && rvparky.valid?
       differ = calculate_differences(catalogue, rvparky)
-      #puts '=============================================================================='
-      #puts differ.inspect
-      #puts '=============================================================================='
-      return 'DELETE ME' if differ[:differences].blank?
+      return 'DELETE ME' if differ[:total] == 0
       return 'INFORMATION MISMATCH' if differ[:mismatch] > 0
-      return 'BLANK FIELDS' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
-      return 'RVPARKY MISSING' if differ[:rvparky_blank] > 0
-      return 'CATALOGUE BLANK' if differ[:catalogue_blank] > 0
+      return 'BOTH LACK INFORMATION' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
+      return 'RVPARKY LACKS INFORMATION' if differ[:rvparky_blank] > 0
+      return 'CATALOGUE LACKS INFORMATION' if differ[:catalogue_blank] > 0
       return '???'
     end
 
-    return 'CATALOGUE IS FINE' if catalogue.valid?
-    return 'RVPARKY IS FINE' if rvparky.valid?
+    return 'CATALOGUE IS INVALID' if catalogue.invalid?
+    return 'RVPARKY IS INVALID' if rvparky.invalid?
     return 'NOTHING IS FINE'
   end
 
-  def calculate_differences(catalogue, rvparky, object=false)
-    fields = [['website', 'website'],
-              ['former_name', 'former'],
-              ['rating', 'rating'],
-              ['alt_name', 'known_as'],
-              ['city', 'city'],
-              ['longitude', 'longitude'],
-              ['latitude', 'latitude'],
-              ['postal', 'postal_code'],
-              ['phone', 'phone'],
-              ['description', 'description'],
-              ['address', 'address'],
-              ['name', 'name'],
-              ['review_count', 'review_count']]
+  def calculate_differences(catalogue, rvparky)
+    if self.differences.length < compariable_fields.length
+      populate_differences(catalogue, rvparky)
+    else
+      revaluate_differences(catalogue, rvparky)
+    end
 
+    return tally_differences
+  end
+
+  def tally_differences
     result = { catalogue_blank: 0,
                rvparky_blank: 0,
                mismatch: 0,
-               differences: [] }
+               total: 0 }
 
-    fields.each do |catalogue_field, rvparky_field|
-      catalogue_value = catalogue.public_send(catalogue_field)
-      rvparky_value = rvparky.public_send(rvparky_field)
-
-      unless catalogue_value.to_s.downcase == rvparky_value.to_s.downcase
-        # Different digits after the decimal point for Catalogue and RVParky locations
-        # means that floats which are obviously meant to be idenitical are not.
-        # For example, 4.83 vs 4.83333333. This statement should resolve this situation.
-        unless catalogue_value.is_a?(Float) && rvparky_value.is_a?(Float) && (catalogue_value - rvparky_value).abs < 0.01
-          result[:catalogue_blank] += 1 if catalogue_value.blank?
-          result[:rvparky_blank] += 1 if rvparky_value.blank?
-          result[:mismatch] += 1 if catalogue_value.present? && rvparky_value.present?
-          result[:differences].push(true) if object.blank?
-          if object.present?
-            diff = Difference.new({ catalogue_field: catalogue_field,
-                                                     catalogue_value: catalogue_value,
-                                                     rvparky_field: rvparky_field,
-                                                     rvparky_value: rvparky_value,
-                                                     kind: value_compare_helper(catalogue_value, rvparky_value) })
-            result[:differences].push(diff) if diff.valid?
-          end
-        end
+    self.differences.each do |diff|
+      unless diff.match?
+        result[:total] += 1
+        result[:catalogue_blank] += 1 if diff.catalogue_blank?
+        result[:rvparky_blank] += 1 if diff.rvparky_blank?
+        result[:mismatch] += 1 if diff.mismatch?
       end
     end
 
     return result
   end
 
-  def value_compare_helper(catalogue_value, rvparky_value)
-    return 'RVParky Blank' if rvparky_value.blank?
-    return 'Catalogue Blank' if catalogue_value.blank?
-    return 'Value Mismatch'
+  def revaluate_differences(catalogue, rvparky)
+    self.differences.each do |diff|
+      diff.catalogue_value = catalogue.public_send(diff.catalogue_field)
+      diff.rvparky_value = rvparky.public_send(diff.rvparky_field)
+      diff.kind = value_compare_result(diff.catalogue_value, diff.rvparky_value)
+      diff.save
+    end
+  end
+
+  def populate_differences(catalogue, rvparky)
+    fields = compariable_fields
+
+    fields.each do |catalogue_field, rvparky_field|
+      catalogue_value = catalogue.public_send(catalogue_field)
+      rvparky_value = rvparky.public_send(rvparky_field)
+
+      temp_model = self.differences.find_by(catalogue_field: catalogue_field)
+
+      if temp_model.blank?
+        temp_model = Difference.new()
+        self.differences.push(temp_model)
+      end
+
+      temp_model.update({ catalogue_field: catalogue_field,
+                          catalogue_value: catalogue_value,
+                          rvparky_field: rvparky_field,
+                          rvparky_value: rvparky_value,
+                          kind: value_compare_result(catalogue_value, rvparky_value) })
+      temp_model.save if temp_model.valid?
+    end
+  end
+
+  def value_compare_result(catalogue_value, rvparky_value)
+    return :match if catalogue_value.to_s == rvparky_value.to_s
+    if catalogue_value.present? && rvparky_value.present?
+      return :match if (catalogue_value.to_f - rvparky_value.to_f).abs < 0.01
+    end
+    return :match if rvparky_value.blank? && catalogue_value.blank?
+    return :rvparky_blank if rvparky_value.blank?
+    return :catalogue_blank if catalogue_value.blank?
+    return :mismatch
+  end
+
+  def compariable_fields
+    return [['website', 'website'],
+            ['former_name', 'former'],
+            ['rating', 'rating'],
+            ['alt_name', 'known_as'],
+            ['city', 'city'],
+            ['longitude', 'longitude'],
+            ['latitude', 'latitude'],
+            ['postal', 'postal_code'],
+            ['phone', 'phone'],
+            ['description', 'description'],
+            ['address', 'address'],
+            ['name', 'name'],
+            ['review_count', 'review_count']]
   end
 end

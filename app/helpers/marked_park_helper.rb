@@ -45,9 +45,11 @@ module MarkedParkHelper
   def generate_quick_fields(f, diff)
     content_tag(:div, { class: "row" }) do
       concat(content_tag(:div, { class: "col" }) do
+        concat(diff.catalogue_field)
         generate_quick_catalogue(f, diff)
       end)
       concat(content_tag(:div, { class: "col" }) do
+        concat(diff.rvparky_field)
         generate_quick_rvparky(f, diff)
       end)
     end

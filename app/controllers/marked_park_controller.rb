@@ -20,6 +20,10 @@ class MarkedParkController < ApplicationController
       rvparky_temp = get_rvparky_park(park.slug)
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
+
+    if park.differences.present?
+      @differences = park.differences
+    end
   end
 
   def edit
@@ -28,7 +32,7 @@ class MarkedParkController < ApplicationController
 
     park = MarkedPark.find(params[:id])
 
-    if park.uuid.present? && park.slug.present?
+    if park.uuid.present?
       catalogue_temp = get_catalogue_park(park.uuid)
       @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
     end
@@ -38,34 +42,35 @@ class MarkedParkController < ApplicationController
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
 
-    if @rvparky.present? && @catalogue.present?
-      @differences = park.calculate_differences(@catalogue, @rvparky, true)
-      @differences[:differences].each do |diff|
-        puts diff.inspect
-      end
+    if park.differences.present?
+      @differences = park.differences
     end
   end
 
   def quick
-    @catalogue = nil
-    @rvparky = nil
-
     @park = MarkedPark.find(params[:id])
 
-    if @park.uuid.present?
-      catalogue_temp = get_catalogue_park(@park.uuid)
-      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
-    end
+    unless @park.status == 'UUID IS INVALID' || @park.status == 'SLUG IS INVALID' || @park.status == 'NO CONNECTION'
+      @catalogue = nil
+      @rvparky = nil
 
-    if @park.slug.present?
-      rvparky_temp = get_rvparky_park(@park.slug)
-      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
-    end
+      if @park.uuid.present?
+        catalogue_temp = get_catalogue_park(@park.uuid)
+        @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
+      end
 
-    if @rvparky.present? && @catalogue.present?
-      @differences = @park.calculate_differences(@catalogue, @rvparky, true)
+      if @park.slug.present?
+        rvparky_temp = get_rvparky_park(@park.slug)
+        @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
+      end
+
+      if @rvparky.present? && @catalogue.present?
+        @differences = @park.differences
+      else
+        redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
+      end
     else
-      redirect_to marked_park_path(@park), alert: 'Could not find inforjlk;afsdjfl;kajdf;lasdkjkaf;jklasjklasjkasl;asjkl;asdfj '
+      redirect_to marked_park_path(@park), alert: 'Differences could not be determined due to asdfjkl;asdjfkas;jfkl;asdjfs;a'
     end
   end
 
@@ -93,15 +98,12 @@ class MarkedParkController < ApplicationController
   def status
     MarkedPark.find_each do |park|
       park.update_status
-      park.save unless park.status == 'DELETE ME'
       park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
     end
 
     redirect_to marked_park_index_path, alert: 'All parks have been updated.'
   rescue => exception
-    puts '========================================================================='
-    puts exception.inspect
-    puts '========================================================================='
     redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
 
