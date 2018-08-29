@@ -16,8 +16,8 @@
     <br />
   <% end %>
 
-  <% if @catalogue.former_name.present?%>
-    <%= 'Former Name: ' + @catalogue.former_name %>
+  <% if @catalogue.formerName.present?%>
+    <%= 'Former Name: ' + @catalogue.formerName %>
     <br />
   <% end %>
 
@@ -120,23 +120,23 @@
 
   <%= @rvparky.slug + ' (' + @rvparky.category + ')'%> <br/>
 
-  <% if @rvparky.known_as.present?%>
-    <%= 'Alternative Name: ' + @rvparky.known_as %>
+  <% if @rvparky.alsoKnownAs.present?%>
+    <%= 'Alternative Name: ' + @rvparky.alsoKnownAs %>
     <br />
   <% end %>
 
-  <% if @rvparky.former.present?%>
-    <%= 'Former Name: ' + @rvparky.former %>
+  <% if @rvparky.formerlyKnownAs.present?%>
+    <%= 'Former Name: ' + @rvparky.formerlyKnownAs %>
     <br />
   <% end %>
 
   <%= 'Address: ' %>
   <%= @rvparky.address + ', ' if @rvparky.address.present? %>
   <%= @rvparky.city + ', ' + @rvparky.region %>
-  <%= @rvparky.postal_code if @rvparky.postal_code.present? %><br/>
+  <%= @rvparky.zip_code if @rvparky.zip_code.present? %><br/>
 
-  <% if @rvparky.phone.present? %>
-    <%= 'Phone Number: ' + @rvparky.phone%>
+  <% if @rvparky.phone_number.present? %>
+    <%= 'Phone Number: ' + @rvparky.phone_number %>
     <br />
   <% end %>
 
@@ -155,13 +155,13 @@
     <br />
   <% end %>
 
-  <% if @rvparky.inseason_date.present? %>
-    <%= 'Inseason: ' + @rvparky.inseason_date %>
+  <% if @rvparky.inSeasonDates.present? %>
+    <%= 'Inseason: ' + @rvparky.inSeasonDates %>
     <br />
   <% end %>
 
-  <% if @rvparky.offseason_date.present? %>
-    <%= 'Offseason: ' + @rvparky.offseason_date%>
+  <% if @rvparky.offSeasonDates.present? %>
+    <%= 'Offseason: ' + @rvparky.offSeasonDates%>
     <br />
   <% end %>
 
@@ -177,41 +177,41 @@
 
   <%= 'Sites: ' + @rvparky.sites.to_s %> <br />
 
-  <% if @rvparky.daily_rate.present? %>
-    <%= 'Daily Rate: ' + @rvparky.daily_rate.to_s %>
-    <%= ' (' + @rvparky.daily_rate_updated + ')' if @rvparky.daily_rate_updated.present? %>
+  <% if @rvparky.dailyRate.present? %>
+    <%= 'Daily Rate: ' + @rvparky.dailyRate.to_s %>
+    <%= ' (' + @rvparky.dailyRateUpdated + ')' if @rvparky.dailyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.offseason_daily_rate.present? %>
-    <%= 'Offseason Daily Rate: ' + @rvparky.offseason_daily_rate.to_s %>
+  <% if @rvparky.dailyRate_offseason.present? %>
+    <%= 'Offseason Daily Rate: ' + @rvparky.dailyRate_offseason.to_s %>
     <br />
   <% end %>
 
-  <% if @rvparky.weekly_rate.present? %>
-    <%= 'Weekly Rate: ' + @rvparky.weekly_rate.to_s %>
-    <%= ' (' + @rvparky.weekly_rate_updated + ')' if @rvparky.weekly_rate_updated.present? %>
+  <% if @rvparky.weeklyRate.present? %>
+    <%= 'Weekly Rate: ' + @rvparky.weeklyRate.to_s %>
+    <%= ' (' + @rvparky.weeklyRateUpdated + ')' if @rvparky.weeklyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.offseason_weekly_rate.present? %>
-    <%= 'Offseason Weekly Rate: ' + @rvparky.offseason_weekly_rate.to_s %>
+  <% if @rvparky.weeklyRate_offseason.present? %>
+    <%= 'Offseason Weekly Rate: ' + @rvparky.weeklyRate_offseason.to_s %>
     <br />
   <% end %>
 
-  <% if @rvparky.monthly_rate.present? %>
-    <%= 'Monthly Rate: ' + @rvparky.monthly_rate.to_s %>
-    <%= ' (' + @rvparky.monthly_rate_updated + ')' if @rvparky.monthly_rate_updated.present? %>
+  <% if @rvparky.monthlyRate.present? %>
+    <%= 'Monthly Rate: ' + @rvparky.monthlyRate.to_s %>
+    <%= ' (' + @rvparky.monthlyRateUpdated + ')' if @rvparky.monthlyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.offseason_monthly_rate.present? %>
-    <%= 'Offseason Monthly Rate: ' + @rvparky.offseason_monthly_rate.to_s  %>
+  <% if @rvparky.monthlyRate_offseason.present? %>
+    <%= 'Offseason Monthly Rate: ' + @rvparky.monthlyRate_offseason.to_s  %>
     <br />
   <% end %>
 
-  <% if @rvparky.seasonal_rates.present? && @rvparky.seasonal_rates != 0 %>
-    <%= 'Seasonal Rates: ' + @rvparky.seasonal_rates.to_s %>
+  <% if @rvparky.seasonalRates.present? && @rvparky.seasonalRates != 0 %>
+    <%= 'Seasonal Rates: ' + @rvparky.seasonalRates.to_s %>
     <br />
   <% end %>
 
