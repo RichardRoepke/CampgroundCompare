@@ -1,13 +1,17 @@
 class RvparkyLocationValidator
   include ActiveModel::Validations
 
+
+  # The names of the various attributes match the names of the attributes in
+  # RVParky, so that they don't have to be converted to and back whenever
+  # retreiving or updating info.
   attr_accessor :website
-  attr_accessor :former
-  attr_accessor :weekly_rate_updated
+  attr_accessor :formerlyKnownAs
+  attr_accessor :weeklyRateUpdated
   attr_accessor :rating
-  attr_accessor :offseason_daily_rate
-  attr_accessor :known_as
-  attr_accessor :daily_rate
+  attr_accessor :dailyRate_offseason
+  attr_accessor :alsoKnownAs
+  attr_accessor :dailyRate
   attr_accessor :category
   attr_accessor :city
   attr_accessor :review_count
@@ -17,23 +21,23 @@ class RvparkyLocationValidator
   attr_accessor :sites
   attr_accessor :discounts
   attr_accessor :closed
-  attr_accessor :postal_code
-  attr_accessor :phone
+  attr_accessor :zip_code
+  attr_accessor :phone_number
   attr_accessor :open_dates
-  attr_accessor :seasonal_rates
+  attr_accessor :seasonalRates
   attr_accessor :description
-  attr_accessor :offseason_date
+  attr_accessor :offSeasonDates
   attr_accessor :address
   attr_accessor :slug
-  attr_accessor :inseason_date
+  attr_accessor :inSeasonDates
   attr_accessor :name
-  attr_accessor :daily_rate_updated
-  attr_accessor :monthly_rate_updated
+  attr_accessor :dailyRateUpdated
+  attr_accessor :monthlyRateUpdated
   attr_accessor :region
-  attr_accessor :monthly_rate
-  attr_accessor :weekly_rate
-  attr_accessor :offseason_weekly_rate
-  attr_accessor :offseason_monthly_rate
+  attr_accessor :monthlyRate
+  attr_accessor :weeklyRate
+  attr_accessor :weeklyRate_offseason
+  attr_accessor :monthlyRate_offseason
 
   # Arrays of various attributes, like tags, reviews, etc, etc.
   attr_accessor :amenities
@@ -64,12 +68,12 @@ class RvparkyLocationValidator
 
   def initialize(input)
     @website = input[:website]
-    @former = input[:formerlyKnownAs]
-    @weekly_rate_updated = input[:weeklyRateUpdated]
+    @formerlyKnownAs = input[:formerlyKnownAs]
+    @weeklyRateUpdated = input[:weeklyRateUpdated]
     @rating = input[:rating]
-    @offseason_daily_rate = input[:dailyRate_offseason]
-    @known_as = input[:alsoKnownAs]
-    @daily_rate = input[:dailyRate]
+    @dailyRate_offseason = input[:dailyRate_offseason]
+    @alsoKnownAs = input[:alsoKnownAs]
+    @dailyRate = input[:dailyRate]
     @category = input[:category]
     @city = input[:city]
     @review_count = input[:review_count]
@@ -79,23 +83,23 @@ class RvparkyLocationValidator
     @sites = input[:sites]
     @discounts = input[:discounts]
     @closed = input[:closed]
-    @postal_code = input[:zip_code]
-    @phone = input[:phone_number]
+    @zip_code = input[:zip_code]
+    @phone_number = input[:phone_number]
     @open_dates = input[:open_dates]
-    @seasonal_rates = input[:seasonalRates]
+    @seasonalRates = input[:seasonalRates]
     @description = input[:description]
-    @offseason_date = input[:offSeasonDates]
+    @offSeasonDates = input[:offSeasonDates]
     @address = input[:address]
     @slug = input[:slug]
-    @inseason_date = input[:inSeasonDates]
+    @inSeasonDates = input[:inSeasonDates]
     @name = input[:name]
-    @daily_rate_updated = input[:dailyRateUpdated]
-    @monthly_rate_updated = input[:monthlyRateUpdated]
+    @dailyRateUpdated = input[:dailyRateUpdated]
+    @monthlyRateUpdated = input[:monthlyRateUpdated]
     @region = input[:region]
-    @monthly_rate = input[:monthlyRate]
-    @weekly_rate = input[:weeklyRate]
-    @offseason_weekly_rate = input[:weeklyRate_offseason]
-    @offseason_monthly_rate = input[:monthlyRate_offseason]
+    @monthlyRate = input[:monthlyRate]
+    @weeklyRate = input[:weeklyRate]
+    @weeklyRate_offseason = input[:weeklyRate_offseason]
+    @monthlyRate_offseason = input[:monthlyRate_offseason]
 
     @amenities = input[:amenities]
 
@@ -126,7 +130,7 @@ class RvparkyLocationValidator
     # (XXX) YYY-ZZZZ, with a space between the area-code and rest of the number.
     # This expression inserts that space, to prevent obviously identical phone numbers
     # from being flagged as a mismatch.
-    @phone.insert(5, ' ') if @phone.match('\A\(\d{3}\)\d{3}-\d{4}\z')
+    @phone_number.insert(5, ' ') if @phone_number.match('\A\(\d{3}\)\d{3}-\d{4}\z')
   end
 
   def id
@@ -157,16 +161,16 @@ class RvparkyLocationValidator
   end
 
   def valid_dates
-    if @weekly_rate_updated.present?
-      errors.add(:weekly_rate_updated, 'must be a valid date.') unless check_date(@weekly_rate_updated)
+    if @weeklyRateUpdated.present?
+      errors.add(:weeklyRateUpdated, 'must be a valid date.') unless check_date(@weeklyRateUpdated)
     end
 
-    if @daily_rate_updated.present?
-      errors.add(:daily_rate_updated, 'must be a valid date.') unless check_date(@daily_rate_updated)
+    if @dailyRateUpdated.present?
+      errors.add(:dailyRateUpdated, 'must be a valid date.') unless check_date(@dailyRateUpdated)
     end
 
-    if @monthly_rate_updated.present?
-      errors.add(:monthly_rate_updated, 'must be a valid date.') unless check_date(@monthly_rate_updated)
+    if @monthlyRateUpdated.present?
+      errors.add(:monthlyRateUpdated, 'must be a valid date.') unless check_date(@monthlyRateUpdated)
     end
   end
 
