@@ -5,7 +5,7 @@ require 'test_helper'
                 catalogue_value: 'none',
                 rvparky_field: 'text',
                 rvparky_value: 'none',
-                kind: 'Catalogue Blank' }
+                kind: :catalogue_blank }
     @difference = Difference.new(@params)
   end
 
@@ -15,7 +15,7 @@ require 'test_helper'
     assert @difference.catalogue_value == @params[:catalogue_value]
     assert @difference.rvparky_field == @params[:rvparky_field]
     assert @difference.rvparky_value == @params[:rvparky_value]
-    assert @difference.kind == @params[:kind]
+    assert @difference.catalogue_blank?
   end
 
   test 'catalogue_field must be present' do
@@ -34,16 +34,32 @@ require 'test_helper'
   end
 
   test 'kind accepts limited inputs' do
-    @difference.kind = 'RVParky Blank'
+    @difference.kind = :rvparky_blank
     assert @difference.valid?
+    assert @difference.rvparky_blank?
+    assert_not @difference.catalogue_blank?
+    assert_not @difference.mismatch?
+    assert_not @difference.match?
 
-    @difference.kind = 'Catalogue Blank'
+    @difference.kind = :catalogue_blank
     assert @difference.valid?
+    assert_not @difference.rvparky_blank?
+    assert @difference.catalogue_blank?
+    assert_not @difference.mismatch?
+    assert_not @difference.match?
 
-    @difference.kind = 'Value Mismatch'
+    @difference.kind = :mismatch
     assert @difference.valid?
+    assert_not @difference.rvparky_blank?
+    assert_not @difference.catalogue_blank?
+    assert @difference.mismatch?
+    assert_not @difference.match?
 
-    @difference.kind = generate_random_string(5, 15)
-    assert_not @difference.valid?
+    @difference.kind = :match
+    assert @difference.valid?
+    assert_not @difference.rvparky_blank?
+    assert_not @difference.catalogue_blank?
+    assert_not @difference.mismatch?
+    assert @difference.match?
   end
 end

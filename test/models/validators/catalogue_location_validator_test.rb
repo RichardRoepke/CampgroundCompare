@@ -110,24 +110,24 @@ class CatalogueLocationValidatorTest < ActiveSupport::TestCase
     assert @validator.uuid == @params[:uuid]
     assert @validator.type == @params[:type]
     assert @validator.name == @params[:name]
-    assert @validator.bounce == @params[:bounceCode]
+    assert @validator.bounceCode == @params[:bounceCode]
     assert @validator.address == @params[:address]
     assert @validator.city == @params[:city]
-    assert @validator.postal == @params[:postalCode]
-    assert @validator.state == @params[:stateName]
-    assert @validator.state_code == @params[:stateCode]
-    assert @validator.country == @params[:countryName]
-    assert @validator.country_code == @params[:countryCode]
+    assert @validator.postalCode == @params[:postalCode]
+    assert @validator.stateName == @params[:stateName]
+    assert @validator.stateCode == @params[:stateCode]
+    assert @validator.countryName == @params[:countryName]
+    assert @validator.countryCode == @params[:countryCode]
     assert @validator.phone == @params[:phone]
     assert @validator.email == @params[:email]
     assert @validator.website == @params[:website]
     assert @validator.latitude == @params[:latitude]
     assert @validator.longitude == @params[:longitude]
     assert @validator.description == @params[:description]
-    assert @validator.description_short == @params[:descriptionShort]
+    assert @validator.descriptionShort == @params[:descriptionShort]
     assert @validator.directions == @params[:directions]
-    assert @validator.alt_name == @params[:alternativeName]
-    assert @validator.former_name == @params[:formerName]
+    assert @validator.alternativeName == @params[:alternativeName]
+    assert @validator.formerName == @params[:formerName]
     assert @validator.rating == @params[:rating]
   end
 
@@ -255,23 +255,23 @@ class CatalogueLocationValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'state must be present' do
-    @validator.state = nil
+  test 'stateName must be present' do
+    @validator.stateName = nil
     assert_not @validator.valid?
   end
 
-  test 'state code must be present' do
-    @validator.state_code = nil
+  test 'stateCode must be present' do
+    @validator.stateCode = nil
     assert_not @validator.valid?
   end
 
-  test 'country must be present' do
-    @validator.country = nil
+  test 'countryName must be present' do
+    @validator.countryName = nil
     assert_not @validator.valid?
   end
 
-  test 'country code must be present' do
-    @validator.country_code = nil
+  test 'countryCode must be present' do
+    @validator.countryCode = nil
     assert_not @validator.valid?
   end
 

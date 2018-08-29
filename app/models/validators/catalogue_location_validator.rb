@@ -1,27 +1,30 @@
 class CatalogueLocationValidator
   include ActiveModel::Validations
 
+  # The names of the various attributes match the names of the attributes in
+  # the Central Catalogue, so that they don't have to be converted to and back
+  # whenever retreiving or updating info.
   attr_accessor :uuid
   attr_accessor :type
   attr_accessor :name
-  attr_accessor :bounce
+  attr_accessor :bounceCode
   attr_accessor :address
   attr_accessor :city
-  attr_accessor :postal
-  attr_accessor :state
-  attr_accessor :state_code
-  attr_accessor :country
-  attr_accessor :country_code
+  attr_accessor :postalCode
+  attr_accessor :stateName
+  attr_accessor :stateCode
+  attr_accessor :countryName
+  attr_accessor :countryCode
   attr_accessor :phone
   attr_accessor :email
   attr_accessor :website
   attr_accessor :latitude
   attr_accessor :longitude
   attr_accessor :description
-  attr_accessor :description_short
+  attr_accessor :descriptionShort
   attr_accessor :directions
-  attr_accessor :alt_name
-  attr_accessor :former_name
+  attr_accessor :alternativeName
+  attr_accessor :formerName
   attr_accessor :rating
 
   # Arrays of various attributes, like tags, reviews, etc, etc.
@@ -40,29 +43,29 @@ class CatalogueLocationValidator
   validates :name, presence: true
   validates :address, presence: true
   validates :city, presence: true
-  validates :state, presence: true
-  validates :state_code, presence: true
-  validates :country, presence: true
-  validates :country_code, presence: true
+  validates :stateName, presence: true
+  validates :stateCode, presence: true
+  validates :countryName, presence: true
+  validates :countryCode, presence: true
 
   validates :uuid, length: { maximum: 255 }
   validates :type, inclusion: { in: %w{ Campground GasStation Store RestStop Casino } }
   validates :name, length: { maximum: 255 }
-  validates :bounce, length: { maximum: 255 }, allow_blank: true
+  validates :bounceCode, length: { maximum: 255 }, allow_blank: true
   validates :address, length: { maximum: 255 }
   validates :city, length: { maximum: 255 }
-  validates :postal, length: { maximum: 255 }, allow_blank: true
-  validates :state, length: { maximum: 255 }
-  validates :state_code, length: { maximum: 255 }
-  validates :country, length: { maximum: 255 }
-  validates :country_code, length: { maximum: 255 }
+  validates :postalCode, length: { maximum: 255 }, allow_blank: true
+  validates :stateName, length: { maximum: 255 }
+  validates :stateCode, length: { maximum: 255 }
+  validates :countryName, length: { maximum: 255 }
+  validates :countryCode, length: { maximum: 255 }
   validates :phone, length: { maximum: 255 }, allow_blank: true
   validates :email, length: { maximum: 255 }, allow_blank: true
   validates :website, length: { maximum: 255 }, allow_blank: true
   validates :latitude, numericality: true, allow_blank: true
   validates :longitude, numericality: true, allow_blank: true
-  validates :alt_name, length: { maximum: 255 }, allow_blank: true
-  validates :former_name, length: { maximum: 255 }, allow_blank: true
+  validates :alternativeName, length: { maximum: 255 }, allow_blank: true
+  validates :formerName, length: { maximum: 255 }, allow_blank: true
   validates :rating, numericality: true, allow_blank: true
 
   validate :pair_lat_long
@@ -80,24 +83,24 @@ class CatalogueLocationValidator
     @uuid = input[:uuid]
     @type = input[:type]
     @name = input[:name]
-    @bounce = input[:bounceCode]
+    @bounceCode = input[:bounceCode]
     @address = input[:address]
     @city = input[:city]
-    @postal = input[:postalCode]
-    @state = input[:stateName]
-    @state_code = input[:stateCode]
-    @country = input[:countryName]
-    @country_code = input[:countryCode]
+    @postalCode = input[:postalCode]
+    @stateName = input[:stateName]
+    @stateCode = input[:stateCode]
+    @countryName = input[:countryName]
+    @countryCode = input[:countryCode]
     @phone = input[:phone]
     @email = input[:email]
     @website = input[:website]
     @latitude = input[:latitude]
     @longitude = input[:longitude]
     @description = input[:description]
-    @description_short = input[:descriptionShort]
+    @descriptionShort = input[:descriptionShort]
     @directions = input[:directions]
-    @alt_name = input[:alternativeName]
-    @former_name = input[:formerName]
+    @alternativeName = input[:alternativeName]
+    @formerName = input[:formerName]
     @rating = input[:rating].to_f
 
     @amenities = []

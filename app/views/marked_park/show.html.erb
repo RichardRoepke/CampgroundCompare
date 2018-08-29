@@ -11,8 +11,8 @@
 
   <%= @catalogue.uuid + ' (' + @catalogue.type + ')' %> <br />
 
-  <% if @catalogue.alt_name.present?%>
-    <%= 'Alternative Name: ' + @catalogue.alt_name %>
+  <% if @catalogue.alternativeName.present?%>
+    <%= 'Alternative Name: ' + @catalogue.alternativeName %>
     <br />
   <% end %>
 
@@ -21,12 +21,12 @@
     <br />
   <% end %>
 
-  <% if @catalogue.bounce.present? %>
-    <%= 'Bounce: ' + @catalogue.bounce %>
+  <% if @catalogue.bounceCode.present? %>
+    <%= 'Bounce Code: ' + @catalogue.bounceCode %>
     <br />
   <% end %>
 
-  <%= 'Address: ' + @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.state + ' (' + @catalogue.state_code + '), ' + @catalogue.country + ' (' + @catalogue.country_code + ')' %>
+  <%= 'Address: ' + @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.stateName + ' (' + @catalogue.stateCode + '), ' + @catalogue.countryName + ' (' + @catalogue.countryCode + ')' %>
 
   <%= @catalogue.postal if @catalogue.postal.present? %><br />
 
