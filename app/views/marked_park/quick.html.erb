@@ -23,11 +23,13 @@
       <h4>RVPARKY:</h4>
     </div>
   </div>
-    <% @differences[:differences].each do |diff| %>
-      <%= generate_quick_fields(f, diff) %>
-      <% unless diff == @differences[:differences].last %>
-        <hr />
-      <% end %>
+    <% @differences.each do |diff| %>
+      <% unless diff.match? || diff.catalogue_field == 'review_count' %>
+        <%= generate_quick_fields(f, diff) %>
+        <% unless diff == @differences.last %>
+          <hr />
+        <% end %>
+      <% end%>
     <% end %>
   <% end %>
 </div>

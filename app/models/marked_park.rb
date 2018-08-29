@@ -75,19 +75,23 @@ class MarkedPark < ApplicationRecord
       differ = calculate_differences(catalogue, rvparky)
       return 'DELETE ME' if differ[:total] == 0
       return 'INFORMATION MISMATCH' if differ[:mismatch] > 0
-      return 'BLANK FIELDS' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
-      return 'RVPARKY MISSING' if differ[:rvparky_blank] > 0
-      return 'CATALOGUE BLANK' if differ[:catalogue_blank] > 0
+      return 'BOTH LACK INFORMATION' if differ[:rvparky_blank] > 0 && differ[:catalogue_blank] > 0
+      return 'RVPARKY LACKS INFORMATION' if differ[:rvparky_blank] > 0
+      return 'CATALOGUE LACKS INFORMATION' if differ[:catalogue_blank] > 0
       return '???'
     end
 
-    return 'CATALOGUE IS FINE' if catalogue.valid?
-    return 'RVPARKY IS FINE' if rvparky.valid?
+    return 'CATALOGUE IS INVALID' if catalogue.invalid?
+    return 'RVPARKY IS INVALID' if rvparky.invalid?
     return 'NOTHING IS FINE'
   end
 
   def calculate_differences(catalogue, rvparky)
-    populate_differences(catalogue, rvparky) if self.differences.length < compariable_fields.length
+    if self.differences.length < compariable_fields.length
+      populate_differences(catalogue, rvparky)
+    else
+      revaluate_differences(catalogue, rvparky)
+    end
 
     return tally_differences
   end
@@ -108,6 +112,15 @@ class MarkedPark < ApplicationRecord
     end
 
     return result
+  end
+
+  def revaluate_differences(catalogue, rvparky)
+    self.differences.each do |diff|
+      diff.catalogue_value = catalogue.public_send(diff.catalogue_field)
+      diff.rvparky_value = rvparky.public_send(diff.rvparky_field)
+      diff.kind = value_compare_result(diff.catalogue_value, diff.rvparky_value)
+      diff.save
+    end
   end
 
   def populate_differences(catalogue, rvparky)
@@ -134,9 +147,13 @@ class MarkedPark < ApplicationRecord
   end
 
   def value_compare_result(catalogue_value, rvparky_value)
+    return :match if catalogue_value.to_s == rvparky_value.to_s
+    if catalogue_value.present? && rvparky_value.present?
+      return :match if (catalogue_value.to_f - rvparky_value.to_f).abs < 0.01
+    end
+    return :match if rvparky_value.blank? && catalogue_value.blank?
     return :rvparky_blank if rvparky_value.blank?
     return :catalogue_blank if catalogue_value.blank?
-    return :match if catalogue_value.to_s == rvparky_value.to_s
     return :mismatch
   end
 

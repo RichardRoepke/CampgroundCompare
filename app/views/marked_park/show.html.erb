@@ -276,18 +276,20 @@
     </div>
   </div>
   <% @differences.each do |diff| %>
-    <div class="row">
-      <div class="col">
-        <%= diff.catalogue_field + ': ' %>
-        <%= diff.catalogue_value.to_s unless diff.catalogue_value.blank? %>
-        <%= '[Blank]' if diff.catalogue_value.blank? %>
+    <% unless diff.match? %>
+      <div class="row">
+        <div class="col">
+          <%= diff.catalogue_field + ': ' %>
+          <%= diff.catalogue_value.to_s unless diff.catalogue_value.blank? %>
+          <%= '[Blank]' if diff.catalogue_value.blank? %>
+        </div>
+        <div class="col">
+          <%= diff.rvparky_field + ': '%>
+          <%= diff.rvparky_value.to_s unless diff.rvparky_value.blank? %>
+          <%= '[Blank]' if diff.rvparky_value.blank? %>
+        </div>
       </div>
-      <div class="col">
-        <%= diff.rvparky_field + ': '%>
-        <%= diff.rvparky_value.to_s unless diff.rvparky_value.blank? %>
-        <%= '[Blank]' if diff.rvparky_value.blank? %>
-      </div>
-    </div>
+    <% end %>
   <% end %>
 </div>
 
