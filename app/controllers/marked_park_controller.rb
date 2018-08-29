@@ -32,7 +32,7 @@ class MarkedParkController < ApplicationController
 
     park = MarkedPark.find(params[:id])
 
-    if park.uuid.present? && park.slug.present?
+    if park.uuid.present?
       catalogue_temp = get_catalogue_park(park.uuid)
       @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
     end
@@ -42,11 +42,8 @@ class MarkedParkController < ApplicationController
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
 
-    if @rvparky.present? && @catalogue.present?
-      @differences = park.calculate_differences(@catalogue, @rvparky, true)
-      @differences[:differences].each do |diff|
-        puts diff.inspect
-      end
+    if park.differences.present?
+      @differences = park.differences
     end
   end
 
@@ -97,8 +94,8 @@ class MarkedParkController < ApplicationController
   def status
     MarkedPark.find_each do |park|
       park.update_status
-      park.save unless park.status == 'DELETE ME'
       park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
     end
 
     redirect_to marked_park_index_path, alert: 'All parks have been updated.'
