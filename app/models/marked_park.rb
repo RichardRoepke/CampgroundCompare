@@ -149,6 +149,8 @@ class MarkedPark < ApplicationRecord
   def value_compare_result(catalogue_value, rvparky_value)
     return :match if catalogue_value.to_s == rvparky_value.to_s
     if catalogue_value.present? && rvparky_value.present?
+      # Due to rounding differences between the two web services, values which
+      # are obviously meant to be identical are not.
       return :match if (catalogue_value.to_f - rvparky_value.to_f).abs < 0.01
     end
     return :match if rvparky_value.blank? && catalogue_value.blank?
