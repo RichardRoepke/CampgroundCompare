@@ -28,7 +28,7 @@
 
   <%= 'Address: ' + @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.stateName + ' (' + @catalogue.stateCode + '), ' + @catalogue.countryName + ' (' + @catalogue.countryCode + ')' %>
 
-  <%= @catalogue.postal if @catalogue.postal.present? %><br />
+  <%= @catalogue.postalCode if @catalogue.postalCode.present? %><br />
 
   <% if @catalogue.phone.present? %>
     <%= 'Phone Number: ' + @catalogue.phone%>
@@ -55,8 +55,8 @@
     <br />
   <% end %>
 
-  <% if @catalogue.description_short.present?%>
-    <%= 'Short Description: ' + @catalogue.description_short %>
+  <% if @catalogue.descriptionShort.present?%>
+    <%= 'Short Description: ' + @catalogue.descriptionShort %>
     <br />
   <% end %>
 

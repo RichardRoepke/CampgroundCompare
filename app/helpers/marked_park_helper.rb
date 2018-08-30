@@ -47,40 +47,31 @@ module MarkedParkHelper
   end
 
   def generate_quick_fields(f, diff)
-    content_tag(:div, { class: "row" }) do
-      concat(content_tag(:div, { class: "col" }) do
+    row_class = ''
+    row_class += 'table-warning ' if diff.mismatch?
+
+    content_tag(:tr, { class: row_class }) do
+      concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.catalogue_field)
-        generate_quick_catalogue(f, diff)
+        generate_quick_entry(f, 'Catalogue_' + diff.catalogue_field, diff.catalogue_value, diff.rvparky_value)
       end)
-      concat(content_tag(:div, { class: "col" }) do
+      concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.rvparky_field)
-        generate_quick_rvparky(f, diff)
+        generate_quick_entry(f, 'RVParky_' + diff.rvparky_field, diff.rvparky_value, diff.catalogue_value)
       end)
     end
   end
 
-  def generate_quick_catalogue(f, diff)
-    transfer_type = { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.rvparky_value }
-    transfer_type[:blank] = true if diff.catalogue_value.blank?
+  def generate_quick_entry(f, entry_name, entry_value, mirror_value)
+    transfer_type = { element: entry_name, transfer: mirror_value }
+    transfer_type[:blank] = true if entry_value.blank?
 
-    concat(f.text_area(('Catalogue_' + diff.catalogue_field).to_sym, id: 'Catalogue_' + diff.catalogue_field, value: diff.catalogue_value, hide_label: true))
-    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.rvparky_value.blank?
-    concat(f.submit("Reset", type: 'button', data: { element: 'Catalogue_' + diff.catalogue_field, transfer: diff.catalogue_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.catalogue_value.present?
+    concat(f.text_area(entry_name.to_sym, id: entry_name, value: entry_value, hide_label: true))
+    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-primary")) unless mirror_value.blank?
+    concat(f.submit("Reset", type: 'button', data: { element: entry_name, transfer: entry_value, reset: 'true' }, class: "btn btn-secondary")) if entry_value.present?
     concat(tag('br'))
-    concat(content_tag(:i, 'Original Value: ' + diff.catalogue_value.to_s)) if diff.catalogue_value.present?
-    concat(content_tag(:i, 'Originally Blank')) if diff.catalogue_value.blank?
-  end
-
-  def generate_quick_rvparky(f, diff)
-    transfer_type = { element: 'RVParky_' + diff.rvparky_field, transfer: diff.catalogue_value }
-    transfer_type[:blank] = true if diff.rvparky_value.blank?
-
-    concat(f.text_area(('RVParky_' + diff.rvparky_field).to_sym, id: 'RVParky_' + diff.rvparky_field, value: diff.rvparky_value, hide_label: true))
-    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-outline-primary")) unless diff.catalogue_value.blank?
-    concat(f.submit("Reset", type: 'button', data: { element: 'RVParky_' + diff.rvparky_field, transfer: diff.rvparky_value, reset: 'true' }, class: "btn btn-outline-secondary")) if diff.rvparky_value.present?
-    concat(tag('br'))
-    concat(content_tag(:i, 'Original Value: ' + diff.rvparky_value.to_s)) if diff.rvparky_value.present?
-    concat(content_tag(:i, 'Originally Blank')) if diff.rvparky_value.blank?
+    concat(content_tag(:i, 'Original Value: ' + entry_value.to_s)) if entry_value.present?
+    concat(content_tag(:i, 'Originally Blank')) if entry_value.blank?
   end
 
   def generate_amenities_entry

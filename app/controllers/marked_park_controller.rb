@@ -1,4 +1,5 @@
 class MarkedParkController < ApplicationController
+  include CommonFields
   before_action :provide_title
 
   def index
@@ -77,20 +78,11 @@ class MarkedParkController < ApplicationController
   def submit_changes
     park = MarkedPark.find(params[:id])
 
-    catalogue_changed = ''
+    processed_inputs = validate_changes(params)
 
-    params.each do |key, value|
-      if key.include?('Catalogue_')
-        temp_string = key.remove('Catalogue_')
-        diff = park.differences.find_by(catalogue_field: temp_string)
-        unless diff.catalogue_value == value
-          catalogue_changed += '%26' unless catalogue_changed.blank?
-          catalogue_changed += 'location%5B' + temp_string + '%5D=' + value
-        end
-      elsif key.include?('RVParky_')
-        # Updating RVParky information will have to wait for the future.
-      end
-    end
+    puts processed_inputs.inspect
+
+    catalogue_changed = ''
 
     catalogue_changed.gsub!(' ', '%20') unless catalogue_changed.blank?
 
@@ -129,6 +121,30 @@ class MarkedParkController < ApplicationController
     else
       redirect_to marked_park_index_path
     end
+  end
+
+  def validate_changes(inputs)
+    result = { catalogue: {},
+               rvparky: {},
+               status: 'MATCH' }
+
+    inputs.each do |key, value|
+      if key.to_s.include?('Catalogue_')
+        cut_string = key.to_s.remove('Catalogue_')
+        result[:catalogue][cut_string.to_sym] = value
+      elsif key.to_s.include?('RVParky_')
+        cut_string = key.to_s.remove('RVParky_')
+        result[:rvparky][cut_string.to_sym] = value
+      end
+    end
+
+    # common_fields is taken from the CommonFields module.
+    common_fields.each do |cat, rv|
+      result[:status] = 'MISMATCH' unless result[:catalogue][cat.to_sym] == result[:rvparky][rv.to_sym]
+    end
+
+
+    return result
   end
 
   def status

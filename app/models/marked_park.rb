@@ -1,4 +1,5 @@
 class MarkedPark < ApplicationRecord
+  include CommonFields
   validates :uuid, uniqueness: true
 
   has_many :differences
@@ -87,7 +88,7 @@ class MarkedPark < ApplicationRecord
   end
 
   def calculate_differences(catalogue, rvparky)
-    if self.differences.length < compariable_fields.length
+    if self.differences.length < common_fields.length
       populate_differences(catalogue, rvparky)
     else
       revaluate_differences(catalogue, rvparky)
@@ -124,9 +125,8 @@ class MarkedPark < ApplicationRecord
   end
 
   def populate_differences(catalogue, rvparky)
-    fields = compariable_fields
-
-    fields.each do |catalogue_field, rvparky_field|
+    # common_fields is taken from the CommonFields module.
+    common_fields.each do |catalogue_field, rvparky_field|
       catalogue_value = catalogue.public_send(catalogue_field)
       rvparky_value = rvparky.public_send(rvparky_field)
 
@@ -157,21 +157,5 @@ class MarkedPark < ApplicationRecord
     return :rvparky_blank if rvparky_value.blank?
     return :catalogue_blank if catalogue_value.blank?
     return :mismatch
-  end
-
-  def compariable_fields
-    return [['website', 'website'],
-            ['formerName', 'formerlyKnownAs'],
-            #['rating', 'rating'],
-            ['alternativeName', 'alsoKnownAs'],
-            ['city', 'city'],
-            ['longitude', 'longitude'],
-            ['latitude', 'latitude'],
-            ['postalCode', 'zip_code'],
-            ['phone', 'phone_number'],
-            ['description', 'description'],
-            ['address', 'address'],
-            ['name', 'name']]
-            #['review_count', 'review_count']
   end
 end
