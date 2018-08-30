@@ -5,6 +5,9 @@
 <br />
 
 <h4><%= @park.name %></h4>
+<%= 'STATUS: ' + @park.status %>
+
+<br />
 
 <%= bootstrap_form_tag do |f| %>
   <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>

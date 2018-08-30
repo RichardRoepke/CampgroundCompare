@@ -162,16 +162,16 @@ class MarkedPark < ApplicationRecord
   def compariable_fields
     return [['website', 'website'],
             ['formerName', 'formerlyKnownAs'],
-            ['rating', 'rating'],
+            #['rating', 'rating'],
             ['alternativeName', 'alsoKnownAs'],
             ['city', 'city'],
             ['longitude', 'longitude'],
             ['latitude', 'latitude'],
-            ['postal', 'zip_code'],
+            ['postalCode', 'zip_code'],
             ['phone', 'phone_number'],
             ['description', 'description'],
             ['address', 'address'],
-            ['name', 'name'],
-            ['review_count', 'review_count']]
+            ['name', 'name']]
+            #['review_count', 'review_count']
   end
 end

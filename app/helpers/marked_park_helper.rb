@@ -1,7 +1,11 @@
 module MarkedParkHelper
 
   def generate_badge(text)
-    content_tag('span', text, class: 'badge badge-primary')
+    return content_tag('span', text, class: 'badge badge-danger') unless ['INFORMATION MISMATCH',
+                                                                          'BOTH LACK INFORMATION',
+                                                                          'RVPARKY LACKS INFORMATION',
+                                                                          'CATALOGUE LACKS INFORMATION'].include? text
+    return content_tag('span', text, class: 'badge badge-primary')
   end
 
   def collapse_button_generator(body, modifier = '')

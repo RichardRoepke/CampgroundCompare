@@ -77,38 +77,54 @@ class MarkedParkController < ApplicationController
   def submit_changes
     park = MarkedPark.find(params[:id])
 
-    changed = ''
+    catalogue_changed = ''
 
     params.each do |key, value|
       if key.include?('Catalogue_')
         temp_string = key.remove('Catalogue_')
         diff = park.differences.find_by(catalogue_field: temp_string)
         unless diff.catalogue_value == value
-          changed += '%26' unless changed.blank?
-          changed += 'location%5B' + temp_string + '%5D=' + value
+          catalogue_changed += '%26' unless catalogue_changed.blank?
+          catalogue_changed += 'location%5B' + temp_string + '%5D=' + value
         end
       elsif key.include?('RVParky_')
         # Updating RVParky information will have to wait for the future.
       end
     end
 
-    changed.gsub!(' ', '%20') unless changed.blank?
+    catalogue_changed.gsub!(' ', '%20') unless catalogue_changed.blank?
 
     uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
 
-    if changed.present?
-      request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + changed,
-                                        headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
-                                        :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-        puts '============================================================================'
-        puts 'RESPONSE:'
-        puts request.response_body
-        puts '============================================================================'
+    catalogue_message = ''
+    rvparky_message = ''
+
+    if catalogue_changed.present?
+      request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + catalogue_changed,
+                                      headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
+                                      :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
+      if request.response_code == '201'
+        catalogue_message = 'Changes successfully submitted.'
+      else
+        catalogue_message = 'There was an error submitting the changes.'
+      end
     end
 
+    flash['CAT SUCCESS'] = catalogue_message if catalogue_message.present?
+    flash['RV SUCCESS'] = rvparky_message if rvparky_message.present?
+
     if params["commit"] == 'Submit and Next'
-      target = park.next
-      redirect_to marked_park_quick_path(target) if target.present?
+      target = park
+
+      loop do
+        target = target.next
+        break if target.blank? || ['INFORMATION MISMATCH',
+                                   'BOTH LACK INFORMATION',
+                                   'RVPARKY LACKS INFORMATION',
+                                   'CATALOGUE LACKS INFORMATION'].include?(target.status)
+      end
+
+      redirect_to marked_park_quick_path(target.id) if target.present?
       redirect_to marked_park_index_path, alert: 'No further parks found.' unless target.present?
     else
       redirect_to marked_park_index_path
