@@ -23,13 +23,13 @@ class MarkedPark < ApplicationRecord
       catalogue_input = get_catalogue_data(self.uuid)
     end
 
-    catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present?
+    catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
 
     if rvparky_input.blank?
       rvparky_input = get_rvparky_data(self.slug)
     end
 
-    rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present?
+    rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present? && rvparky_input.is_a?(Hash)
 
     self.editable = false
 
@@ -39,10 +39,10 @@ class MarkedPark < ApplicationRecord
                        'BOTH LACK INFORMATION',
                        'RVPARKY LACKS INFORMATION',
                        'CATALOGUE LACKS INFORMATION'].include? self.status
-    elsif rvparky.present?
-      self.status = 'UUID IS INVALID'
-    elsif catalogue.present?
-      self.status = 'SLUG IS INVALID'
+    elsif catalogue_input.is_a?(Integer)
+      self.status = 'INVALID CATALOGUE RESPONSE: ' + catalogue_input.to_s
+    elsif rvparky_input.is_a?(Integer)
+      self.status = 'INVALID RVPARKY RESPONSE: ' + rvparky_input.to_s
     else
       self.status = 'NO CONNECTION'
     end
@@ -54,13 +54,11 @@ class MarkedPark < ApplicationRecord
 
   def get_rvparky_data(rv_slug)
     temp = get_web_data('https://www.rvparky.com/_ws2/Location/' + rv_slug.to_s)
-    return temp[:location] if temp.present?
-    return nil
+    return temp[:location] if temp.is_a?(Hash)
+    return temp
   end
 
   def get_web_data(url, api_key=false)
-    output = nil
-
     if api_key.present?
       request = Typhoeus::Request.get(url,
                                       headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
@@ -72,6 +70,8 @@ class MarkedPark < ApplicationRecord
     if request.response_code == 200
       temp_response = JSON.parse(request.response_body)
       output = hash_string_to_sym(temp_response)
+    else
+      output = request.response_code
     end
 
     return output
