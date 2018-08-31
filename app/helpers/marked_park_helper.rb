@@ -67,7 +67,9 @@ module MarkedParkHelper
                           diff.catalogue_value
                         end
         generate_quick_entry(f,
+                             'CATALOGUE',
                              'Catalogue_' + diff.catalogue_field,
+                             'RVParky_' + diff.rvparky_field,
                              diff.catalogue_value,
                              diff.rvparky_value,
                              current_value)
@@ -80,7 +82,9 @@ module MarkedParkHelper
                           diff.rvparky_value
                         end
         generate_quick_entry(f,
+                             'RVPARKY',
                              'RVParky_' + diff.rvparky_field,
+                             'Catalogue_' + diff.catalogue_field,
                              diff.rvparky_value,
                              diff.catalogue_value,
                              current_value)
@@ -88,16 +92,32 @@ module MarkedParkHelper
     end
   end
 
-  def generate_quick_entry(f, entry_name, entry_value, mirror_value, current_value)
-    transfer_type = { element: entry_name, transfer: mirror_value }
-    transfer_type[:blank] = true if entry_value.blank?
+  def generate_quick_entry(f, kind, entry_name, mirror_name, entry_value, mirror_value, current_value)
+    copy_type = { element: entry_name, mirror: mirror_name, copy: 'true' }
+    copy_type[kind.to_sym] = 'true'
+    copy_type[:blank] = true if entry_value.blank?
 
     concat(f.text_area(entry_name.to_sym, id: entry_name, value: current_value, hide_label: true))
-    concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-primary")) unless mirror_value.blank?
+    concat(f.submit("Copy", type: 'button', data: copy_type, class: "btn btn-success"))
+    concat(' ')
     concat(f.submit("Reset", type: 'button', data: { element: entry_name, transfer: entry_value, reset: 'true' }, class: "btn btn-secondary")) if entry_value.present?
     concat(tag('br'))
     concat(content_tag(:i, 'Original Value: ' + entry_value.to_s)) if entry_value.present?
     concat(content_tag(:i, 'Originally Blank')) if entry_value.blank?
+  end
+
+  def generate_quick_global_buttons(f)
+    concat(f.submit "Copy All Blank", type: 'button', data: { global: '[data-blank]', type: 'copy' }, class: "btn btn-success")
+    concat(' ')
+    concat(f.submit "Transfer to Catalogue", type: 'button', data: { global: '[data-catalogue]', type: 'copy' }, class: "btn btn-success")
+    concat(' ')
+    concat(f.submit "Transfer to RVParky", type: 'button', data: { global: '[data-rvparky]', type: 'copy' }, class: "btn btn-success")
+    concat(' ')
+    concat(f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary")
+    concat(' ')
+    concat(f.submit "Submit Form")
+    concat(' ')
+    f.submit "Submit and Next"
   end
 
   def generate_amenities_entry

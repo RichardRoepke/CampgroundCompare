@@ -9,10 +9,7 @@
 <br />
 
 <%= bootstrap_form_tag do |f| %>
-  <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>
-  <%= f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary" %>
-  <%= f.submit "Submit Form" %>
-  <%= f.submit "Submit and Next" %>
+  <%= generate_quick_global_buttons(f) %>
 
   <hr />
 
@@ -32,9 +29,6 @@
     </tbody>
   </table>
 
-  <%= f.submit "Transfer All Blank", type: 'button', data: { global: '[data-blank]' }, class: "btn btn-primary" %>
-  <%= f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary" %>
-  <%= f.submit "Submit Form" %>
-  <%= f.submit "Submit and Next" %>
+  <%= generate_quick_global_buttons(f) %>
 
 <% end %>

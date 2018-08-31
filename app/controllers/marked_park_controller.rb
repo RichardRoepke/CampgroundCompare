@@ -58,7 +58,7 @@ class MarkedParkController < ApplicationController
 
       # I have no idea why :id turns into 'id' in the session, but otherwise
       # rails won't recognize the presence if ID.
-      if session[:previous_edit]['id'] == @park.id
+      if session[:previous_edit].present? && session[:previous_edit]['id'] == @park.id
         @previous_values = session[:previous_edit]
       end
 
