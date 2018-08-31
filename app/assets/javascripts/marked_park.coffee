@@ -22,3 +22,7 @@ $ ->
     foundDestination = document.getElementById(destination)
     foundOrigin = document.getElementById(origin)
     foundDestination.value = foundOrigin.value
+  $("input[data-transfer]").click ->
+    token = $(this).data("element")
+    foundElement = document.getElementById(token)
+    foundElement.value = $(this).data("transfer")

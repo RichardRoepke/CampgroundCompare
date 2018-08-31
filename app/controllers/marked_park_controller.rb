@@ -109,7 +109,7 @@ class MarkedParkController < ApplicationController
         request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + catalogue_changed,
                                         headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
                                         :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-        if request.response_code == '201'
+        if request.response_code == 201
           catalogue_message[:status] = 'CAT SUCCESS'
           catalogue_message[:message] = 'Changes successfully submitted.'
         else
@@ -117,6 +117,18 @@ class MarkedParkController < ApplicationController
           catalogue_message[:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
         end
       end
+
+      old_status = park.status
+
+      if catalogue_message[:status].include? 'SUCCESS'
+        park.status = 'BOTH UPDATING' if rvparky_message[:status].include? 'SUCCESS'
+        park.status = 'CATALOGUE UPDATING' if rvparky_message[:status].include? 'NONE'
+      elsif catalogue_message[:status].include? 'NONE'
+        park.status = 'RVPARKY UPDATING' if rvparky_message[:status].include? 'SUCCESS'
+      end
+
+      park.editable = old_status == park.status
+      park.save
 
       flash[catalogue_message[:status]] = catalogue_message[:message] unless catalogue_message[:status].include?('NONE')
       flash[rvparky_message[:status]] = rvparky_message[:message] unless rvparky_message[:status].include?('NONE')

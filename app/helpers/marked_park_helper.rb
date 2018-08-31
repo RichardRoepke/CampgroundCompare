@@ -1,6 +1,7 @@
 module MarkedParkHelper
 
   def generate_badge(text, editable)
+    return content_tag('span', text, class: 'badge badge-warning') if text.include? 'UPDATING'
     return content_tag('span', text, class: 'badge badge-danger') unless editable.present?
     return content_tag('span', text, class: 'badge badge-primary')
   end
