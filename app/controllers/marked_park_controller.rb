@@ -95,8 +95,8 @@ class MarkedParkController < ApplicationController
       catalogue_changed = process_catalogue(processed_inputs[:catalogue],
                                             park) if processed_inputs[:catalogue].present?
 
-      #rvparky_changed = process_rvparky(processed_inputs[:rvparky],
-      #                                  park) if processed_inputs[:rvparky].present?
+      rvparky_changed = process_rvparky(processed_inputs[:rvparky],
+                                        park) if processed_inputs[:rvparky].present?
 
       uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
 
@@ -111,10 +111,20 @@ class MarkedParkController < ApplicationController
                                         :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
         if request.response_code == 201
           catalogue_message[:status] = 'CAT SUCCESS'
-          catalogue_message[:message] = 'Changes successfully submitted.'
+          catalogue_message[:message] = 'Central Catalogue: Changes successfully submitted.'
         else
           catalogue_message[:status] = 'CAT ALERT'
           catalogue_message[:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
+        end
+      end
+
+      if rvparky_changed.present?
+        if true # request.response_code == 201
+          rvparky_message[:status] = 'RV SUCCESS'
+          rvparky_message[:message] = 'RVParky: Changes successfully submitted.'
+        else
+          rvparky_message[:status] = 'RV ALERT'
+          rvparky_message[:message] = 'RVParky: There was an error submitting the changes. Please try again shortly.'
         end
       end
 
@@ -209,7 +219,7 @@ class MarkedParkController < ApplicationController
   end
 
   def process_rvparky(rvparky_hash, park)
-    # Once the API for updating RVParky is known, this will be filled in.
+    return 'foobar' # Once the API for updating RVParky is known, this will be filled in.
   end
 
   private
