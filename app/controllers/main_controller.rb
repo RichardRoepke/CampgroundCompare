@@ -19,12 +19,14 @@ class MainController < ApplicationController
               new_entry = MarkedPark.new({ uuid: entry[:uuid],
                                            name: entry[:name],
                                            slug: entry[:slug],
-                                           status: nil })
+                                           status: nil,
+                                           editable: false })
               new_entry.update_status(entry, nil)
               added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
             end
             if added > 0
-              redirect_to marked_park_index_path, alert: added.to_s + ' new parks were marked as changed.'
+              flash[:success] = added.to_s + ' new parks were marked as changed.'
+              redirect_to marked_park_index_path
             else
               redirect_to check_path(date_since: params[:date_since], wait: params[:ignore_wait]), alert: 'All found parks were already included.'
             end

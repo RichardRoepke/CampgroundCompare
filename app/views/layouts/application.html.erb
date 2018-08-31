@@ -17,8 +17,15 @@
     <br />
       <div class="container-fluid">
         <% flash.each do |message_type, message| %>
-          <% if message_type == 'alert'%>
+          <% if message_type.upcase.include? 'ALERT'%>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <%= message %>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          <% elsif message_type.upcase.include? 'SUCCESS' %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
               <%= message %>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

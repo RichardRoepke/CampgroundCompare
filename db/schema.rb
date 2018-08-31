@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_29_142038) do
+ActiveRecord::Schema.define(version: 2018_08_31_170423) do
 
   create_table "differences", force: :cascade do |t|
     t.string "catalogue_field"
@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 2018_08_29_142038) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "slug"
+    t.boolean "editable"
   end
 
   create_table "users", force: :cascade do |t|

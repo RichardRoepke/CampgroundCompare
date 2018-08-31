@@ -18,11 +18,11 @@ module ApplicationHelper
     active = ' active' if current_page?(url)
     if url.present?
       content_tag :li, class: 'nav-item' do
-        link_to(icon_handler(body, icon), url, class: 'nav-link' + active.to_s)
+        link_to(icon_handler(body, icon), url, class: 'nav-link' + active.to_s, method: :get)
       end
     else
       content_tag :li, class: 'nav-item' do
-        content_tag(:div, icon_handler(body, icon), class: 'nav-link disabled active' )
+        content_tag(:div, icon_handler(body, icon), class: 'nav-link disabled active')
       end
     end
   end
