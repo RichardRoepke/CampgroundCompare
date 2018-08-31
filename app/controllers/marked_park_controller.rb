@@ -51,7 +51,7 @@ class MarkedParkController < ApplicationController
   def quick
     @park = MarkedPark.find(params[:id])
 
-    if @park.quick_edit?
+    if @park.editable?
       @catalogue = nil
       @rvparky = nil
       @previous_values = nil
@@ -126,10 +126,7 @@ class MarkedParkController < ApplicationController
 
         loop do
           target = target.next
-          break if target.blank? || ['INFORMATION MISMATCH',
-                                     'BOTH LACK INFORMATION',
-                                     'RVPARKY LACKS INFORMATION',
-                                     'CATALOGUE LACKS INFORMATION'].include?(target.status)
+          break if target.blank? || target.editable?
         end
 
         redirect_to marked_park_quick_path(target.id) if target.present?

@@ -19,7 +19,8 @@ class MainController < ApplicationController
               new_entry = MarkedPark.new({ uuid: entry[:uuid],
                                            name: entry[:name],
                                            slug: entry[:slug],
-                                           status: nil })
+                                           status: nil,
+                                           editable: false })
               new_entry.update_status(entry, nil)
               added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
             end

@@ -17,7 +17,7 @@
     <tbody>
       <% @parks.each do |park| %>
         <tr>
-          <th scope="row"> <%= park.uuid %> <%= generate_badge(park.status) %> </th>
+          <th scope="row"> <%= park.uuid %> <%= generate_badge(park.status, park.editable) %> </th>
           <td> <%= park.name %> </td>
           <td> <%= park.slug %> </td>
           <td> <%= park.status %> </td>
@@ -31,7 +31,7 @@
               %>
               <%= link_to(marked_park_quick_path(park), :class => 'nav-link', method: :get) do %>
                <i class="fas fa-marker"></i>
-              <% end if park.quick_edit? %>
+              <% end if park.editable? %>
             </div>
           </td>
         </tr>

@@ -16,10 +16,6 @@ class MarkedPark < ApplicationRecord
     MarkedPark.where("id < ?", id).last
   end
 
-  def quick_edit?
-    ['INFORMATION MISMATCH', 'BOTH LACK INFORMATION', 'RVPARKY LACKS INFORMATION', 'CATALOGUE LACKS INFORMATION'].include? self.status
-  end
-
   def update_status(catalogue_input=nil, rvparky_input=nil)
     inputs = true
 
@@ -35,8 +31,14 @@ class MarkedPark < ApplicationRecord
 
     rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present?
 
+    self.editable = false
+
     if rvparky.present? && catalogue.present?
       self.status = calculate_status(catalogue, rvparky)
+      self.editable = ['INFORMATION MISMATCH',
+                       'BOTH LACK INFORMATION',
+                       'RVPARKY LACKS INFORMATION',
+                       'CATALOGUE LACKS INFORMATION'].include? self.status
     elsif rvparky.present?
       self.status = 'UUID IS INVALID'
     elsif catalogue.present?

@@ -1,10 +1,7 @@
 module MarkedParkHelper
 
-  def generate_badge(text)
-    return content_tag('span', text, class: 'badge badge-danger') unless ['INFORMATION MISMATCH',
-                                                                          'BOTH LACK INFORMATION',
-                                                                          'RVPARKY LACKS INFORMATION',
-                                                                          'CATALOGUE LACKS INFORMATION'].include? text
+  def generate_badge(text, editable)
+    return content_tag('span', text, class: 'badge badge-danger') unless editable.present?
     return content_tag('span', text, class: 'badge badge-primary')
   end
 
