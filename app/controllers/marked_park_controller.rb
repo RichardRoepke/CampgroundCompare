@@ -54,6 +54,13 @@ class MarkedParkController < ApplicationController
     if @park.quick_edit?
       @catalogue = nil
       @rvparky = nil
+      @previous_values = nil
+
+      # I have no idea why :id turns into 'id' in the session, but otherwise
+      # rails won't recognize the presence if ID.
+      if session[:previous_edit]['id'] == @park.id
+        @previous_values = session[:previous_edit]
+      end
 
       if @park.uuid.present?
         catalogue_temp = get_catalogue_park(@park.uuid)
@@ -81,6 +88,8 @@ class MarkedParkController < ApplicationController
     processed_inputs = validate_changes(params)
 
     if processed_inputs[:status] == 'MATCH'
+      # Incase the user has had to rework a submission more than once.
+      session[:previous_edit] = nil if session[:previous_edit].present?
       catalogue_changed = ''
 
       catalogue_changed = process_catalogue(processed_inputs[:catalogue],
@@ -129,8 +138,12 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_index_path
       end
     else
+      # Using the session to transfer previous inputs because I have no other clue
+      # how to do so.
+      session[:previous_edit] = processed_inputs
+      session[:previous_edit][:id] = park.id
       flash[:ALERT] = 'Field mismatch. Please double-check that all values are the same on both sides.'
-      redirect_back(fallback_location: root_path)
+      redirect_back fallback_location: root_path
     end
   end
 

@@ -46,27 +46,53 @@ module MarkedParkHelper
     end
   end
 
-  def generate_quick_fields(f, diff)
+  def generate_quick_fields(f, diff, previous)
     row_class = ''
-    row_class += 'table-warning ' if diff.mismatch?
+    row_class = 'table-warning' if diff.mismatch?
+
+    if previous.present?
+      if (previous['catalogue'][diff.catalogue_field].to_s != diff.catalogue_value.to_s) || (previous['rvparky'][diff.rvparky_field].to_s != diff.rvparky_value.to_s)
+        if previous['catalogue'][diff.catalogue_field] != previous['rvparky'][diff.rvparky_field]
+          row_class = 'table-danger'
+        end
+      end
+    end
 
     content_tag(:tr, { class: row_class }) do
       concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.catalogue_field)
-        generate_quick_entry(f, 'Catalogue_' + diff.catalogue_field, diff.catalogue_value, diff.rvparky_value)
+        current_value = if previous.present? && previous['catalogue'][diff.catalogue_field].present?
+                          previous['catalogue'][diff.catalogue_field]
+                        else
+                          diff.catalogue_value
+                        end
+        generate_quick_entry(f,
+                             'Catalogue_' + diff.catalogue_field,
+                             diff.catalogue_value,
+                             diff.rvparky_value,
+                             current_value)
       end)
       concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.rvparky_field)
-        generate_quick_entry(f, 'RVParky_' + diff.rvparky_field, diff.rvparky_value, diff.catalogue_value)
+        current_value = if previous.present? && previous['rvparky'][diff.rvparky_field].present?
+                          previous['rvparky'][diff.rvparky_field]
+                        else
+                          diff.rvparky_value
+                        end
+        generate_quick_entry(f,
+                             'RVParky_' + diff.rvparky_field,
+                             diff.rvparky_value,
+                             diff.catalogue_value,
+                             current_value)
       end)
     end
   end
 
-  def generate_quick_entry(f, entry_name, entry_value, mirror_value)
+  def generate_quick_entry(f, entry_name, entry_value, mirror_value, current_value)
     transfer_type = { element: entry_name, transfer: mirror_value }
     transfer_type[:blank] = true if entry_value.blank?
 
-    concat(f.text_area(entry_name.to_sym, id: entry_name, value: entry_value, hide_label: true))
+    concat(f.text_area(entry_name.to_sym, id: entry_name, value: current_value, hide_label: true))
     concat(f.submit("Transfer", type: 'button', data: transfer_type, class: "btn btn-primary")) unless mirror_value.blank?
     concat(f.submit("Reset", type: 'button', data: { element: entry_name, transfer: entry_value, reset: 'true' }, class: "btn btn-secondary")) if entry_value.present?
     concat(tag('br'))
