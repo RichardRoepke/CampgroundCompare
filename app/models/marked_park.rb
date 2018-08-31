@@ -16,6 +16,10 @@ class MarkedPark < ApplicationRecord
     MarkedPark.where("id < ?", id).last
   end
 
+  def quick_edit?
+    ['INFORMATION MISMATCH', 'BOTH LACK INFORMATION', 'RVPARKY LACKS INFORMATION', 'CATALOGUE LACKS INFORMATION'].include? self.status
+  end
+
   def update_status(catalogue_input=nil, rvparky_input=nil)
     inputs = true
 

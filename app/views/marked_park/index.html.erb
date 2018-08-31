@@ -31,7 +31,7 @@
               %>
               <%= link_to(marked_park_quick_path(park), :class => 'nav-link', method: :get) do %>
                <i class="fas fa-marker"></i>
-              <% end %>
+              <% end if park.quick_edit? %>
             </div>
           </td>
         </tr>

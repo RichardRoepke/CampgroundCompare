@@ -10,20 +10,20 @@ class MarkedParkController < ApplicationController
     @catalogue = nil
     @rvparky = nil
 
-    park = MarkedPark.find(params[:id])
+    @park = MarkedPark.find(params[:id])
 
-    if park.uuid.present?
-      catalogue_temp = get_catalogue_park(park.uuid)
+    if @park.uuid.present?
+      catalogue_temp = get_catalogue_park(@park.uuid)
       @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present?
     end
 
-    if park.slug.present?
-      rvparky_temp = get_rvparky_park(park.slug)
+    if @park.slug.present?
+      rvparky_temp = get_rvparky_park(@park.slug)
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present?
     end
 
-    if park.differences.present?
-      @differences = park.differences
+    if @park.differences.present?
+      @differences = @park.differences
     end
   end
 
@@ -51,7 +51,7 @@ class MarkedParkController < ApplicationController
   def quick
     @park = MarkedPark.find(params[:id])
 
-    unless @park.status == 'UUID IS INVALID' || @park.status == 'SLUG IS INVALID' || @park.status == 'NO CONNECTION'
+    if @park.quick_edit?
       @catalogue = nil
       @rvparky = nil
 
@@ -71,7 +71,7 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
       end
     else
-      redirect_to marked_park_path(@park), alert: 'Differences could not be determined due to asdfjkl;asdjfkas;jfkl;asdjfs;a'
+      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to be quickly edited.'
     end
   end
 
@@ -80,47 +80,71 @@ class MarkedParkController < ApplicationController
 
     processed_inputs = validate_changes(params)
 
-    puts processed_inputs.inspect
+    if processed_inputs[:status] == 'MATCH'
+      catalogue_changed = ''
 
-    catalogue_changed = ''
+      catalogue_changed = process_catalogue(processed_inputs[:catalogue],
+                                            park) if processed_inputs[:catalogue].present?
 
-    catalogue_changed.gsub!(' ', '%20') unless catalogue_changed.blank?
+      #rvparky_changed = process_rvparky(processed_inputs[:rvparky],
+      #                                  park) if processed_inputs[:rvparky].present?
 
-    uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
+      uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
 
-    catalogue_message = ''
-    rvparky_message = ''
+      catalogue_message = { status: 'CAT NONE',
+                            message: '' }
+      rvparky_message = { status: 'RV NONE',
+                          message: '' }
 
-    if catalogue_changed.present?
-      request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + catalogue_changed,
-                                      headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
-                                      :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-      if request.response_code == '201'
-        catalogue_message = 'Changes successfully submitted.'
+      if catalogue_changed.present?
+        request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + catalogue_changed,
+                                        headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
+                                        :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
+        if request.response_code == '201'
+          catalogue_message[:status] = 'CAT SUCCESS'
+          catalogue_message[:message] = 'Changes successfully submitted.'
+        else
+          catalogue_message[:status] = 'CAT ALERT'
+          catalogue_message[:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
+        end
+      end
+
+      flash[catalogue_message[:status]] = catalogue_message[:message] unless catalogue_message[:status].include?('NONE')
+      flash[rvparky_message[:status]] = rvparky_message[:message] unless rvparky_message[:status].include?('NONE')
+
+      if params["commit"] == 'Submit and Next'
+        target = park
+
+        loop do
+          target = target.next
+          break if target.blank? || ['INFORMATION MISMATCH',
+                                     'BOTH LACK INFORMATION',
+                                     'RVPARKY LACKS INFORMATION',
+                                     'CATALOGUE LACKS INFORMATION'].include?(target.status)
+        end
+
+        redirect_to marked_park_quick_path(target.id) if target.present?
+        redirect_to marked_park_index_path, alert: 'No further parks found.' unless target.present?
       else
-        catalogue_message = 'There was an error submitting the changes.'
+        redirect_to marked_park_index_path
       end
-    end
-
-    flash['CAT SUCCESS'] = catalogue_message if catalogue_message.present?
-    flash['RV SUCCESS'] = rvparky_message if rvparky_message.present?
-
-    if params["commit"] == 'Submit and Next'
-      target = park
-
-      loop do
-        target = target.next
-        break if target.blank? || ['INFORMATION MISMATCH',
-                                   'BOTH LACK INFORMATION',
-                                   'RVPARKY LACKS INFORMATION',
-                                   'CATALOGUE LACKS INFORMATION'].include?(target.status)
-      end
-
-      redirect_to marked_park_quick_path(target.id) if target.present?
-      redirect_to marked_park_index_path, alert: 'No further parks found.' unless target.present?
     else
-      redirect_to marked_park_index_path
+      flash[:ALERT] = 'Field mismatch. Please double-check that all values are the same on both sides.'
+      redirect_back(fallback_location: root_path)
     end
+  end
+
+  def status
+    MarkedPark.find_each do |park|
+      park.update_status
+      park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
+    end
+
+    flash[:success] = 'All parks have been updated.'
+    redirect_to marked_park_index_path
+  rescue => exception
+    redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
 
   def validate_changes(inputs)
@@ -143,20 +167,27 @@ class MarkedParkController < ApplicationController
       result[:status] = 'MISMATCH' unless result[:catalogue][cat.to_sym] == result[:rvparky][rv.to_sym]
     end
 
+    return result
+  end
+
+  def process_catalogue(catalogue_hash, park)
+    result = ''
+
+    catalogue_hash.each do |key, value|
+      corresponding_diff = park.differences.find_by(catalogue_field: key)
+      unless corresponding_diff.catalogue_value == value
+        result += '%26' unless result.blank?
+        result += 'location%5B' + key.to_s + '%5D=' + value.to_s
+      end
+    end
+
+    result.gsub!(' ', '%20') unless result.blank?
 
     return result
   end
 
-  def status
-    MarkedPark.find_each do |park|
-      park.update_status
-      park.destroy if park.status == 'DELETE ME'
-      park.save if park.valid?
-    end
-
-    redirect_to marked_park_index_path, alert: 'All parks have been updated.'
-  rescue => exception
-    redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
+  def process_rvparky(rvparky_hash, park)
+    # Once the API for updating RVParky is known, this will be filled in.
   end
 
   private
