@@ -27,6 +27,21 @@ class MarkedParkController < ApplicationController
     end
   end
 
+  def slug
+    @park = MarkedPark.find(params[:id])
+  end
+
+  def slug_post
+    @park = MarkedPark.find(params[:id])
+
+    if params[:commit].include? '301'
+      puts Typhoeus::Request.get('https://www.rvparky.com/_ws2/Location/' + @park.slug.to_s,
+                                 :ssl_verifyhost => 0).effective_url #Server is set as verified but without proper certification.
+    end
+
+    redirect_to marked_park_path(@park)
+  end
+
   def edit
     @catalogue = nil
     @rvparky = nil
