@@ -11,7 +11,8 @@ $ ->
         origin = $(element).data("mirror")
         foundDestination = document.getElementById(destination)
         foundOrigin = document.getElementById(origin)
-        foundDestination.value = foundOrigin.value
+        if !foundDestination.value
+          foundDestination.value = foundOrigin.value
       else
         token = $(element).data("element")
         foundElement = document.getElementById(token)

@@ -43,19 +43,22 @@ class MarkedParkController < ApplicationController
   end
 
   def update
-    park = MarkedPark.find(params[:id])
-    park.uuid = params[:marked_park][:uuid]
-    park.slug = params[:marked_park][:slug]
-    park.update_status
-    park.destroy if park.status == 'DELETE ME'
-    park.save if park.valid?
-
-    if park.valid?
-      flash[:success] = 'Park was successfully updated.'
-      redirect_to marked_park_index_path
+    if params[:commit] == 'Follow 301 Code'
     else
-      flash[:ALERT] = 'Invalid Information.'
-      redirect_back(fallback_location: root_path)
+      park = MarkedPark.find(params[:id])
+      park.uuid = params[:marked_park][:uuid]
+      park.slug = params[:marked_park][:slug]
+      park.update_status
+      park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
+
+      if park.valid?
+        flash[:success] = 'Park was successfully updated.'
+        redirect_to marked_park_index_path
+      else
+        flash[:ALERT] = 'Invalid Information.'
+        redirect_back(fallback_location: root_path)
+      end
     end
   end
 
@@ -69,7 +72,13 @@ class MarkedParkController < ApplicationController
 
       # I have no idea why :id turns into 'id' in the session, but otherwise
       # rails won't recognize the presence of a ID.
-      @previous_values = session[:previous_edit] if session[:previous_edit].present? && session[:previous_edit]['id'] == @park.id
+      if session[:previous_edit].present?
+        if session[:previous_edit]['id'] == @park.id
+          @previous_values = session[:previous_edit]
+        else
+          session[:previous_edit] = nil
+        end
+      end
 
       if @park.uuid.present?
         catalogue_temp = get_catalogue_park(@park.uuid)
@@ -177,8 +186,8 @@ class MarkedParkController < ApplicationController
     else
       # Using the session to transfer previous inputs because I have no other clue
       # how to do so.
-      session[:previous_edit] = processed_inputs
-      session[:previous_edit][:id] = park.id
+      # session[:previous_edit] = processed_inputs
+      # session[:previous_edit][:id] = park.id
       flash[:WARNING] = 'Field mismatch. Please double-check that all values are the same on both sides.'
       redirect_back fallback_location: root_path
     end
