@@ -29,7 +29,7 @@
 
             <% # Javascript doesn't load/update properly unless you include method: :get in link_to
             %>
-            <%= link_to(marked_park_slug_path(park), :class => 'nav-link', method: :get) do %>
+            <%= link_to(edit_marked_park_path(park), :class => 'nav-link', method: :get) do %>
               <i class="fas fa-screwdriver"></i>
             <% end %>
 
