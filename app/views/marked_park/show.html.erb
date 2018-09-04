@@ -11,64 +11,31 @@
 
   <%= @catalogue.uuid + ' (' + @catalogue.type + ')' %> <br />
 
-  <% if @catalogue.alternativeName.present?%>
-    <%= 'Alternative Name: ' + @catalogue.alternativeName %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Alternative Name:', @catalogue.alternativeName) if @catalogue.alternativeName.present?%>
 
-  <% if @catalogue.formerName.present?%>
-    <%= 'Former Name: ' + @catalogue.formerName %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Former Name:', @catalogue.formerName) if @catalogue.formerName.present?%>
 
-  <% if @catalogue.bounceCode.present? %>
-    <%= 'Bounce Code: ' + @catalogue.bounceCode %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Bounce Code:', @catalogue.bounceCode) if @catalogue.bounceCode.present? %>
 
-  <%= 'Address: ' + @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.stateName + ' (' + @catalogue.stateCode + '), ' + @catalogue.countryName + ' (' + @catalogue.countryCode + ')' %>
-
+  <b>Address: </b>
+  <%= @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.stateName + ' (' + @catalogue.stateCode + '), ' + @catalogue.countryName + ' (' + @catalogue.countryCode + ')' %>
   <%= @catalogue.postalCode if @catalogue.postalCode.present? %><br />
 
-  <% if @catalogue.phone.present? %>
-    <%= 'Phone Number: ' + @catalogue.phone%>
-    <br />
-  <% end %>
+  <%= field_value_styler('Phone Number:', @catalogue.phone) if @catalogue.phone.present? %>
 
-  <% if @catalogue.email.present?%>
-    <%= 'Email: ' + @catalogue.email %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Email:', @catalogue.email) if @catalogue.email.present? %>
 
-  <% if @catalogue.website.present?%>
-    <%= 'Website: ' + @catalogue.website %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Website:', @catalogue.website) if @catalogue.website.present? %>
 
-  <% if @catalogue.latitude.present? && @catalogue.longitude.present?%>
-    <%= 'GPS Coordinates: (' + @catalogue.latitude.to_s + ', ' + @catalogue.longitude.to_s + ')' %>
-    <br />
-  <% end %>
+  <%= field_value_styler('GPS Coordinates:', '(' + @catalogue.latitude.to_s + ', ' + @catalogue.longitude.to_s + ')') if @catalogue.latitude.present? && @catalogue.longitude.present?%>
 
-  <% if @catalogue.description.present?%>
-    <%= 'Description: ' + @catalogue.description %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Description:', @catalogue.description) if @catalogue.description.present? %>
 
-  <% if @catalogue.descriptionShort.present?%>
-    <%= 'Short Description: ' + @catalogue.descriptionShort %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Description Short:', @catalogue.descriptionShort) if @catalogue.descriptionShort.present? %>
 
-  <% if @catalogue.directions.present?%>
-    <%= 'Directions: ' + @catalogue.directions %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Directions:', @catalogue.directions) if @catalogue.directions.present? %>
 
-  <% if @catalogue.rating.present?%>
-    <%= 'Rating: ' + @catalogue.rating.to_s %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Rating:', @catalogue.rating.to_s) if @catalogue.rating.present?%>
 
   <br />
 
@@ -120,117 +87,70 @@
 
   <%= @rvparky.slug + ' (' + @rvparky.category + ')'%> <br/>
 
-  <% if @rvparky.alsoKnownAs.present?%>
-    <%= 'Alternative Name: ' + @rvparky.alsoKnownAs %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Alternative Name:', @rvparky.alsoKnownAs) if @rvparky.alsoKnownAs.present? %>
 
-  <% if @rvparky.formerlyKnownAs.present?%>
-    <%= 'Former Name: ' + @rvparky.formerlyKnownAs %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Former Name:', @rvparky.formerlyKnownAs) if @rvparky.formerlyKnownAs.present? %>
 
-  <%= 'Address: ' %>
+  <b>Address:</b>
   <%= @rvparky.address + ', ' if @rvparky.address.present? %>
   <%= @rvparky.city + ', ' + @rvparky.region %>
   <%= @rvparky.zip_code if @rvparky.zip_code.present? %><br/>
 
-  <% if @rvparky.phone_number.present? %>
-    <%= 'Phone Number: ' + @rvparky.phone_number %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Phone Number:', @rvparky.phone_number) if @rvparky.phone_number.present? %>
 
-  <% if @rvparky.website.present?%>
-    <%= 'Website: ' + @rvparky.website %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Website:', @rvparky.website) if @rvparky.website.present?%>
 
-  <% if @rvparky.reservation_url.present? %>
-    <%= 'Reservation: ' + @rvparky.reservation_url %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Reservation:', @rvparky.reservation_url) if @rvparky.reservation_url.present? %>
 
-  <% if @rvparky.latitude.present? && @rvparky.longitude.present?%>
-    <%= 'GPS Coordinates: (' + @rvparky.latitude.to_s + ', ' + @rvparky.longitude.to_s + ')' %>
-    <br />
-  <% end %>
+  <%= field_value_styler('GPS Coordinates:', '(' + @rvparky.latitude.to_s + ', ' + @rvparky.longitude.to_s + ')') if @rvparky.latitude.present? && @rvparky.longitude.present? %>
 
-  <% if @rvparky.inSeasonDates.present? %>
-    <%= 'Inseason: ' + @rvparky.inSeasonDates %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Inseason:', @rvparky.inSeasonDates) if @rvparky.inSeasonDates.present? %>
 
-  <% if @rvparky.offSeasonDates.present? %>
-    <%= 'Offseason: ' + @rvparky.offSeasonDates%>
-    <br />
-  <% end %>
+  <%= field_value_styler('Offseason:', @rvparky.offSeasonDates) if @rvparky.offSeasonDates.present? %>
 
-  <% if @rvparky.open_dates.present? %>
-    <%= 'Open Dates: ' + @rvparky.open_dates %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Open Dates:', @rvparky.open_dates) if @rvparky.open_dates.present? %>
 
-  <% if @rvparky.closed.present? %>
-    <%= 'Closed Dates: ' + @rvparky.closed %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Closed Dates:', @rvparky.closed) if @rvparky.closed.present? %>
 
-  <%= 'Sites: ' + @rvparky.sites.to_s %> <br />
+  <b>Sites:</b>
+  <%= @rvparky.sites.to_s %> <br />
 
   <% if @rvparky.dailyRate.present? %>
-    <%= 'Daily Rate: ' + @rvparky.dailyRate.to_s %>
+    <b>Daily Rate:</b>
+    <%= @rvparky.dailyRate.to_s %>
     <%= ' (' + @rvparky.dailyRateUpdated + ')' if @rvparky.dailyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.dailyRate_offseason.present? %>
-    <%= 'Offseason Daily Rate: ' + @rvparky.dailyRate_offseason.to_s %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Offseason Daily Rate:', @rvparky.dailyRate_offseason) if @rvparky.dailyRate_offseason.present? %>
 
   <% if @rvparky.weeklyRate.present? %>
-    <%= 'Weekly Rate: ' + @rvparky.weeklyRate.to_s %>
+    <b>Weekly Rate:</b>
+    <%= @rvparky.weeklyRate.to_s %>
     <%= ' (' + @rvparky.weeklyRateUpdated + ')' if @rvparky.weeklyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.weeklyRate_offseason.present? %>
-    <%= 'Offseason Weekly Rate: ' + @rvparky.weeklyRate_offseason.to_s %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Offseason Weekly Rate:', @rvparky.weeklyRate_offseason) if @rvparky.weeklyRate_offseason.present? %>
 
   <% if @rvparky.monthlyRate.present? %>
-    <%= 'Monthly Rate: ' + @rvparky.monthlyRate.to_s %>
+    <b>Monthly Rate:</b>
+    <%= @rvparky.monthlyRate.to_s %>
     <%= ' (' + @rvparky.monthlyRateUpdated + ')' if @rvparky.monthlyRateUpdated.present? %>
     <br />
   <% end %>
 
-  <% if @rvparky.monthlyRate_offseason.present? %>
-    <%= 'Offseason Monthly Rate: ' + @rvparky.monthlyRate_offseason.to_s  %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Offseason Monthly Rate:', @rvparky.monthlyRate_offseason) if @rvparky.monthlyRate_offseason.present? %>
 
-  <% if @rvparky.seasonalRates.present? && @rvparky.seasonalRates != 0 %>
-    <%= 'Seasonal Rates: ' + @rvparky.seasonalRates.to_s %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Seasonal Rates:', @rvparky.seasonalRates) if @rvparky.seasonalRates.present? && @rvparky.seasonalRates != 0 %>
 
-  <% if @rvparky.discounts.present? %>
-    <%= 'Discounts: ' + @rvparky.discounts %>
-    <br />
-  <% end%>
+  <%= field_value_styler('Discounts:', @rvparky.discounts) if @rvparky.discounts.present? %>
 
-  <% if @rvparky.description.present?%>
-    <%= 'Description: ' + @rvparky.description %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Description:', @rvparky.description) if @rvparky.description.present? %>
 
-  <%= 'Rating: ' + @rvparky.rating.to_s %> <br />
+  <%= field_value_styler('Rating:', @rvparky.rating) %>
 
-  <% if @rvparky.review_count.present?%>
-    <%= 'Total Reviews: ' + @rvparky.review_count.to_s %>
-    <br />
-  <% end %>
+  <%= field_value_styler('Total Reviews:', @rvparky.review_count) if @rvparky.review_count.present?%>
 
   <% if @rvparky.amenities.present? %>
     <h5> Amenities: </h5>
@@ -279,12 +199,12 @@
     <% unless diff.match? %>
       <div class="row">
         <div class="col">
-          <%= diff.catalogue_field + ': ' %>
+          <b><%= diff.catalogue_field + ': ' %></b>
           <%= diff.catalogue_value.to_s unless diff.catalogue_value.blank? %>
           <%= '[Blank]' if diff.catalogue_value.blank? %>
         </div>
         <div class="col">
-          <%= diff.rvparky_field + ': '%>
+          <b><%= diff.rvparky_field + ': '%></b>
           <%= diff.rvparky_value.to_s unless diff.rvparky_value.blank? %>
           <%= '[Blank]' if diff.rvparky_value.blank? %>
         </div>

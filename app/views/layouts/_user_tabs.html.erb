@@ -3,9 +3,11 @@
 
   <%= tab_generator("Add New", new_user_path, "fas fa-plus") %>
 
-  <%= tab_generator("Information", nil, "fas fa-info-circle") if params[:action] == 'show' %>
+  <%= tab_generator("Information", user_path(params[:id]), "fas fa-info-circle") if params[:id].present? %>
 
-  <%= tab_generator("Edit User", nil, "fas fa-pencil-alt") if params[:action] == 'edit' %>
+  <%= tab_generator("Edit User", edit_user_path(params[:id]), "fas fa-pencil-alt") if params[:id].present? %>
 
+  <% # TODO: Change.
+  %>
   <%= tab_generator("Delete User", nil, "fas fa-times-circle") if params[:action] == 'destroy' %>
 </ul>
