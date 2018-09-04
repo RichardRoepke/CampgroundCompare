@@ -5,7 +5,7 @@ class MarkedPark < ApplicationRecord
   has_many :differences
 
   after_find do |park|
-    update_status() if self.updated_at < Date.yesterday
+    update_status if self.updated_at < Date.yesterday
   end
 
   def next
@@ -44,8 +44,11 @@ class MarkedPark < ApplicationRecord
     elsif rvparky_input.is_a?(Integer)
       self.status = 'INVALID RVPARKY RESPONSE: ' + rvparky_input.to_s
     else
-      self.status = 'NO CONNECTION'
+      self.status = 'INVALID CONNECTIONS'
     end
+
+    self.force_update = !self.force_update
+    self.save
   end
 
   def get_catalogue_data(rv_uuid)
