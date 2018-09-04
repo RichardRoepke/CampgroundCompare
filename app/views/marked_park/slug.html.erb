@@ -1,0 +1,15 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<h4><%= @park.name %> <%= generate_badge(@park.status, @park.editable) %></h4>
+
+<br />
+
+<%= bootstrap_form_tag do |f| %>
+  <% if @park.status.include? '301' %>
+    <% f.submit "Follow 301 Code", class: "btn btn-success" %>
+  <% end %>
+<% end %>

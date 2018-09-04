@@ -27,6 +27,21 @@ class MarkedParkController < ApplicationController
     end
   end
 
+  def slug
+    @park = MarkedPark.find(params[:id])
+  end
+
+  def slug_post
+    @park = MarkedPark.find(params[:id])
+
+    if params[:commit].include? '301'
+      puts Typhoeus::Request.get('https://www.rvparky.com/_ws2/Location/' + @park.slug.to_s,
+                                 :ssl_verifyhost => 0).effective_url #Server is set as verified but without proper certification.
+    end
+
+    redirect_to marked_park_path(@park)
+  end
+
   def edit
     @catalogue = nil
     @rvparky = nil
@@ -161,7 +176,7 @@ class MarkedParkController < ApplicationController
       # how to do so.
       session[:previous_edit] = processed_inputs
       session[:previous_edit][:id] = park.id
-      flash[:ALERT] = 'Field mismatch. Please double-check that all values are the same on both sides.'
+      flash[:WARNING] = 'Field mismatch. Please double-check that all values are the same on both sides.'
       redirect_back fallback_location: root_path
     end
   end

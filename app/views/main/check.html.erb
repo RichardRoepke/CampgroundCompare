@@ -2,8 +2,13 @@
 
 <%= bootstrap_form_tag(url: '/check/since', layout: :horizontal) do |f| %>
   <%= f.date_field :date_since, label: 'Changes Since: ', value: @since %>
+  <%= f.form_group :database do %>
+    <%= f.radio_button :database, 'CATALOGUE', label: "Central Catalogue", checked: true %>
+    <%= f.radio_button :database, 'RVPARKY', label: "RVParky" %>
+    <%= f.radio_button :database, 'BOTH', label: "Both" %>
+  <% end %>
   <%= f.check_box :ignore_wait, value: @wait do %>
-    Select this checkbox to ignore warnings
+    Select this checkbox to ignore warnings, such as excessively long processing times.
   <% end %>
   <%= f.primary 'Check' %>
 <% end %>
