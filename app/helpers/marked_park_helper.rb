@@ -113,9 +113,9 @@ module MarkedParkHelper
     concat(' ')
     concat(f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary")
     concat(' ')
-    concat(f.submit "Submit Form")
+    concat(f.submit "Submit Form", class: "btn btn-primary")
     concat(' ')
-    f.submit "Submit and Next"
+    f.submit "Submit and Next", class: "btn btn-primary"
   end
 
   def generate_amenities_entry

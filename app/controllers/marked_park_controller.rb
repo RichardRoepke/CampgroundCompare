@@ -3,6 +3,9 @@ class MarkedParkController < ApplicationController
   before_action :provide_title
 
   def index
+    # Cleaning up the session.
+    session[:previous_edit] = nil if session[:previous_edit].present?
+
     @parks = MarkedPark.page(params[:page]).per(12)
   end
 
@@ -91,10 +94,8 @@ class MarkedParkController < ApplicationController
       @previous_values = nil
 
       # I have no idea why :id turns into 'id' in the session, but otherwise
-      # rails won't recognize the presence if ID.
-      if session[:previous_edit].present? && session[:previous_edit]['id'] == @park.id
-        @previous_values = session[:previous_edit]
-      end
+      # rails won't recognize the presence of a ID.
+      @previous_values = session[:previous_edit] if session[:previous_edit].present? && session[:previous_edit]['id'] == @park.id
 
       if @park.uuid.present?
         catalogue_temp = get_catalogue_park(@park.uuid)
