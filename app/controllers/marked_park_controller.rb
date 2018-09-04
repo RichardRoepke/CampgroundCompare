@@ -223,6 +223,70 @@ class MarkedParkController < ApplicationController
     redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
 
+  def autologic
+    if params[:commit].include?('Catalogue Lacks Information')
+      result = autocomplete_parks(true, false, false)
+    elsif params[:commit].include?('RVParky Lacks Information')
+      result = autocomplete_parks(false, true, false)
+    elsif params[:commit].include?('Both Lack Information')
+      result = autocomplete_parks(true, false, true)
+    elsif params[:commit].include?('Multiple Tasks')
+
+      tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
+
+      continue = false
+      tasks_todo = []
+
+      tasks.each do |task|
+        # I have no clue why bootstrap forms renders a selected checkbox as '1'
+        continue = true if params[task] == '1'
+        tasks_todo.push(params[task] == '1')
+      end
+
+      if continue.present?
+        result = autocomplete_parks(tasks_todo[0], tasks_todo[1], tasks_todo[2])
+      else
+        flash[:WARNING] = 'No autocompletion tasks were selected'
+        redirect_to marked_park_autocomplete_path and return
+      end
+    else
+      result = { status: 'WARNING', message: 'Action could not be parsed.'}
+    end
+
+    flash[result[:status]] = result[:message]
+    redirect_to marked_park_index_path
+  end
+
+  def autocomplete_parks(do_catalogue, do_rvparky, do_both)
+    output = { status: 'ALERT', message: 'COMPLETED SUCCESSFULLY.'}
+
+    MarkedPark.find_each do |park|
+      park.update_status
+      park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
+
+      if park.valid?
+        if do_catalogue.present? && park.status == 'CATALOGUE LACKS INFORMATION'
+          # TODO: Figure out an easy and generic way to update parks via web services.
+          park.editable = false
+          park.status = 'CATALOGUE UPDATING'
+        elsif do_rvparky.present? && park.status == 'RVPARKY LACKS INFORMATION'
+          # TODO: Figure out an easy and generic way to update parks via web services.
+          park.editable = false
+          park.status = 'RVPARKY UPDATING'
+        elsif do_both.present? && park.status == 'BOTH LACK INFORMATION'
+          # TODO: Figure out an easy and generic way to update parks via web services.
+          park.editable = false
+          park.status = 'BOTH UPDATING'
+        end
+
+        park.save
+      end
+    end
+
+    return output
+  end
+
   def validate_changes(inputs)
     result = { catalogue: {},
                rvparky: {},
