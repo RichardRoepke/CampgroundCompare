@@ -23,7 +23,7 @@
     <tbody>
       <% @differences.each do |diff| %>
         <% unless diff.match? || diff.catalogue_field == 'review_count' || diff.catalogue_field == 'rating' %>
-          <%= generate_quick_fields(f, diff, @previous_values) %>
+          <%= generate_quick_fields(f, diff) %>
         <% end%>
       <% end %>
     </tbody>
