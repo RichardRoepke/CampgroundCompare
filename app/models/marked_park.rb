@@ -17,34 +17,39 @@ class MarkedPark < ApplicationRecord
   end
 
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    inputs = true
+    unless self.uuid == 'NULL' || self.slug == 'NULL'
+      if catalogue_input.blank?
+        catalogue_input = get_catalogue_data(self.uuid)
+      end
 
-    if catalogue_input.blank?
-      catalogue_input = get_catalogue_data(self.uuid)
-    end
+      catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
 
-    catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
+      if rvparky_input.blank?
+        rvparky_input = get_rvparky_data(self.slug)
+      end
 
-    if rvparky_input.blank?
-      rvparky_input = get_rvparky_data(self.slug)
-    end
+      rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present? && rvparky_input.is_a?(Hash)
 
-    rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present? && rvparky_input.is_a?(Hash)
+      self.editable = false
 
-    self.editable = false
+      if rvparky.present? && catalogue.present?
+        self.status = calculate_status(catalogue, rvparky)
+        self.editable = ['INFORMATION MISMATCH',
+                         'BOTH LACK INFORMATION',
+                         'RVPARKY LACKS INFORMATION',
+                         'CATALOGUE LACKS INFORMATION'].include? self.status
+      elsif catalogue_input.is_a?(Integer)
+        self.status = 'INVALID CATALOGUE RESPONSE: ' + catalogue_input.to_s
+      elsif rvparky_input.is_a?(Integer)
+        self.status = 'INVALID RVPARKY RESPONSE: ' + rvparky_input.to_s
+      elsif self.slug.blank?
 
-    if rvparky.present? && catalogue.present?
-      self.status = calculate_status(catalogue, rvparky)
-      self.editable = ['INFORMATION MISMATCH',
-                       'BOTH LACK INFORMATION',
-                       'RVPARKY LACKS INFORMATION',
-                       'CATALOGUE LACKS INFORMATION'].include? self.status
-    elsif catalogue_input.is_a?(Integer)
-      self.status = 'INVALID CATALOGUE RESPONSE: ' + catalogue_input.to_s
-    elsif rvparky_input.is_a?(Integer)
-      self.status = 'INVALID RVPARKY RESPONSE: ' + rvparky_input.to_s
+      else
+        self.status = 'INVALID CONNECTIONS'
+      end
     else
-      self.status = 'INVALID CONNECTIONS'
+      self.status = 'SLUG IS MISSING' if self.slug == 'NULL'
+      self.status = 'UUID IS MISSING' if self.uuid == 'NULL'
     end
 
     self.force_update = !self.force_update

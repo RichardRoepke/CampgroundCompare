@@ -1,55 +1,88 @@
+require 'get_rvparky_updates'
+
 class MainController < ApplicationController
 
   def check
     @since = params[:date_since] if params[:date_since].present?
-    @ignore = params[:ignore_wait] if params[:ignore_wait].present?
+    @ignore = (params[:wait] == '1') if params[:wait].present?
+
+    if params[:database].present?
+      @check_array = [false, false, false]
+      @check_array[0] = true if params[:database] == 'CATALOGUE'
+      @check_array[1] = true if params[:database] == 'RVPARKY'
+      @check_array[2] = true if params[:database] == 'BOTH'
+    else
+      @check_array = [true, false, false]
+    end
   end
 
   def check_since
-    if params[:commit].present?
-      if Date.parse(params[:date_since]) < Date.current
-        changes = get_changed_since(params[:date_since])
+    problem = { catalogue: nil,
+                rvparky: nil,
+                general: nil }
+    added = 0
 
-        if changes.present?
-          if changes[0].is_a?(String)
-            redirect_to check_path(date_since: params[:date_since], wait: params[:ignore_wait]), alert: changes[0]
-          else
-            added = 0
-            changes.each do |entry|
-              new_entry = MarkedPark.new({ uuid: entry[:uuid],
-                                           name: entry[:name],
-                                           slug: entry[:slug],
-                                           status: nil,
-                                           editable: false })
-              new_entry.update_status(entry, nil)
-              added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
-            end
-            if added > 0
-              flash[:success] = added.to_s + ' new parks were marked as changed.'
-              redirect_to marked_park_index_path
-            else
-              redirect_to check_path(date_since: params[:date_since], wait: params[:ignore_wait]), alert: 'All found parks were already included.'
-            end
-          end
+    if Date.parse(params[:date_since]) < Date.current
+      changes = get_changed_since(params[:date_since], params[:database])
+
+      if changes[:catalogue].present?
+        if changes[:catalogue][0].is_a?(String)
+          problem[:catalogue] = changes[:catalogue][0]
         else
-          redirect_to check_path(date_since: params[:date_since],
-                                  wait: params[:ignore_wait]),
-                                  alert: 'No valid parks found.'
+          changes[:catalogue].each do |entry|
+            new_entry = MarkedPark.new({ uuid: entry[:uuid],
+                                         name: entry[:name],
+                                         slug: entry[:slug],
+                                         status: nil,
+                                         editable: false })
+            new_entry.update_status(entry, nil)
+            added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
+          end
         end
-      else
-        redirect_to check_path(date_since: params[:date_since],
-                                  wait: params[:ignore_wait]),
-                                  alert: 'Please select a date before today\'s date.'
+      end
+
+      if changes[:rvparky].present?
+        if changes[:rvparky][0].is_a?(String)
+          problem[:rvparky] = changes[:rvparky][0]
+        else
+          changes[:rvparky].each do |entry|
+            new_entry = MarkedPark.new({ uuid: 'NULL',
+                                         name: entry[:name],
+                                         slug: entry[:slug],
+                                         status: nil,
+                                         editable: false })
+            new_entry.update_status(nil, entry)
+            added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
+          end
+        end
       end
     else
+      problem[:general] = 'Please select a date before today\'s date.'
+    end
+
+    if problem[:catalogue].present? || problem[:rvparky].present? || problem[:general].present?
+      flash['CATALOGUE ALERT'] = problem[:catalogue] if problem[:catalogue].present?
+      flash['RVPARKY ALERT'] = problem[:rvparky] if problem[:rvparky].present?
+      flash['NOTICE'] = problem[:general] if problem[:general].present?
       redirect_to check_path(date_since: params[:date_since],
-                                wait: params[:ignore_wait]),
-                                alert: 'Index could not be generated. Please adjust your parameters try again.'
+                             wait: params[:ignore_wait],
+                             database: params[:database])
+    else
+      if added > 0
+        flash[:success] = added.to_s + ' new parks were marked as changed.'
+        redirect_to marked_park_index_path
+      else
+        flash['NOTICE'] = 'No new changes were found.'
+        redirect_to check_path(date_since: params[:date_since],
+                             wait: params[:ignore_wait],
+                             database: params[:database])
+      end
     end
   rescue => exception
     redirect_to check_path(date_since: params[:date_since],
-                              wait: params[:ignore_wait]),
-                              alert: 'A problem occurred. Please adjust your parameters try again.'
+                           wait: params[:ignore_wait],
+                           database: params[:database]),
+                           alert: 'A problem occurred. Please adjust your parameters try again.'
     puts '========================================================================='
     puts exception.inspect
     puts '========================================================================='
@@ -63,7 +96,18 @@ class MainController < ApplicationController
   end
 
   private
-  def get_changed_since(date, page = 1, per_page = 100)
+  def get_changed_since(date, method)
+    if method == 'CATALOGUE'
+      return { catalogue: get_catalogue_since(date) }
+    elsif method == 'RVPARKY'
+      return { rvparky: get_rvparky_since(date) }
+    else
+      return { catalogue: get_catalogue_since(date),
+               rvparky: get_rvparky_since(date) }
+    end
+  end
+
+  def get_catalogue_since(date, page = 1, per_page = 100)
     result_array = []
 
     request = Typhoeus::Request.get('http://centralcatalogue.com:3200/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
@@ -75,7 +119,9 @@ class MainController < ApplicationController
       response = hash_string_to_sym(temp_response)
 
       response[:data].each do |value|
-        result_array.push(value) unless value[:slug].blank? # No slug, no way to check RV Parky
+        info = value
+        info[:slug] = 'NULL' if info[:slug].blank?
+        result_array.push(info)
       end
 
       if response[:totalPages] > page
@@ -93,5 +139,12 @@ class MainController < ApplicationController
     end
 
     return result_array
+  end
+
+  def get_rvparky_since(date)
+    #request = Typhoeus::Request.get('https://www.rvparky.com/_ws/LocationIndexUpdates?last_updated=2018-09-01T23:27:35.820010')
+    #temp = JSON.parse(request.response_body)
+    #foobar = process_updates(temp["updates"])
+    return 0
   end
 end
