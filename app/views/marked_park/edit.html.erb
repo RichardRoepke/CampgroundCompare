@@ -4,31 +4,15 @@
 
 <br />
 
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
-        <% @differences[:differences].each do |diff| %>
-          <%= f.text_area :test, id: 'R' + diff.rvparky_field, hide_label: true %>
-          <%= f.submit "Transfer", type: 'button', data: { element: 'R' + diff.rvparky_field, transfer: diff.catalogue_value }, class: "btn btn-outline-secondary" %>
-          <i><%= diff.catalogue_value %></i>
-          <hr />
-        <% end %>
-      <% end %>
-    </div>
-    <div class="col">
-      <%= bootstrap_form_tag url: user_path, method: :delete do |f| %>
-        <% @differences[:differences].each do |diff| %>
-          <%= f.text_area :test, id: 'C' + diff.catalogue_field, hide_label: true %>
-          <% if diff.kind == 'Value Mismatch'%>
-            <%= f.submit "Transfer", type: 'button', data: { element: 'C' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-secondary" %>
-            <i><%= diff.rvparky_value %></i>
-          <% else %>
-            <%= f.submit "Transfer", type: 'button', data: { element: 'C' + diff.catalogue_field, transfer: diff.rvparky_value }, class: "btn btn-outline-primary" %>
-          <% end %>
-          <hr />
-        <% end %>
-      <% end %>
-    </div>
-  </div>
-</div>
+<h4><%= @park.name %> <%= generate_badge(@park.status, @park.editable) %></h4>
+
+<br />
+
+<%= bootstrap_form_for(@park) do |f| %>
+  <%= f.text_field :uuid, value: @park.uuid %>
+  <%= f.text_field :slug, value: @park.slug %>
+  <% if @park.status.include? '301' %>
+    <%= f.submit "Follow 301 Code", class: "btn btn-success" %>
+  <% end %>
+  <%= f.submit 'Change Values' %>
+<% end %>

@@ -1,3 +1,18 @@
 <% provide(:title, "Home") %>
 
-Nothing here yet.
+<table class="table table-hover">
+  <tbody>
+    <tr>
+      <td style="width: 20%"><%= link_to 'Check for Changes', check_path %></td>
+      <td style="width: 80%">Check for changes between the web services.</td>
+    </tr>
+    <tr>
+      <td style="width: 20%"><%= link_to 'Parks', marked_park_index_path %></td>
+      <td style="width: 80%">Check the parks which are different between the web services.</td>
+    </tr>
+    <tr>
+      <td style="width: 20%"><%= link_to 'Change Password', password_path %></td>
+      <td style="width: 80%">Change your password.</td>
+    </tr>
+  </tbody>
+</table>

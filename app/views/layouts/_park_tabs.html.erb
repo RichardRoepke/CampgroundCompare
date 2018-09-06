@@ -3,9 +3,11 @@
 
   <%= tab_generator("Recheck Status", marked_park_status_path, 'fas fa-sync') %>
 
+  <%= tab_generator("Autocompletion", marked_park_autocomplete_path, 'fas fa-magic') %>
+
   <%= tab_generator("Information", marked_park_path(params[:id]), "fas fa-info-circle") if params[:id].present? %>
 
-  <%= tab_generator("Change Slug", marked_park_slug_path(params[:id]), "fas fa-screwdriver") if params[:id].present? %>
+  <%= tab_generator("Edit Information", edit_marked_park_path(params[:id]), "fas fa-screwdriver") if params[:id].present? %>
 
-  <%= tab_generator("Quick Edit", marked_park_quick_path(params[:id]), "fas fa-marker") if params[:id].present? && @park.editable? %>
+  <%= tab_generator("Resolve Differences", marked_park_quick_path(params[:id]), "fas fa-marker") if params[:id].present? && @park.editable? %>
 </ul>

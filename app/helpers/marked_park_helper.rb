@@ -44,58 +44,42 @@ module MarkedParkHelper
     end
   end
 
-  def generate_quick_fields(f, diff, previous)
+  def generate_quick_fields(f, diff)
     row_class = ''
     row_class = 'table-warning' if diff.mismatch?
 
-    if previous.present?
-      if (previous['catalogue'][diff.catalogue_field].to_s != diff.catalogue_value.to_s) || (previous['rvparky'][diff.rvparky_field].to_s != diff.rvparky_value.to_s)
-        if previous['catalogue'][diff.catalogue_field] != previous['rvparky'][diff.rvparky_field]
-          row_class = 'table-danger'
-        end
-      end
-    end
-
-    content_tag(:tr, { class: row_class }) do
+    content_tag(:tr, { class: row_class, id: diff.id.to_s }) do
       concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.catalogue_field)
-        current_value = if previous.present? && previous['catalogue'][diff.catalogue_field].present?
-                          previous['catalogue'][diff.catalogue_field]
-                        else
-                          diff.catalogue_value
-                        end
         generate_quick_entry(f,
                              'CATALOGUE',
                              'Catalogue_' + diff.catalogue_field,
                              'RVParky_' + diff.rvparky_field,
                              diff.catalogue_value,
                              diff.rvparky_value,
-                             current_value)
+                             diff.catalogue_value,
+                             diff.id)
       end)
       concat(content_tag(:td, { style: "width: 50%" }) do
         concat(diff.rvparky_field)
-        current_value = if previous.present? && previous['rvparky'][diff.rvparky_field].present?
-                          previous['rvparky'][diff.rvparky_field]
-                        else
-                          diff.rvparky_value
-                        end
         generate_quick_entry(f,
                              'RVPARKY',
                              'RVParky_' + diff.rvparky_field,
                              'Catalogue_' + diff.catalogue_field,
                              diff.rvparky_value,
                              diff.catalogue_value,
-                             current_value)
+                             diff.rvparky_value,
+                             diff.id)
       end)
     end
   end
 
-  def generate_quick_entry(f, kind, entry_name, mirror_name, entry_value, mirror_value, current_value)
+  def generate_quick_entry(f, kind, entry_name, mirror_name, entry_value, mirror_value, current_value, id)
     copy_type = { element: entry_name, mirror: mirror_name, copy: 'true' }
     copy_type[kind.to_sym] = 'true'
     copy_type[:blank] = true if entry_value.blank?
 
-    concat(f.text_area(entry_name.to_sym, id: entry_name, value: current_value, hide_label: true))
+    concat(f.text_area(entry_name.to_sym, id: entry_name, value: current_value, hide_label: true, data: { mirror: mirror_name, row: id }))
     concat(f.submit("Copy", type: 'button', data: copy_type, class: "btn btn-success"))
     concat(' ')
     concat(f.submit("Reset", type: 'button', data: { element: entry_name, transfer: entry_value, reset: 'true' }, class: "btn btn-secondary")) if entry_value.present?
@@ -113,9 +97,9 @@ module MarkedParkHelper
     concat(' ')
     concat(f.submit "Reset All", type: 'button', data: { global: '[data-reset]' }, class: "btn btn-secondary")
     concat(' ')
-    concat(f.submit "Submit Form")
+    concat(f.submit "Submit Form", class: "btn btn-primary", data: { submit: 'true' })
     concat(' ')
-    f.submit "Submit and Next"
+    f.submit "Submit and Next", class: "btn btn-primary", data: { submit: 'true' }
   end
 
   def generate_amenities_entry
