@@ -41,24 +41,18 @@ class CatalogueLocationValidator
   validates :uuid, presence: true
   validates :type, presence: true
   validates :name, presence: true
-  validates :address, presence: true
-  validates :city, presence: true
-  validates :stateName, presence: true
-  validates :stateCode, presence: true
-  validates :countryName, presence: true
-  validates :countryCode, presence: true
 
   validates :uuid, length: { maximum: 255 }
   validates :type, inclusion: { in: %w{ Campground GasStation Store RestStop Casino } }
   validates :name, length: { maximum: 255 }
   validates :bounceCode, length: { maximum: 255 }, allow_blank: true
-  validates :address, length: { maximum: 255 }
-  validates :city, length: { maximum: 255 }
+  validates :address, length: { maximum: 255 }, allow_blank: true
+  validates :city, length: { maximum: 255 }, allow_blank: true
   validates :postalCode, length: { maximum: 255 }, allow_blank: true
-  validates :stateName, length: { maximum: 255 }
-  validates :stateCode, length: { maximum: 255 }
-  validates :countryName, length: { maximum: 255 }
-  validates :countryCode, length: { maximum: 255 }
+  validates :stateName, length: { maximum: 255 }, allow_blank: true
+  validates :stateCode, length: { maximum: 255 }, allow_blank: true
+  validates :countryName, length: { maximum: 255 }, allow_blank: true
+  validates :countryCode, length: { maximum: 255 }, allow_blank: true
   validates :phone, length: { maximum: 255 }, allow_blank: true
   validates :email, length: { maximum: 255 }, allow_blank: true
   validates :website, length: { maximum: 255 }, allow_blank: true

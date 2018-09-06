@@ -18,7 +18,13 @@
   <%= field_value_styler('Bounce Code:', @catalogue.bounceCode) if @catalogue.bounceCode.present? %>
 
   <b>Address: </b>
-  <%= @catalogue.address + ', ' + @catalogue.city + ', ' + @catalogue.stateName + ' (' + @catalogue.stateCode + '), ' + @catalogue.countryName + ' (' + @catalogue.countryCode + ')' %>
+  <%= @catalogue.address + ', ' if @catalogue.address.present? %>
+  <%= @catalogue.city + ', ' if @catalogue.city.present? %>
+  <%= @catalogue.stateName if @catalogue.stateName.present? %>
+  <%= ' (' + @catalogue.stateCode + ')' if @catalogue.stateCode.present? %>
+  <%= ', ' if @catalogue.countryName.present? && @catalogue.stateName.present?%>
+  <%= @catalogue.countryName if @catalogue.countryName.present? %>
+  <%= ' (' + @catalogue.countryCode + ')' if @catalogue.countryCode.present? %>
   <%= @catalogue.postalCode if @catalogue.postalCode.present? %><br />
 
   <%= field_value_styler('Phone Number:', @catalogue.phone) if @catalogue.phone.present? %>

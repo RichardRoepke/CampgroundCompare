@@ -47,7 +47,6 @@ class RvparkyLocationValidator
 
   validates :rating, presence: true
   validates :category, presence: true
-  validates :city, presence: true
   validates :sites, presence: true
   validates :slug, presence: true
   validates :name, presence: true
