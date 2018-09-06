@@ -48,12 +48,21 @@ class MainController < ApplicationController
           problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
           changes[:rvparky].each do |entry|
-            new_entry = MarkedPark.new({ uuid: 'NULL',
+            result = get_catalogue_location(entry[:slug])
+
+            if result.is_a?(Hash)
+              uuid = result[:uuid]
+              catalogue_response = result
+            else
+              uuid = 'NULL'
+            end
+
+            new_entry = MarkedPark.new({ uuid: uuid,
                                          name: entry[:name],
                                          slug: entry[:slug],
                                          status: nil,
                                          editable: false })
-            new_entry.update_status(nil, entry)
+            new_entry.update_status(catalogue_response, entry)
             added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
           end
         end

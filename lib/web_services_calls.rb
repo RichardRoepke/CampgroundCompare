@@ -10,10 +10,10 @@ def get_changed_since(date, method, ignore)
   if method == 'CATALOGUE'
     return { catalogue: get_catalogue_since(date, ignore) }
   elsif method == 'RVPARKY'
-    return { rvparky: get_rvparky_since(date) }
+    return { rvparky: get_rvparky_since(date, ignore) }
   else
     return { catalogue: get_catalogue_since(date, ignore),
-             rvparky: get_rvparky_since(date) }
+             rvparky: get_rvparky_since(date, ignore) }
   end
 end
 
@@ -56,11 +56,64 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
   return result
 end
 
-def get_rvparky_since(date)
-  #request = Typhoeus::Request.get('https://www.rvparky.com/_ws/LocationIndexUpdates?last_updated=2018-09-01T23:27:35.820010')
-  #temp = JSON.parse(request.response_body)
-  #foobar = process_updates(temp["updates"])
-  return 'Response failed. Code: 0'
+def get_rvparky_since(date, ignore_wait)
+  result = []
+
+  request = generic_get_rvparky_1('LocationIndexUpdates?last_updated=' + date.to_s + 'T00:00:00.000000')
+
+  if request.response_code == 200
+    response = JSON.parse(request.response_body)
+    if response["updates"].present?
+      further_ids = get_rvparky_since_recursion(response["date"], ignore_wait)
+
+      unless further_ids.is_a?(String)
+        id_array = process_updates(response["updates"]) + further_ids
+
+        if id_array.length < 1000 || ignore_wait.present?
+          id_array.each do |id|
+            location = get_web_data(id.to_s, 'RVPARKY')
+            result.push(location) if location.is_a?(Hash)
+          end
+        else
+          result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
+        end
+      else
+        result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
+      end
+    else
+      result = 'No valid parks found.'
+    end
+  else
+    result = 'Response failed. Code: ' + request.response_code.to_s
+  end
+
+  return result
+end
+
+def get_rvparky_since_recursion(date, ignore_wait, level=0)
+  result = []
+
+  if level < 25 || ignore_wait.present?
+    request = generic_get_rvparky_1('LocationIndexUpdates?last_updated=' + date.to_s)
+
+    if request.response_code == 200
+      response = JSON.parse(request.response_body)
+
+      if response["updates"].present?
+        next_level = get_rvparky_since_recursion(response["date"], ignore_wait, level + 1)
+
+        if next_level.is_a?(String)
+          result = next_level
+        else
+          result = process_updates(response["updates"]) + next_level
+        end
+      end
+    end
+  else
+    result = 'TOO DEEP'
+  end
+
+  return result
 end
 
 def generic_get_catalogue(url)
