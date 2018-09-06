@@ -6,7 +6,64 @@ def get_rvparky_location(slug)
   return get_web_data(slug, 'RVPARKY')
 end
 
+def get_changed_since(date, method, ignore)
+  if method == 'CATALOGUE'
+    return { catalogue: get_catalogue_since(date, ignore) }
+  elsif method == 'RVPARKY'
+    return { rvparky: get_rvparky_since(date) }
+  else
+    return { catalogue: get_catalogue_since(date, ignore),
+             rvparky: get_rvparky_since(date) }
+  end
+end
+
+def update_catalogue_location(uuid, changes)
+  return generic_put_catalogue(uuid + '?' + changes).response_code
+end
+
 private
+def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
+  result_array = []
+
+  request = generic_get_catalogue('changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s)
+
+  if request.response_code == 200
+    temp_response = JSON.parse(request.response_body)
+    response = hash_string_to_sym(temp_response)
+  else
+    result_array = ['Response failed.']
+  end
+
+
+  if response[:records] > 0
+    if response[:totalPages] < 5 && ignore_wait.present?
+      response[:data].each do |value|
+        info = value
+        info[:slug] = 'NULL' if info[:slug].blank?
+        result_array.push(info)
+      end
+
+      if response[:totalPages] > page
+        next_page_array = get_changed_since(date, ignore_wait, (page + 1))
+        # If next_page_array is a string then an error must have occured so
+        # don't append it to the current array.
+        result_array = result_array + next_page_array unless next_page_array.is_a?(String)
+      end
+    else
+      result_array = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
+    end
+  end
+
+  return result_array
+end
+
+def get_rvparky_since(date)
+  #request = Typhoeus::Request.get('https://www.rvparky.com/_ws/LocationIndexUpdates?last_updated=2018-09-01T23:27:35.820010')
+  #temp = JSON.parse(request.response_body)
+  #foobar = process_updates(temp["updates"])
+  return 0
+end
+
 def generic_get_catalogue(url)
   final_url = 'http://centralcatalogue.com:3200/api/v1/locations?' + url if url.include?('changedSince')
   final_url = 'http://centralcatalogue.com:3200/api/v1/locations/' + url unless url.include?('changedSince')

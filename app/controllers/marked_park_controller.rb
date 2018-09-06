@@ -1,3 +1,5 @@
+require 'web_services_calls'
+
 class MarkedParkController < ApplicationController
   include CommonFields
   before_action :provide_title
@@ -13,12 +15,12 @@ class MarkedParkController < ApplicationController
     @park = MarkedPark.find(params[:id])
 
     if @park.uuid.present?
-      catalogue_temp = get_catalogue_park(@park.uuid)
+      catalogue_temp = get_catalogue_location(@park.uuid)
       @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
     end
 
     if @park.slug.present?
-      rvparky_temp = get_rvparky_park(@park.slug)
+      rvparky_temp = get_rvparky_location(@park.slug)
       @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
     end
 
@@ -30,7 +32,8 @@ class MarkedParkController < ApplicationController
       if @park.present?
         @differences = @park.differences
       else
-        redirect_to marked_park_index_path, alert: 'Park was already resolved.' unless @park.present?
+        flash[:success] = 'Differences were resolved since last checked.'
+        redirect_to marked_park_index_path
       end
     end
   end
@@ -67,12 +70,12 @@ class MarkedParkController < ApplicationController
       @rvparky = nil
 
       if @park.uuid.present?
-        catalogue_temp = get_catalogue_park(@park.uuid)
+        catalogue_temp = get_catalogue_location(@park.uuid)
         @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
       end
 
       if @park.slug.present?
-        rvparky_temp = get_rvparky_park(@park.slug)
+        rvparky_temp = get_rvparky_location(@park.slug)
         @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
       end
 
@@ -85,7 +88,7 @@ class MarkedParkController < ApplicationController
           @differences = @park.differences
         else
           redirect_to marked_park_path(@park), alert: 'Park is no longer editable.' if @park.present?
-          redirect_to marked_park_index_path, alert: 'Park was already resolved.' unless @park.present?
+          redirect_to marked_park_index_path, alert: 'Differences were resolved since last checked.' unless @park.present?
         end
       else
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
@@ -111,10 +114,9 @@ class MarkedParkController < ApplicationController
                         message: '' }
 
     if catalogue_url.present?
-      request = Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + uuid + '?' + catalogue_url,
-                                      headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
-                                      :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-      if request.response_code == 201
+      request = update_catalogue_location(uuid, catalogue_url)
+
+      if request == 201
         catalogue_message[:status] = 'CAT SUCCESS'
         catalogue_message[:message] = 'Central Catalogue: Changes successfully submitted.'
       else
@@ -280,34 +282,5 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
-  end
-
-  def get_catalogue_park(uuid)
-    output = nil
-    request = Typhoeus::Request.get('http://centralcatalogue.com:3200/api/v1/locations/' + uuid,
-                                    headers: {'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2'},
-                                    :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-
-    if request.response_code == 200
-      temp_response = JSON.parse(request.response_body)
-
-      output = hash_string_to_sym(temp_response)
-    end
-
-    return output
-  end
-
-  def get_rvparky_park(slug)
-    output = nil
-    request = Typhoeus::Request.get('https://www.rvparky.com/_ws2/Location/' + slug.to_s,
-                                    :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-    if request.response_code == 200
-      temp_response = JSON.parse(request.response_body)
-
-      temp = hash_string_to_sym(temp_response)
-      output = temp[:location]
-    end
-
-    return output
   end
 end

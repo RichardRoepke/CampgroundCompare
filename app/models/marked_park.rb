@@ -21,7 +21,7 @@ class MarkedPark < ApplicationRecord
   def update_status(catalogue_input=nil, rvparky_input=nil)
     unless self.uuid == 'NULL' || self.slug == 'NULL'
       if catalogue_input.blank?
-        catalogue_input = get_catalogue_data(self.uuid)
+        catalogue_input = get_catalogue_location(self.uuid)
       end
 
       catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)

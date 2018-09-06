@@ -1,4 +1,5 @@
 require 'get_rvparky_updates'
+require 'web_services_calls'
 
 class MainController < ApplicationController
 
@@ -23,7 +24,8 @@ class MainController < ApplicationController
     added = 0
 
     if Date.parse(params[:date_since]) < Date.current
-      changes = get_changed_since(params[:date_since], params[:database])
+      ignore = params[:ignore_wait] == '1'
+      changes = get_changed_since(params[:date_since], params[:database], ignore)
 
       if changes[:catalogue].present?
         if changes[:catalogue][0].is_a?(String)
@@ -93,58 +95,5 @@ class MainController < ApplicationController
 
   def password
     @user = User.find(current_user.id)
-  end
-
-  private
-  def get_changed_since(date, method)
-    if method == 'CATALOGUE'
-      return { catalogue: get_catalogue_since(date) }
-    elsif method == 'RVPARKY'
-      return { rvparky: get_rvparky_since(date) }
-    else
-      return { catalogue: get_catalogue_since(date),
-               rvparky: get_rvparky_since(date) }
-    end
-  end
-
-  def get_catalogue_since(date, page = 1, per_page = 100)
-    result_array = []
-
-    request = Typhoeus::Request.get('http://centralcatalogue.com:3200/api/v1/locations?changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s,
-                                    headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
-                                    :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-
-    if request.response_code == 200
-      temp_response = JSON.parse(request.response_body)
-      response = hash_string_to_sym(temp_response)
-
-      response[:data].each do |value|
-        info = value
-        info[:slug] = 'NULL' if info[:slug].blank?
-        result_array.push(info)
-      end
-
-      if response[:totalPages] > page
-        if response[:totalPages] > 10 && params[:ignore_wait] != '1'
-          result_array = ['Operation aborted due to the excessive time required. If you wish to proceed, please select the checkbox when resubmitting the form.']
-        else
-          next_page_array = get_changed_since(date, (page + 1))
-          # If next_page_array is a string then an error must have occured so
-          # don't append it to the current array.
-          result_array = result_array + next_page_array unless next_page_array[0].is_a?(String)
-        end
-      end
-    else
-      result_array = ['Response failed.']
-    end
-
-    return result_array
-  end
-
-  def get_rvparky_since(date)
-    #request = Typhoeus::Request.get('https://www.rvparky.com/_ws/LocationIndexUpdates?last_updated=2018-09-01T23:27:35.820010')
-    #temp = JSON.parse(request.response_body)
-    #foobar = process_updates(temp["updates"])
-    return 0
   end
 end
