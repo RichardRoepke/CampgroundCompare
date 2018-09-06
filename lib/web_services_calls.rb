@@ -23,45 +23,44 @@ end
 
 private
 def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
-  result_array = []
+  result = []
 
   request = generic_get_catalogue('changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s)
 
   if request.response_code == 200
     temp_response = JSON.parse(request.response_body)
     response = hash_string_to_sym(temp_response)
-  else
-    result_array = ['Response failed.']
-  end
 
+    if response[:records] > 0
+      if response[:totalPages] < 5 || ignore_wait.present?
+        response[:data].each do |value|
+          info = value
+          info[:slug] = 'NULL' if info[:slug].blank?
+          result.push(info)
+        end
 
-  if response[:records] > 0
-    if response[:totalPages] < 5 && ignore_wait.present?
-      response[:data].each do |value|
-        info = value
-        info[:slug] = 'NULL' if info[:slug].blank?
-        result_array.push(info)
+        if response[:totalPages] > page
+          next_page_array = get_changed_since(date, ignore_wait, (page + 1))
+          # If next_page_array is a string then an error must have occured so
+          # don't append it to the current array.
+          result = result + next_page_array unless next_page_array.is_a?(String)
+        end
+      else
+        result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
       end
-
-      if response[:totalPages] > page
-        next_page_array = get_changed_since(date, ignore_wait, (page + 1))
-        # If next_page_array is a string then an error must have occured so
-        # don't append it to the current array.
-        result_array = result_array + next_page_array unless next_page_array.is_a?(String)
-      end
-    else
-      result_array = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
     end
+  else
+    result = 'Response failed. Code: ' + request.response_code.to_s
   end
 
-  return result_array
+  return result
 end
 
 def get_rvparky_since(date)
   #request = Typhoeus::Request.get('https://www.rvparky.com/_ws/LocationIndexUpdates?last_updated=2018-09-01T23:27:35.820010')
   #temp = JSON.parse(request.response_body)
   #foobar = process_updates(temp["updates"])
-  return 0
+  return 'Response failed. Code: 0'
 end
 
 def generic_get_catalogue(url)
@@ -78,8 +77,14 @@ def generic_put_catalogue(url)
                                :ssl_verifyhost => 0)
 end
 
-def generic_get_rvparky(url)
+# For checking changes since X date.
+def generic_get_rvparky_1(url)
   return Typhoeus::Request.get('https://www.rvparky.com/_ws/' + url, :ssl_verifyhost => 0)
+end
+
+# For checking locations.
+def generic_get_rvparky_2(url)
+  return Typhoeus::Request.get('https://www.rvparky.com/_ws2/' + url, :ssl_verifyhost => 0)
 end
 
 def generic_put_rvparky(url)
@@ -90,7 +95,7 @@ def get_web_data(key, type)
   if type == 'CATALOGUE'
     request = generic_get_catalogue(key)
   elsif type == 'RVPARKY'
-    request = generic_get_rvparky('Location/' + key)
+    request = generic_get_rvparky_2('Location/' + key)
   else
     return 0
   end

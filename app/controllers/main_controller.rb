@@ -28,8 +28,8 @@ class MainController < ApplicationController
       changes = get_changed_since(params[:date_since], params[:database], ignore)
 
       if changes[:catalogue].present?
-        if changes[:catalogue][0].is_a?(String)
-          problem[:catalogue] = changes[:catalogue][0]
+        if changes[:catalogue].is_a?(String)
+          problem[:catalogue] = 'Catalogue: ' + changes[:catalogue]
         else
           changes[:catalogue].each do |entry|
             new_entry = MarkedPark.new({ uuid: entry[:uuid],
@@ -44,8 +44,8 @@ class MainController < ApplicationController
       end
 
       if changes[:rvparky].present?
-        if changes[:rvparky][0].is_a?(String)
-          problem[:rvparky] = changes[:rvparky][0]
+        if changes[:rvparky].is_a?(String)
+          problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
           changes[:rvparky].each do |entry|
             new_entry = MarkedPark.new({ uuid: 'NULL',
