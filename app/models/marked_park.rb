@@ -1,3 +1,5 @@
+require 'web_services_calls'
+
 class MarkedPark < ApplicationRecord
   include CommonFields
   validates :uuid, uniqueness: true
@@ -25,7 +27,7 @@ class MarkedPark < ApplicationRecord
       catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
 
       if rvparky_input.blank?
-        rvparky_input = get_rvparky_data(self.slug)
+        rvparky_input = get_rvparky_location(self.slug)
       end
 
       rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present? && rvparky_input.is_a?(Hash)
@@ -42,8 +44,6 @@ class MarkedPark < ApplicationRecord
         self.status = 'INVALID CATALOGUE RESPONSE: ' + catalogue_input.to_s
       elsif rvparky_input.is_a?(Integer)
         self.status = 'INVALID RVPARKY RESPONSE: ' + rvparky_input.to_s
-      elsif self.slug.blank?
-
       else
         self.status = 'INVALID CONNECTIONS'
       end
@@ -54,35 +54,6 @@ class MarkedPark < ApplicationRecord
 
     self.force_update = !self.force_update
     self.save
-  end
-
-  def get_catalogue_data(rv_uuid)
-    return get_web_data('http://centralcatalogue.com:3200/api/v1/locations/' + rv_uuid.to_s, true)
-  end
-
-  def get_rvparky_data(rv_slug)
-    temp = get_web_data('https://www.rvparky.com/_ws2/Location/' + rv_slug.to_s)
-    return temp[:location] if temp.is_a?(Hash)
-    return temp
-  end
-
-  def get_web_data(url, api_key=false)
-    if api_key.present?
-      request = Typhoeus::Request.get(url,
-                                      headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
-                                      :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-    else
-      request = Typhoeus::Request.get(url, :ssl_verifyhost => 0) #Server is set as verified but without proper certification.
-    end
-
-    if request.response_code == 200
-      temp_response = JSON.parse(request.response_body)
-      output = hash_string_to_sym(temp_response)
-    else
-      output = request.response_code
-    end
-
-    return output
   end
 
   def calculate_status(catalogue, rvparky)
