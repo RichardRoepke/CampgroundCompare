@@ -22,6 +22,10 @@ class MarkedPark < ApplicationRecord
     update_status if self.updated_at < Date.yesterday
   end
 
+  def self.field_includes(field, substring)
+    where(field + " like ?", "%" + substring + "%")
+  end
+
   def next
     MarkedPark.where("id > ?", id).first
   end

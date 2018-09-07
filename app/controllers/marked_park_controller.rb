@@ -11,6 +11,9 @@ class MarkedParkController < ApplicationController
     park_list = MarkedPark.page(params[:page])
     # I have no clue why session changes :exact to "exact".
     park_list = park_list.where(session[:filter]["exact"]) if session[:filter]["exact"].present?
+    park_list = park_list.field_includes("name", session[:filter]["inclusive"]["name"]) if session[:filter]["inclusive"]["name"].present?
+    park_list = park_list.field_includes("uuid", session[:filter]["inclusive"]["uuid"]) if session[:filter]["inclusive"]["uuid"].present?
+    park_list = park_list.field_includes("slug", session[:filter]["inclusive"]["slug"]) if session[:filter]["inclusive"]["slug"].present?
     @parks = park_list.per(12)
     @filter = session[:filter] if session[:filter]["exact"].present? || session[:filter]["inclusive"].present?
   end
@@ -267,8 +270,17 @@ class MarkedParkController < ApplicationController
       session[:filter][:inclusive][:name] = params[:name] if params[:name_exact] == '0'
     end
 
+    if params[:uuid].present?
+      session[:filter][:exact][:uuid] = params[:uuid] if params[:uuid_exact] == '1'
+      session[:filter][:inclusive][:uuid] = params[:uuid] if params[:uuid_exact] == '0'
+    end
+
+    if params[:slug].present?
+      session[:filter][:exact][:slug] = params[:slug] if params[:slug_exact] == '1'
+      session[:filter][:inclusive][:slug] = params[:slug] if params[:slug_exact] == '0'
+    end
+
     redirect_to marked_park_index_path
-    #redirect_back(fallback_location: root_path)
   end
 
   def process_changes(form_inputs)

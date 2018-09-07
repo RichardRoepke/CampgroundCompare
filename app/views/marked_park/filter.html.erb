@@ -7,6 +7,13 @@
 <%= bootstrap_form_tag do |f| %>
   <%= f.text_field :name, label: 'Name includes:' %>
   <%= f.check_box :name_exact, label: 'Exact?' %>
+  <hr />
+  <%= f.text_field :uuid, label: 'UUID includes:' %>
+  <%= f.check_box :uuid_exact, label: 'Exact?' %>
+  <hr />
+  <%= f.text_field :slug, label: 'Slug includes:' %>
+  <%= f.check_box :slug_exact, label: 'Exact?' %>
+  <hr />
   <%= f.select :editable,
                [["No", 'FALSE'],
                ["Yes", 'TRUE']],
