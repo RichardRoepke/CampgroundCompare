@@ -1,5 +1,7 @@
 <ul class="nav nav-tabs">
-  <%= tab_generator("Index", marked_park_index_path, "fas fa-list") %>
+  <%= tab_generator("Index", marked_park_index_path(page: session[:page]), "fas fa-list") %>
+
+  <%= tab_generator("Filter", marked_park_filter_path, "fas fa-filter") %>
 
   <%= tab_generator("Recheck Status", marked_park_status_path, 'fas fa-sync') %>
 

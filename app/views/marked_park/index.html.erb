@@ -18,7 +18,7 @@
     <% @parks.each do |park| %>
       <tr>
         <th scope="row"> <%= park.name %> </th>
-        <td> <%= park.uuid %> </td>
+        <td> <%= park.uuid unless park.uuid.include?('NULL') %> </td>
         <td> <%= park.slug %> </td>
         <td> <%= generate_badge(park.status, park.editable) %>  </td>
         <td>

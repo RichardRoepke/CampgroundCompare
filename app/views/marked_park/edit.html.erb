@@ -9,8 +9,8 @@
 <br />
 
 <%= bootstrap_form_for(@park) do |f| %>
-  <%= f.text_field :uuid, value: @park.uuid %>
-  <%= f.text_field :slug, value: @park.slug %>
+  <%= f.text_field :uuid, value: @uuid %>
+  <%= f.text_field :slug, value: @slug %>
   <% if @park.status.include? '301' %>
     <%= f.submit "Follow 301 Code", class: "btn btn-success" %>
   <% end %>

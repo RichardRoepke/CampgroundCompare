@@ -1,0 +1,14 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<%= bootstrap_form_tag do |f| %>
+  <%= f.form_group do %>
+    <%= f.check_box :catalogue_blank, label: "Fill Parks Where Catalogue Lacks Information" %>
+    <%= f.check_box :rvparky_blank, label: "Fill Parks Where RVParky Lacks Information" %>
+    <%= f.check_box :both_blank, label: "Fill Parks Where Both Lack Information (If Possible)" %>
+  <% end %>
+  <%= f.submit 'Filter Parks' %>
+<% end %>
