@@ -1,0 +1,10 @@
+<% @filter["exact"].each do |item, value| %>
+  <%= item.to_s + ": " + value.to_s%>
+  <br />
+<% end %>
+
+<% @filter["inclusive"].each do |item, value| %>
+  <%= item.to_s + ": " + value.to_s%>
+  <br />
+<% end %>
+

@@ -8,11 +8,11 @@ class MarkedParkController < ApplicationController
     # Using the session to mark which index page the user was last at.
     session[:page] = params[:page]
 
-    if session[:filter].present?
-      #
-    else
-      @parks = MarkedPark.page(params[:page]).per(12)
-    end
+    park_list = MarkedPark.page(params[:page])
+    # I have no clue why session changes :exact to "exact".
+    park_list = park_list.where(session[:filter]["exact"]) if session[:filter]["exact"].present?
+    @parks = park_list.per(12)
+    @filter = session[:filter] if session[:filter]["exact"].present? || session[:filter]["inclusive"].present?
   end
 
   def show
@@ -249,6 +249,26 @@ class MarkedParkController < ApplicationController
     end
 
     return output
+  end
+
+  def filter
+    #
+  end
+
+  def filter_logic
+    session[:filter] = { exact: {}, inclusive: {} }
+
+    if params[:editable].present?
+      session[:filter][:exact][:editable] = params[:editable].include?('TRUE')
+    end
+
+    if params[:name].present?
+      session[:filter][:exact][:name] = params[:name] if params[:name_exact] == '1'
+      session[:filter][:inclusive][:name] = params[:name] if params[:name_exact] == '0'
+    end
+
+    redirect_to marked_park_index_path
+    #redirect_back(fallback_location: root_path)
   end
 
   def process_changes(form_inputs)
