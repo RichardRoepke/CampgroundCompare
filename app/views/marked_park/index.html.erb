@@ -4,7 +4,20 @@
 
 <br />
 
-<%= render 'layouts/index_filter' if @filter.present? %>
+<%= #render 'layouts/index_filter' if @filter.present?
+  %>
+
+<div class="collapse" id="filterCollapse">
+  <div class="card card-body">
+    <%= bootstrap_form_tag url: '/marked_park/filter', layout: :inline do |f| %>
+      <%= f.text_field :filter, hide_label: true, value: @filter %>
+      <%= f.submit 'Filter', class: "btn btn-primary" %>
+      <%= f.submit 'Clear', class: "btn btn-secondary" %>
+    <% end %>
+  </div>
+</div>
+
+<br />
 
 <table class="table table-sm table-striped table-hover">
   <thead>

@@ -9,14 +9,10 @@ class MarkedParkController < ApplicationController
     session[:page] = params[:page]
 
     park_list = MarkedPark.page(params[:page])
-    if session[:filter].present?
-      # I have no clue why session changes :exact to "exact".
-      park_list = park_list.where(session[:filter]["exact"]) if session[:filter]["exact"].present?
-      park_list = park_list.field_includes("name", session[:filter]["inclusive"]["name"]) if session[:filter]["inclusive"]["name"].present?
-      park_list = park_list.field_includes("uuid", session[:filter]["inclusive"]["uuid"]) if session[:filter]["inclusive"]["uuid"].present?
-      park_list = park_list.field_includes("slug", session[:filter]["inclusive"]["slug"]) if session[:filter]["inclusive"]["slug"].present?
-      @filter = session[:filter] if session[:filter]["exact"].present? || session[:filter]["inclusive"].present?
-    end
+
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search', search: "%#{session[:filter]}%") if session[:filter].present?
+    @filter = session[:filter] if session[:filter].present?
+
     @parks = park_list.per(12)
   end
 
@@ -267,26 +263,8 @@ class MarkedParkController < ApplicationController
   end
 
   def filter_logic
-    session[:filter] = { exact: {}, inclusive: {} }
-
-    if params[:editable].present?
-      session[:filter][:exact][:editable] = params[:editable].include?('TRUE')
-    end
-
-    if params[:name].present?
-      session[:filter][:exact][:name] = params[:name] if params[:name_exact] == '1'
-      session[:filter][:inclusive][:name] = params[:name] if params[:name_exact] == '0'
-    end
-
-    if params[:uuid].present?
-      session[:filter][:exact][:uuid] = params[:uuid] if params[:uuid_exact] == '1'
-      session[:filter][:inclusive][:uuid] = params[:uuid] if params[:uuid_exact] == '0'
-    end
-
-    if params[:slug].present?
-      session[:filter][:exact][:slug] = params[:slug] if params[:slug_exact] == '1'
-      session[:filter][:inclusive][:slug] = params[:slug] if params[:slug_exact] == '0'
-    end
+    session[:filter] = nil if params[:commit] == 'Clear'
+    session[:filter] = params[:filter] if params[:commit] == 'Filter' && params[:filter].present?
 
     redirect_to marked_park_index_path
   end
