@@ -128,54 +128,15 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
       end
     else
-      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to be quickly edited.'
+      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved.'
     end
   end
 
   def submit_changes
-    park = MarkedPark.find(params[:id])
+    result = update_single_park(params[:id], process_changes(params))
 
-    processed_inputs = process_changes(params)
-
-    catalogue_url = calc_catalogue_url(processed_inputs[:catalogue], park)
-    rvparky_url = calc_rvparky_url(processed_inputs[:rvparky], park)
-
-    uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
-
-    catalogue_message = { status: 'CAT NONE',
-                          message: '' }
-    rvparky_message = { status: 'RV NONE',
-                        message: '' }
-
-    if catalogue_url.present?
-      request = update_catalogue_location(uuid, catalogue_url)
-
-      if request == 201
-        catalogue_message[:status] = 'CAT SUCCESS'
-        catalogue_message[:message] = 'Central Catalogue: Changes successfully submitted.'
-      else
-        catalogue_message[:status] = 'CAT ALERT'
-        catalogue_message[:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
-      end
-    end
-
-    if rvparky_url.present?
-      if false # request.response_code == 201
-        rvparky_message[:status] = 'RV SUCCESS'
-        rvparky_message[:message] = 'RVParky: Changes successfully submitted.'
-      else
-        rvparky_message[:status] = 'RV ALERT'
-        rvparky_message[:message] = 'RVParky: There was an error submitting the changes. Please try again shortly.'
-      end
-    end
-
-    park.status = calculate_new_status(catalogue_message[:status], rvparky_message[:status])
-
-    park.editable = false
-    park.save
-
-    flash[catalogue_message[:status]] = catalogue_message[:message] unless catalogue_message[:status].include?('NONE')
-    flash[rvparky_message[:status]] = rvparky_message[:message] unless rvparky_message[:status].include?('NONE')
+    flash[result[:catalogue][:status]] = result[:catalogue][:message] unless result[:catalogue][:status].include?('NONE')
+    flash[result[:rvparky][:status]] = result[:rvparky][:message] unless result[:rvparky][:status].include?('NONE')
 
     if params["commit"] == 'Submit and Next'
       target = park
@@ -363,5 +324,46 @@ class MarkedParkController < ApplicationController
     return 'CATALOGUE UPDATING, RVPARKY ERROR' if catalogue.include?('SUCCESS') && rvparky.include?('ALERT')
     return 'CATALOGUE ERROR, RVPARKY UPDATING' if catalogue.include?('ALERT') && rvparky.include?('SUCCESS')
     return 'ERROR UPDATING'
+  end
+
+  def update_single_park(id, processed_inputs)
+    result = { catalogue: { status: 'CAT NONE',
+                            message: '' },
+               rvparky: { status: 'RV NONE',
+                          message: '' } }
+
+    park = MarkedPark.find(id)
+
+    catalogue_url = calc_catalogue_url(processed_inputs[:catalogue], park)
+    rvparky_url = calc_rvparky_url(processed_inputs[:rvparky], park)
+
+    if catalogue_url.present?
+      request = update_catalogue_location(park.uuid, catalogue_url)
+
+      if request == 201
+        result[:catalogue][:status] = 'CAT SUCCESS'
+        result[:catalogue][:message] = 'Central Catalogue: Changes successfully submitted.'
+      else
+        result[:catalogue][:status] = 'CAT ALERT'
+        result[:catalogue][:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
+      end
+    end
+
+    if rvparky_url.present?
+      if false # request.response_code == 201
+        result[:rvparky][:status] = 'RV SUCCESS'
+        result[:rvparky][:message] = 'RVParky: Changes successfully submitted.'
+      else
+        result[:rvparky][:status] = 'RV ALERT'
+        result[:rvparky][:message] = 'RVParky: There was an error submitting the changes. Please try again shortly.'
+      end
+    end
+
+    park.status = calculate_new_status(result[:catalogue][:status], result[:rvparky][:status])
+
+    park.editable = false
+    park.save
+
+    return result
   end
 end
