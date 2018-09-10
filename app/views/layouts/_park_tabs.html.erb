@@ -1,13 +1,6 @@
 <ul class="nav nav-tabs">
   <%= tab_generator("Index", marked_park_index_path(page: session[:page]), "fas fa-list") %>
 
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="collapse" href="#filterCollapse">
-      <i class="fas fa-filter"></i>
-      Filter
-    </a>
-  </li>
-
   <%= tab_generator("Recheck Status", marked_park_status_path, 'fas fa-sync') %>
 
   <%= tab_generator("Autocompletion", marked_park_autocomplete_path, 'fas fa-magic') %>
@@ -17,4 +10,13 @@
   <%= tab_generator("Edit Information", edit_marked_park_path(params[:id]), "fas fa-screwdriver") if params[:id].present? %>
 
   <%= tab_generator("Resolve Differences", marked_park_quick_path(params[:id]), "fas fa-marker") if params[:id].present? && @park.editable? %>
+
+  <% if current_page?(marked_park_index_path) %>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#filterCollapse">
+        <i class="fas fa-filter"></i>
+        Filter
+      </a>
+    </li>
+  <% end %>
 </ul>
