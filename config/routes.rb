@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get '/marked_park/status', to: 'marked_park#status'
   get '/marked_park/autocomplete', to: 'marked_park#autocomplete', as: :marked_park_auto
   post '/marked_park/autocomplete', to: 'marked_park#autologic'
+  post '/marked_park/filter', to: 'marked_park#filter_logic'
 
   # Must be last, otherwise it considers /user/search as user/show with id: search.
   resources :user

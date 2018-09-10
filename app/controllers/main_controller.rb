@@ -23,7 +23,7 @@ class MainController < ApplicationController
                 general: nil }
     added = 0
 
-    if Date.parse(params[:date_since]) < Date.current
+    if Date.parse(params[:date_since]) <= Date.current
       ignore = params[:ignore_wait] == '1'
       changes = get_changed_since(params[:date_since], params[:database], ignore)
 
@@ -68,7 +68,7 @@ class MainController < ApplicationController
         end
       end
     else
-      problem[:general] = 'Please select a date before today\'s date.'
+      problem[:general] = 'Please select a date in the present or past.'
     end
 
     if problem[:catalogue].present? || problem[:rvparky].present? || problem[:general].present?

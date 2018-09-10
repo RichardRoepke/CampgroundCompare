@@ -1,5 +1,6 @@
 def get_catalogue_location(uuid)
-  return get_web_data(uuid, 'CATALOGUE')
+  return get_web_data(uuid, 'CATALOGUE') unless uuid.include?('NULL')
+  return 404
 end
 
 def get_rvparky_location(slug)
@@ -150,7 +151,7 @@ def get_web_data(key, type)
   elsif type == 'RVPARKY'
     request = generic_get_rvparky_2('Location/' + key)
   else
-    return 0
+    return 404
   end
 
   if request.response_code == 200

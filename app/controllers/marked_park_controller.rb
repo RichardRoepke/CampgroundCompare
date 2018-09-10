@@ -5,7 +5,16 @@ class MarkedParkController < ApplicationController
   before_action :provide_title
 
   def index
-    @parks = MarkedPark.page(params[:page]).per(12)
+    # Using the session to mark which index page the user was last at.
+    session[:page] = params[:page]
+
+    park_list = MarkedPark.page(params[:page])
+
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search',
+                                search: "%#{session[:filter]}%") if session[:filter].present?
+    @filter = session[:filter] if session[:filter].present?
+
+    @parks = park_list.per(12)
   end
 
   def show
@@ -40,6 +49,8 @@ class MarkedParkController < ApplicationController
 
   def edit
     @park = MarkedPark.find(params[:id])
+    @slug = @park.slug if @park.slug.present?
+    @uuid = @park.uuid unless @park.uuid.include?('NULL') #uuid must be present. Slug does not.
   end
 
   def update
@@ -54,7 +65,7 @@ class MarkedParkController < ApplicationController
 
       if park.valid?
         flash[:success] = 'Park was successfully updated.'
-        redirect_to marked_park_index_path
+        redirect_to marked_park_index_path(page: session[:page])
       else
         flash[:ALERT] = 'Invalid Information.'
         redirect_back(fallback_location: root_path)
@@ -161,7 +172,7 @@ class MarkedParkController < ApplicationController
       redirect_to marked_park_quick_path(target.id) if target.present?
       redirect_to marked_park_index_path, alert: 'No further parks found.' unless target.present?
     else
-      redirect_to marked_park_index_path
+      redirect_to marked_park_index_path(page: session[:page])
     end
   end
 
@@ -240,6 +251,13 @@ class MarkedParkController < ApplicationController
     end
 
     return output
+  end
+
+  def filter_logic
+    session[:filter] = nil if params[:commit] == 'Clear'
+    session[:filter] = params[:filter] if params[:commit] == 'Filter' && params[:filter].present?
+
+    redirect_to marked_park_index_path
   end
 
   def process_changes(form_inputs)

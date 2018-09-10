@@ -4,10 +4,26 @@ class MarkedPark < ApplicationRecord
   include CommonFields
   validates :uuid, uniqueness: true
 
+  before_create :ensure_unique_uuid
+
   has_many :differences
+
+  def ensure_unique_uuid
+    if self.uuid == 'NULL'
+      loop do
+        # Gotta have a unique uuid or else the park won't save properly.
+        self.uuid = 'NULL: ' + SecureRandom.uuid.to_s
+        break unless self.class.exists?(:uuid => self.uuid)
+      end
+    end
+  end
 
   after_find do |park|
     update_status if self.updated_at < Date.yesterday
+  end
+
+  def self.field_includes(field, substring)
+    where(field + " like ?", "%" + substring + "%")
   end
 
   def next
