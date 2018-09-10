@@ -12,14 +12,17 @@ class MarkedParkController < ApplicationController
 
     park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search OR status LIKE :search',
                                 search: "%#{session[:filter]}%") if session[:filter].present?
-    if session[:filter].present? && park_list.length == 0
+    park_list = park_list.where("editable = '1'") if session[:editable].present?
+
+    if park_list.length == 0 && (session[:filter].present? || session[:editable].present?)
       session[:filter] = nil
-      flash[:FILTER_WARNING] = 'No parks found.'
+      session[:editable] = nil
+      flash.now[:FILTER_WARNING] = 'No parks found. Filter removed.'
       park_list = MarkedPark.page(params[:page])
     end
 
     @filter = session[:filter] if session[:filter].present?
-
+    @editable = true if session[:editable].present?
     @parks = park_list.per(12)
   end
 
@@ -288,8 +291,15 @@ class MarkedParkController < ApplicationController
   end
 
   def filter_logic
-    session[:filter] = nil if params[:commit] == 'Clear'
-    session[:filter] = params[:filter] if params[:commit] == 'Filter' && params[:filter].present?
+    if params[:commit] == 'Clear'
+      session[:filter] = nil
+      session[:editable] = nil
+    end
+
+    if params[:commit] == 'Filter'
+      session[:filter] = params[:filter] if params[:filter].present?
+      session[:editable] = true if params[:editable] == '1'
+    end
 
     redirect_to marked_park_index_path
   end

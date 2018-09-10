@@ -9,8 +9,9 @@
 
 <div class="collapse" id="filterCollapse">
   <div class="card card-body">
-    <%= bootstrap_form_tag url: '/marked_park/filter', layout: :inline do |f| %>
+    <%= bootstrap_form_tag url: '/marked_park/filter' do |f| %>
       <%= f.text_field :filter, hide_label: true, value: @filter %>
+      <%= f.check_box :editable, label: 'Editable?', checked: @editable %>
       <%= f.submit 'Filter', class: "btn btn-primary" %>
       <%= f.submit 'Clear', class: "btn btn-secondary" %>
     <% end %>
