@@ -61,7 +61,8 @@ class MarkedParkController < ApplicationController
 
   def update
     if params[:commit] == 'Follow 301 Code'
-      result = follow_301(params[:id])
+      park = MarkedPark.find(params[:id])
+      result = park.follow_301
 
       flash[result[:status]] = result[:message]
 
@@ -209,14 +210,25 @@ class MarkedParkController < ApplicationController
   end
 
   def autologic
-    if params[:commit].include?('Catalogue Lacks Information')
+    result = { status: 'WARNING', message: 'Action could not be parsed.'}
+
+    if params[:commit].include?('301 Redirects')
+      redirect_parks = MarkedPark.page(params[:page]).where('status LIKE :search', search: "%301%")
+      follow_number = 0
+      redirect_parks.each do |park|
+        follow_result = park.follow_301
+        follow_number += 1 if follow_result[:status].include?("SUCCESS")
+      end
+
+      result = { status: 'SUCCESS', message: follow_number.to_s + " parks were corrected." } if follow_number > 0
+      result = { status: 'ALERT', message: "No parks were found or corrected." } if follow_number == 0
+    elsif params[:commit].include?('Catalogue Lacks Information')
       result = autocomplete_parks(true, false, false)
     elsif params[:commit].include?('RVParky Lacks Information')
       result = autocomplete_parks(false, true, false)
     elsif params[:commit].include?('Both Lack Information')
       result = autocomplete_parks(true, false, true)
     elsif params[:commit].include?('Multiple Tasks')
-
       tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
 
       continue = false
@@ -234,8 +246,6 @@ class MarkedParkController < ApplicationController
         flash[:WARNING] = 'No autocompletion tasks were selected'
         redirect_to marked_park_autocomplete_path and return
       end
-    else
-      result = { status: 'WARNING', message: 'Action could not be parsed.'}
     end
 
     flash[result[:status]] = result[:message]
@@ -319,34 +329,5 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
-  end
-
-  def follow_301(id)
-    result = { message: nil, status: nil }
-
-    park = MarkedPark.find(id)
-    location = get_rvparky_location(park.slug, true)
-    if location[:slug].present?
-      park.slug = location[:slug]
-      park.update_status
-      park.destroy if park.status == 'DELETE ME'
-      park.save if park.valid?
-
-      if park.valid?
-        result[:message] = 'Park was successfully updated.'
-        result[:status] = 'SUCCESS'
-      elsif park.blank?
-        result[:message] = 'No differences found after successful update.'
-        result[:status] = 'SUCCESS'
-      else
-        result[:message] = 'Park could not be updated.'
-        result[:status] = 'ALERT'
-      end
-    else
-      result[:message] = '301 could not be followed. Please try again later.'
-      result[:status] = 'WARNING'
-    end
-
-    return result
   end
 end

@@ -159,4 +159,29 @@ class MarkedPark < ApplicationRecord
     return :catalogue_blank if catalogue_value.blank?
     return :mismatch
   end
+
+  def follow_301
+    result = { message: nil, status: nil }
+
+    location = get_rvparky_location(self.slug, true)
+    if location[:slug].present?
+      self.slug = location[:slug]
+      self.update_status
+      self.destroy if self.status == 'DELETE ME'
+      self.save if self.valid?
+
+      if self.valid?
+        result[:message] = 'Park was successfully updated.'
+        result[:status] = 'SUCCESS'
+      else
+        result[:message] = 'Park could not be updated.'
+        result[:status] = 'ALERT'
+      end
+    else
+      result[:message] = '301 could not be followed. Please try again later.'
+      result[:status] = 'WARNING'
+    end
+
+    return result
+  end
 end

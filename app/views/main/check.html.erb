@@ -7,6 +7,9 @@
     <%= f.radio_button :database, 'RVPARKY', label: "RVParky", checked: @check_array[1] %>
     <%= f.radio_button :database, 'BOTH', label: "Both", checked: @check_array[2] %>
   <% end %>
+  <%= f.check_box :redirect, checked: @redirect do %>
+    Automatically follow 301 redirects when encountered
+  <% end %>
   <%= f.check_box :ignore_wait, checked: @ignore do %>
     Select this checkbox to ignore warnings, such as excessively long processing times.
   <% end %>
