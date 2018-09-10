@@ -157,7 +157,7 @@ class MarkedParkController < ApplicationController
     end
 
     if rvparky_url.present?
-      if true # request.response_code == 201
+      if false # request.response_code == 201
         rvparky_message[:status] = 'RV SUCCESS'
         rvparky_message[:message] = 'RVParky: Changes successfully submitted.'
       else
@@ -166,16 +166,9 @@ class MarkedParkController < ApplicationController
       end
     end
 
-    old_status = park.status
+    park.status = calculate_new_status(catalogue_message[:status], rvparky_message[:status])
 
-    if catalogue_message[:status].include? 'SUCCESS'
-      park.status = 'BOTH UPDATING' if rvparky_message[:status].include? 'SUCCESS'
-      park.status = 'CATALOGUE UPDATING' if rvparky_message[:status].include? 'NONE'
-    elsif catalogue_message[:status].include? 'NONE'
-      park.status = 'RVPARKY UPDATING' if rvparky_message[:status].include? 'SUCCESS'
-    end
-
-    park.editable = (old_status == park.status)
+    park.editable = false
     park.save
 
     flash[catalogue_message[:status]] = catalogue_message[:message] unless catalogue_message[:status].include?('NONE')
@@ -197,14 +190,26 @@ class MarkedParkController < ApplicationController
   end
 
   def status
-    MarkedPark.find_each do |park|
-      park.update_status
-      park.destroy if park.status == 'DELETE ME'
-      park.save if park.valid?
-    end
+    puts params.inspect
+    if params[:format].present?
+      single_park = MarkedPark.find(params[:format])
+      single_park.update_status
+      single_park.destroy if single_park.status == 'DELETE ME'
+      single_park.save if single_park.valid?
 
-    flash[:success] = 'All parks have been updated.'
-    redirect_to marked_park_index_path
+      flash[:success] = single_park.name + ' has been updated.' if single_park.present?
+      flash[:success] = 'No differences found after the park has been updated.' if single_park.blank?
+      redirect_to marked_park_index_path(page: session[:page])
+    else
+      MarkedPark.find_each do |park|
+        park.update_status
+        park.destroy if park.status == 'DELETE ME'
+        park.save if park.valid?
+      end
+
+      flash[:success] = 'All parks have been updated.'
+      redirect_to marked_park_index_path
+    end
   rescue => exception
     redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
@@ -329,5 +334,24 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
+  end
+
+  def calculate_new_status(catalogue, rvparky)
+    # We don't worry about the case where both are none since that should never happen.
+    if rvparky.include?("NONE")
+      return 'CATALOGUE UPDATING' if catalogue.include?('SUCCESS')
+      return 'CATALOGUE ERROR' # Catalogue failed
+    end
+
+    if catalogue.include?("NONE")
+      return 'RVPARKY UPDATING' if rvparky.include?('SUCCESS')
+      return 'RVPARKY ERROR' # RVParky failed
+    end
+
+    # Updates were sent to both databases.
+    return 'BOTH UPDATING' if catalogue.include?('SUCCESS') && rvparky.include?('SUCCESS')
+    return 'CATALOGUE UPDATING, RVPARKY ERROR' if catalogue.include?('SUCCESS') && rvparky.include?('ALERT')
+    return 'CATALOGUE ERROR, RVPARKY UPDATING' if catalogue.include?('ALERT') && rvparky.include?('SUCCESS')
+    return 'ERROR UPDATING'
   end
 end
