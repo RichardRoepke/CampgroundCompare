@@ -42,11 +42,12 @@ $ ->
     validateField(mirror.value, $(this).context.value, $(this).data("row"))
 
 validateField =(firstValue, secondValue, rowID) ->
-  row = document.getElementById(rowID)
-  if firstValue != secondValue
-      row.classList.remove("table-warning", "table-success")
-      row.classList.add("table-danger")
-    else
-      row.classList.remove("table-warning", "table-danger")
-      row.classList.add("table-success")
+  if rowID != undefined
+    row = document.getElementById(rowID)
+    if firstValue != secondValue
+        row.classList.remove("table-warning", "table-success")
+        row.classList.add("table-danger")
+      else
+        row.classList.remove("table-warning", "table-danger")
+        row.classList.add("table-success")
       

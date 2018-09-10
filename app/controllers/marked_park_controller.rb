@@ -9,13 +9,15 @@ class MarkedParkController < ApplicationController
     session[:page] = params[:page]
 
     park_list = MarkedPark.page(params[:page])
-    # I have no clue why session changes :exact to "exact".
-    park_list = park_list.where(session[:filter]["exact"]) if session[:filter]["exact"].present?
-    park_list = park_list.field_includes("name", session[:filter]["inclusive"]["name"]) if session[:filter]["inclusive"]["name"].present?
-    park_list = park_list.field_includes("uuid", session[:filter]["inclusive"]["uuid"]) if session[:filter]["inclusive"]["uuid"].present?
-    park_list = park_list.field_includes("slug", session[:filter]["inclusive"]["slug"]) if session[:filter]["inclusive"]["slug"].present?
+    if session[:filter].present?
+      # I have no clue why session changes :exact to "exact".
+      park_list = park_list.where(session[:filter]["exact"]) if session[:filter]["exact"].present?
+      park_list = park_list.field_includes("name", session[:filter]["inclusive"]["name"]) if session[:filter]["inclusive"]["name"].present?
+      park_list = park_list.field_includes("uuid", session[:filter]["inclusive"]["uuid"]) if session[:filter]["inclusive"]["uuid"].present?
+      park_list = park_list.field_includes("slug", session[:filter]["inclusive"]["slug"]) if session[:filter]["inclusive"]["slug"].present?
+      @filter = session[:filter] if session[:filter]["exact"].present? || session[:filter]["inclusive"].present?
+    end
     @parks = park_list.per(12)
-    @filter = session[:filter] if session[:filter]["exact"].present? || session[:filter]["inclusive"].present?
   end
 
   def show
@@ -255,7 +257,13 @@ class MarkedParkController < ApplicationController
   end
 
   def filter
-    #
+    if session[:filter].present?
+      filtered = session[:filter]
+
+      filtered[:exact].each do |foobar|
+
+      end if filtered[:exact].is_a?(Hash)
+    end
   end
 
   def filter_logic

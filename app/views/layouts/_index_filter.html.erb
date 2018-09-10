@@ -1,10 +1,12 @@
 <% @filter["exact"].each do |item, value| %>
-  <%= item.to_s + ": " + value.to_s%>
-  <br />
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <%= item.to_s + ": " + value.to_s%>
+  </div>
 <% end %>
 
 <% @filter["inclusive"].each do |item, value| %>
-  <%= item.to_s + ": " + value.to_s%>
-  <br />
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <%= item.to_s + ": " + value.to_s%>
+  </div>
 <% end %>
 
