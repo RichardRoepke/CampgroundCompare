@@ -88,6 +88,18 @@ class MarkedPark < ApplicationRecord
     return 'NOTHING IS FINE'
   end
 
+  def get_blank_differences(catalogue, rvparky)
+    result = { catalogue: {},
+               rvparky: {} }
+
+    self.differences.each do |diff|
+      result[:catalogue][diff.catalogue_field.to_sym] = diff.rvparky_value if catalogue.present? && diff.catalogue_blank?
+      result[:rvparky][diff.rvparky_field.to_sym] = diff.catalogue_value if rvparky.present? && diff.rvparky_blank?
+    end
+
+    return result
+  end
+
   def calculate_differences(catalogue, rvparky)
     if self.differences.length < common_fields.length
       populate_differences(catalogue, rvparky)

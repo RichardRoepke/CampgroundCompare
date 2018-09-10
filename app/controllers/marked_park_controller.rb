@@ -229,19 +229,13 @@ class MarkedParkController < ApplicationController
       park.destroy if park.status == 'DELETE ME'
       park.save if park.valid?
 
-      if park.valid?
+      if park.valid? && park.editable?
         if do_catalogue.present? && park.status == 'CATALOGUE LACKS INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'CATALOGUE UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(true, false))
         elsif do_rvparky.present? && park.status == 'RVPARKY LACKS INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'RVPARKY UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(false, true))
         elsif do_both.present? && park.status == 'BOTH LACK INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'BOTH UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(true, true))
         end
 
         park.save
@@ -327,6 +321,8 @@ class MarkedParkController < ApplicationController
   end
 
   def update_single_park(id, processed_inputs)
+    puts processed_inputs.inspect
+
     result = { catalogue: { status: 'CAT NONE',
                             message: '' },
                rvparky: { status: 'RV NONE',
