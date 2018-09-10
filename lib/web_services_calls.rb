@@ -3,8 +3,8 @@ def get_catalogue_location(uuid)
   return 404
 end
 
-def get_rvparky_location(slug)
-  return get_web_data(slug, 'RVPARKY')
+def get_rvparky_location(slug, follow=false)
+  return get_web_data(slug, 'RVPARKY', follow)
 end
 
 def get_changed_since(date, method, ignore)
@@ -137,19 +137,19 @@ def generic_get_rvparky_1(url)
 end
 
 # For checking locations.
-def generic_get_rvparky_2(url)
-  return Typhoeus::Request.get('https://www.rvparky.com/_ws2/' + url, :ssl_verifyhost => 0)
+def generic_get_rvparky_2(url, follow=false)
+  return Typhoeus::Request.get('https://www.rvparky.com/_ws2/' + url, :ssl_verifyhost => 0, followlocation: follow)
 end
 
 def generic_put_rvparky(url)
   return Typhoeus::Request.put('https://www.rvparky.com/_ws/' + url, :ssl_verifyhost => 0)
 end
 
-def get_web_data(key, type)
+def get_web_data(key, type, follow=false)
   if type == 'CATALOGUE'
     request = generic_get_catalogue(key)
   elsif type == 'RVPARKY'
-    request = generic_get_rvparky_2('Location/' + key)
+    request = generic_get_rvparky_2('Location/' + key, follow)
   else
     return 404
   end

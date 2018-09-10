@@ -10,8 +10,14 @@ class MarkedParkController < ApplicationController
 
     park_list = MarkedPark.page(params[:page])
 
-    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search',
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search OR status LIKE :search',
                                 search: "%#{session[:filter]}%") if session[:filter].present?
+    if session[:filter].present? && park_list.length == 0
+      session[:filter] = nil
+      flash[:FILTER_WARNING] = 'No parks found.'
+      park_list = MarkedPark.page(params[:page])
+    end
+
     @filter = session[:filter] if session[:filter].present?
 
     @parks = park_list.per(12)
@@ -49,12 +55,22 @@ class MarkedParkController < ApplicationController
 
   def edit
     @park = MarkedPark.find(params[:id])
-    @slug = @park.slug if @park.slug.present?
+    @slug = @park.slug if @park.slug.present? && !@park.slug.include?('NULL')
     @uuid = @park.uuid unless @park.uuid.include?('NULL') #uuid must be present. Slug does not.
   end
 
   def update
     if params[:commit] == 'Follow 301 Code'
+      result = follow_301(params[:id])
+
+      flash[result[:status]] = result[:message]
+
+      if result[:status].include?("SUCCESS")
+        # TODO: Update Central Catalogue database.
+        redirect_to marked_park_index_path(page: session[:page])
+      else
+        redirect_back(fallback_location: root_path)
+      end
     else
       park = MarkedPark.find(params[:id])
       park.uuid = params[:marked_park][:uuid]
@@ -65,6 +81,9 @@ class MarkedParkController < ApplicationController
 
       if park.valid?
         flash[:success] = 'Park was successfully updated.'
+        redirect_to marked_park_index_path(page: session[:page])
+      elsif park.present?
+        flash[:success] = 'No differences found after update.'
         redirect_to marked_park_index_path(page: session[:page])
       else
         flash[:ALERT] = 'Invalid Information.'
@@ -300,5 +319,34 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
+  end
+
+  def follow_301(id)
+    result = { message: nil, status: nil }
+
+    park = MarkedPark.find(id)
+    location = get_rvparky_location(park.slug, true)
+    if location[:slug].present?
+      park.slug = location[:slug]
+      park.update_status
+      park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
+
+      if park.valid?
+        result[:message] = 'Park was successfully updated.'
+        result[:status] = 'SUCCESS'
+      elsif park.blank?
+        result[:message] = 'No differences found after successful update.'
+        result[:status] = 'SUCCESS'
+      else
+        result[:message] = 'Park could not be updated.'
+        result[:status] = 'ALERT'
+      end
+    else
+      result[:message] = '301 could not be followed. Please try again later.'
+      result[:status] = 'WARNING'
+    end
+
+    return result
   end
 end
