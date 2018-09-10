@@ -10,7 +10,8 @@ class MarkedParkController < ApplicationController
 
     park_list = MarkedPark.page(params[:page])
 
-    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search', search: "%#{session[:filter]}%") if session[:filter].present?
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search',
+                                search: "%#{session[:filter]}%") if session[:filter].present?
     @filter = session[:filter] if session[:filter].present?
 
     @parks = park_list.per(12)
@@ -250,16 +251,6 @@ class MarkedParkController < ApplicationController
     end
 
     return output
-  end
-
-  def filter
-    if session[:filter].present?
-      filtered = session[:filter]
-
-      filtered[:exact].each do |foobar|
-
-      end if filtered[:exact].is_a?(Hash)
-    end
   end
 
   def filter_logic
