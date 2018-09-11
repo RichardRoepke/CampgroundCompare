@@ -6,6 +6,8 @@ class MainController < ApplicationController
   def check
     @since = params[:date_since] if params[:date_since].present?
     @ignore = (params[:wait] == '1') if params[:wait].present?
+    @redirect = (params[:redirect] == '1') if params[:redirect].present?
+    puts params[:redirect]
 
     if params[:database].present?
       @check_array = [false, false, false]
@@ -25,6 +27,7 @@ class MainController < ApplicationController
 
     if Date.parse(params[:date_since]) <= Date.current
       ignore = params[:ignore_wait] == '1'
+      redirect = params[:redirect] == '1'
       changes = get_changed_since(params[:date_since], params[:database], ignore)
 
       if changes[:catalogue].present?
@@ -38,6 +41,7 @@ class MainController < ApplicationController
                                          status: nil,
                                          editable: false })
             new_entry.update_status(entry, nil)
+            new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
             added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
           end
         end
@@ -77,6 +81,7 @@ class MainController < ApplicationController
       flash['NOTICE'] = problem[:general] if problem[:general].present?
       redirect_to check_path(date_since: params[:date_since],
                              wait: params[:ignore_wait],
+                             redirect: params[:redirect],
                              database: params[:database])
     else
       if added > 0
@@ -85,13 +90,15 @@ class MainController < ApplicationController
       else
         flash['NOTICE'] = 'No new changes were found.'
         redirect_to check_path(date_since: params[:date_since],
-                             wait: params[:ignore_wait],
-                             database: params[:database])
+                               wait: params[:ignore_wait],
+                               redirect: params[:redirect],
+                               database: params[:database])
       end
     end
   rescue => exception
     redirect_to check_path(date_since: params[:date_since],
                            wait: params[:ignore_wait],
+                           redirect: params[:redirect],
                            database: params[:database]),
                            alert: 'A problem occurred. Please adjust your parameters try again.'
     puts '========================================================================='

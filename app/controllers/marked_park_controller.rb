@@ -10,10 +10,19 @@ class MarkedParkController < ApplicationController
 
     park_list = MarkedPark.page(params[:page])
 
-    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search',
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search OR status LIKE :search',
                                 search: "%#{session[:filter]}%") if session[:filter].present?
-    @filter = session[:filter] if session[:filter].present?
+    park_list = park_list.where("editable = '1'") if session[:editable].present?
 
+    if park_list.length == 0 && (session[:filter].present? || session[:editable].present?)
+      session[:filter] = nil
+      session[:editable] = nil
+      flash.now[:FILTER_WARNING] = 'No parks found. Filter removed.'
+      park_list = MarkedPark.page(params[:page])
+    end
+
+    @filter = session[:filter] if session[:filter].present?
+    @editable = true if session[:editable].present?
     @parks = park_list.per(12)
   end
 
@@ -49,12 +58,23 @@ class MarkedParkController < ApplicationController
 
   def edit
     @park = MarkedPark.find(params[:id])
-    @slug = @park.slug if @park.slug.present?
+    @slug = @park.slug if @park.slug.present? && !@park.slug.include?('NULL')
     @uuid = @park.uuid unless @park.uuid.include?('NULL') #uuid must be present. Slug does not.
   end
 
   def update
     if params[:commit] == 'Follow 301 Code'
+      park = MarkedPark.find(params[:id])
+      result = park.follow_301
+
+      flash[result[:status]] = result[:message]
+
+      if result[:status].include?("SUCCESS")
+        # TODO: Update Central Catalogue database.
+        redirect_to marked_park_index_path(page: session[:page])
+      else
+        redirect_back(fallback_location: root_path)
+      end
     else
       park = MarkedPark.find(params[:id])
       park.uuid = params[:marked_park][:uuid]
@@ -65,6 +85,9 @@ class MarkedParkController < ApplicationController
 
       if park.valid?
         flash[:success] = 'Park was successfully updated.'
+        redirect_to marked_park_index_path(page: session[:page])
+      elsif park.present?
+        flash[:success] = 'No differences found after update.'
         redirect_to marked_park_index_path(page: session[:page])
       else
         flash[:ALERT] = 'Invalid Information.'
@@ -105,61 +128,15 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
       end
     else
-      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to be quickly edited.'
+      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved.'
     end
   end
 
   def submit_changes
-    park = MarkedPark.find(params[:id])
+    result = update_single_park(params[:id], process_changes(params))
 
-    processed_inputs = process_changes(params)
-
-    catalogue_url = calc_catalogue_url(processed_inputs[:catalogue], park)
-    rvparky_url = calc_rvparky_url(processed_inputs[:rvparky], park)
-
-    uuid = '5ac85c35-c512-4ed4-bef1-28118d6c7e9e' # Progressive's uuid. Don't want to accidentially mess something up.
-
-    catalogue_message = { status: 'CAT NONE',
-                          message: '' }
-    rvparky_message = { status: 'RV NONE',
-                        message: '' }
-
-    if catalogue_url.present?
-      request = update_catalogue_location(uuid, catalogue_url)
-
-      if request == 201
-        catalogue_message[:status] = 'CAT SUCCESS'
-        catalogue_message[:message] = 'Central Catalogue: Changes successfully submitted.'
-      else
-        catalogue_message[:status] = 'CAT ALERT'
-        catalogue_message[:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
-      end
-    end
-
-    if rvparky_url.present?
-      if true # request.response_code == 201
-        rvparky_message[:status] = 'RV SUCCESS'
-        rvparky_message[:message] = 'RVParky: Changes successfully submitted.'
-      else
-        rvparky_message[:status] = 'RV ALERT'
-        rvparky_message[:message] = 'RVParky: There was an error submitting the changes. Please try again shortly.'
-      end
-    end
-
-    old_status = park.status
-
-    if catalogue_message[:status].include? 'SUCCESS'
-      park.status = 'BOTH UPDATING' if rvparky_message[:status].include? 'SUCCESS'
-      park.status = 'CATALOGUE UPDATING' if rvparky_message[:status].include? 'NONE'
-    elsif catalogue_message[:status].include? 'NONE'
-      park.status = 'RVPARKY UPDATING' if rvparky_message[:status].include? 'SUCCESS'
-    end
-
-    park.editable = (old_status == park.status)
-    park.save
-
-    flash[catalogue_message[:status]] = catalogue_message[:message] unless catalogue_message[:status].include?('NONE')
-    flash[rvparky_message[:status]] = rvparky_message[:message] unless rvparky_message[:status].include?('NONE')
+    flash[result[:catalogue][:status]] = result[:catalogue][:message] unless result[:catalogue][:status].include?('NONE')
+    flash[result[:rvparky][:status]] = result[:rvparky][:message] unless result[:rvparky][:status].include?('NONE')
 
     if params["commit"] == 'Submit and Next'
       target = park
@@ -177,33 +154,58 @@ class MarkedParkController < ApplicationController
   end
 
   def status
-    MarkedPark.find_each do |park|
-      park.update_status
-      park.destroy if park.status == 'DELETE ME'
-      park.save if park.valid?
-    end
+    puts params.inspect
+    if params[:format].present?
+      single_park = MarkedPark.find(params[:format])
+      single_park.update_status
+      single_park.destroy if single_park.status == 'DELETE ME'
+      single_park.save if single_park.valid?
 
-    flash[:success] = 'All parks have been updated.'
-    redirect_to marked_park_index_path
+      flash[:success] = single_park.name + ' has been updated.' if single_park.present?
+      flash[:success] = 'No differences found after the park has been updated.' if single_park.blank?
+      redirect_to marked_park_index_path(page: session[:page])
+    else
+      MarkedPark.find_each do |park|
+        park.update_status
+        park.destroy if park.status == 'DELETE ME'
+        park.save if park.valid?
+      end
+
+      flash[:success] = 'All parks have been updated.'
+      redirect_to marked_park_index_path
+    end
   rescue => exception
     redirect_to marked_park_index_path, alert: 'An error has occurred. Please try again.'
   end
 
   def autologic
-    if params[:commit].include?('Catalogue Lacks Information')
+    result = { status: 'WARNING', message: 'Action could not be parsed.'}
+
+    if params[:commit].include?('301 Redirects')
+      redirect_parks = MarkedPark.page(params[:page]).where('status LIKE :search', search: "%301%")
+      follow_number = 0
+      redirect_parks.each do |park|
+        follow_result = park.follow_301
+        if follow_result[:status].include?("SUCCESS")
+          # TODO: Update Central Catalogue
+          follow_number += 1
+        end
+      end
+
+      result = { status: 'SUCCESS', message: follow_number.to_s + " parks were corrected." } if follow_number > 0
+      result = { status: 'ALERT', message: "No parks were found or corrected." } if follow_number == 0
+    elsif params[:commit].include?('Catalogue Lacks Information')
       result = autocomplete_parks(true, false, false)
     elsif params[:commit].include?('RVParky Lacks Information')
       result = autocomplete_parks(false, true, false)
     elsif params[:commit].include?('Both Lack Information')
       result = autocomplete_parks(true, false, true)
     elsif params[:commit].include?('Multiple Tasks')
-
-      tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
-
-      continue = false
+      possible_tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
       tasks_todo = []
+      continue = false
 
-      tasks.each do |task|
+      possible_tasks.each do |task|
         # I have no clue why bootstrap forms renders a selected checkbox as '1'
         continue = true if params[task] == '1'
         tasks_todo.push(params[task] == '1')
@@ -215,8 +217,6 @@ class MarkedParkController < ApplicationController
         flash[:WARNING] = 'No autocompletion tasks were selected'
         redirect_to marked_park_autocomplete_path and return
       end
-    else
-      result = { status: 'WARNING', message: 'Action could not be parsed.'}
     end
 
     flash[result[:status]] = result[:message]
@@ -231,19 +231,13 @@ class MarkedParkController < ApplicationController
       park.destroy if park.status == 'DELETE ME'
       park.save if park.valid?
 
-      if park.valid?
+      if park.valid? && park.editable?
         if do_catalogue.present? && park.status == 'CATALOGUE LACKS INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'CATALOGUE UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(true, false))
         elsif do_rvparky.present? && park.status == 'RVPARKY LACKS INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'RVPARKY UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(false, true))
         elsif do_both.present? && park.status == 'BOTH LACK INFORMATION'
-          # TODO: Figure out an easy and generic way to update parks via web services.
-          park.editable = false
-          park.status = 'BOTH UPDATING'
+          result = update_single_park(park.id, park.get_blank_differences(true, true))
         end
 
         park.save
@@ -254,8 +248,15 @@ class MarkedParkController < ApplicationController
   end
 
   def filter_logic
-    session[:filter] = nil if params[:commit] == 'Clear'
-    session[:filter] = params[:filter] if params[:commit] == 'Filter' && params[:filter].present?
+    if params[:commit] == 'Clear'
+      session[:filter] = nil
+      session[:editable] = nil
+    end
+
+    if params[:commit] == 'Filter'
+      session[:filter] = params[:filter] if params[:filter].present?
+      session[:editable] = true if params[:editable] == '1'
+    end
 
     redirect_to marked_park_index_path
   end
@@ -300,5 +301,65 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
+  end
+
+  def calculate_new_status(catalogue, rvparky)
+    # We don't worry about the case where both are none since that should never happen.
+    if rvparky.include?("NONE")
+      return 'CATALOGUE UPDATING' if catalogue.include?('SUCCESS')
+      return 'CATALOGUE ERROR' # Catalogue failed
+    end
+
+    if catalogue.include?("NONE")
+      return 'RVPARKY UPDATING' if rvparky.include?('SUCCESS')
+      return 'RVPARKY ERROR' # RVParky failed
+    end
+
+    # Updates were sent to both databases.
+    return 'BOTH UPDATING' if catalogue.include?('SUCCESS') && rvparky.include?('SUCCESS')
+    return 'CATALOGUE UPDATING, RVPARKY ERROR' if catalogue.include?('SUCCESS') && rvparky.include?('ALERT')
+    return 'CATALOGUE ERROR, RVPARKY UPDATING' if catalogue.include?('ALERT') && rvparky.include?('SUCCESS')
+    return 'ERROR UPDATING'
+  end
+
+  def update_single_park(id, processed_inputs)
+    result = { catalogue: { status: 'CAT NONE',
+                            message: '' },
+               rvparky: { status: 'RV NONE',
+                          message: '' } }
+
+    park = MarkedPark.find(id)
+
+    catalogue_url = calc_catalogue_url(processed_inputs[:catalogue], park)
+    rvparky_url = calc_rvparky_url(processed_inputs[:rvparky], park)
+
+    if catalogue_url.present?
+      request = update_catalogue_location(park.uuid, catalogue_url)
+
+      if request == 201
+        result[:catalogue][:status] = 'CAT SUCCESS'
+        result[:catalogue][:message] = 'Central Catalogue: Changes successfully submitted.'
+      else
+        result[:catalogue][:status] = 'CAT ALERT'
+        result[:catalogue][:message] = 'Central Catalogue: There was an error submitting the changes. Please try again shortly.'
+      end
+    end
+
+    if rvparky_url.present?
+      if false # request.response_code == 201
+        result[:rvparky][:status] = 'RV SUCCESS'
+        result[:rvparky][:message] = 'RVParky: Changes successfully submitted.'
+      else
+        result[:rvparky][:status] = 'RV ALERT'
+        result[:rvparky][:message] = 'RVParky: There was an error submitting the changes. Please try again shortly.'
+      end
+    end
+
+    park.status = calculate_new_status(result[:catalogue][:status], result[:rvparky][:status])
+
+    park.editable = false
+    park.save
+
+    return result
   end
 end

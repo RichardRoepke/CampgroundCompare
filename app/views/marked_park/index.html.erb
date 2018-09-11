@@ -9,8 +9,9 @@
 
 <div class="collapse" id="filterCollapse">
   <div class="card card-body">
-    <%= bootstrap_form_tag url: '/marked_park/filter', layout: :inline do |f| %>
+    <%= bootstrap_form_tag url: '/marked_park/filter' do |f| %>
       <%= f.text_field :filter, hide_label: true, value: @filter %>
+      <%= f.check_box :editable, label: 'Editable?', checked: @editable %>
       <%= f.submit 'Filter', class: "btn btn-primary" %>
       <%= f.submit 'Clear', class: "btn btn-secondary" %>
     <% end %>
@@ -34,7 +35,7 @@
       <tr>
         <th scope="row"> <%= park.name %> </th>
         <td> <%= park.uuid unless park.uuid.include?('NULL') %> </td>
-        <td> <%= park.slug %> </td>
+        <td> <%= park.slug unless park.slug.include?('NULL') %> </td>
         <td> <%= generate_badge(park.status, park.editable) %>  </td>
         <td>
           <div class="btn-group" role="group" aria-label="User Actions">
@@ -46,6 +47,10 @@
             %>
             <%= link_to(edit_marked_park_path(park), :class => 'nav-link', method: :get) do %>
               <i class="fas fa-screwdriver"></i>
+            <% end %>
+
+            <%= link_to(marked_park_status_path(park), :class => 'nav-link', method: :get) do %>
+              <i class="fas fa-sync"></i>
             <% end %>
 
             <% # Javascript doesn't load/update properly unless you include method: :get in link_to

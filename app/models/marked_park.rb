@@ -88,6 +88,18 @@ class MarkedPark < ApplicationRecord
     return 'NOTHING IS FINE'
   end
 
+  def get_blank_differences(catalogue, rvparky)
+    result = { catalogue: {},
+               rvparky: {} }
+
+    self.differences.each do |diff|
+      result[:catalogue][diff.catalogue_field.to_sym] = diff.rvparky_value if catalogue.present? && diff.catalogue_blank?
+      result[:rvparky][diff.rvparky_field.to_sym] = diff.catalogue_value if rvparky.present? && diff.rvparky_blank?
+    end
+
+    return result
+  end
+
   def calculate_differences(catalogue, rvparky)
     if self.differences.length < common_fields.length
       populate_differences(catalogue, rvparky)
@@ -158,5 +170,30 @@ class MarkedPark < ApplicationRecord
     return :rvparky_blank if rvparky_value.blank?
     return :catalogue_blank if catalogue_value.blank?
     return :mismatch
+  end
+
+  def follow_301
+    result = { message: nil, status: nil }
+
+    location = get_rvparky_location(self.slug, true)
+    if location[:slug].present?
+      self.slug = location[:slug]
+      self.update_status
+      self.destroy if self.status == 'DELETE ME'
+      self.save if self.valid?
+
+      if self.valid?
+        result[:message] = 'Park was successfully updated.'
+        result[:status] = 'SUCCESS'
+      else
+        result[:message] = 'Park could not be updated.'
+        result[:status] = 'ALERT'
+      end
+    else
+      result[:message] = '301 could not be followed. Please try again later.'
+      result[:status] = 'WARNING'
+    end
+
+    return result
   end
 end
