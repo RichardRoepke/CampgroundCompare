@@ -186,7 +186,10 @@ class MarkedParkController < ApplicationController
       follow_number = 0
       redirect_parks.each do |park|
         follow_result = park.follow_301
-        follow_number += 1 if follow_result[:status].include?("SUCCESS")
+        if follow_result[:status].include?("SUCCESS")
+          # TODO: Update Central Catalogue
+          follow_number += 1
+        end
       end
 
       result = { status: 'SUCCESS', message: follow_number.to_s + " parks were corrected." } if follow_number > 0
@@ -198,12 +201,11 @@ class MarkedParkController < ApplicationController
     elsif params[:commit].include?('Both Lack Information')
       result = autocomplete_parks(true, false, true)
     elsif params[:commit].include?('Multiple Tasks')
-      tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
-
-      continue = false
+      possible_tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
       tasks_todo = []
+      continue = false
 
-      tasks.each do |task|
+      possible_tasks.each do |task|
         # I have no clue why bootstrap forms renders a selected checkbox as '1'
         continue = true if params[task] == '1'
         tasks_todo.push(params[task] == '1')
@@ -321,8 +323,6 @@ class MarkedParkController < ApplicationController
   end
 
   def update_single_park(id, processed_inputs)
-    puts processed_inputs.inspect
-
     result = { catalogue: { status: 'CAT NONE',
                             message: '' },
                rvparky: { status: 'RV NONE',

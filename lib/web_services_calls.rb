@@ -23,6 +23,15 @@ def update_catalogue_location(uuid, changes)
 end
 
 private
+def catalogue_url
+  return 'http://centralcatalogue.com:3200/api/v1/locations'
+end
+
+def rvparky_url(type=nil)
+  return 'https://www.rvparky.com/_ws' + type.to_s + '/' if type.present?
+  return 'https://www.rvparky.com/_ws/'
+end
+
 def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
   result = []
 
@@ -118,31 +127,31 @@ def get_rvparky_since_recursion(date, ignore_wait, level=0)
 end
 
 def generic_get_catalogue(url)
-  final_url = 'http://centralcatalogue.com:3200/api/v1/locations?' + url if url.include?('changedSince')
-  final_url = 'http://centralcatalogue.com:3200/api/v1/locations/' + url unless url.include?('changedSince')
+  final_url = catalogue_url + '?' + url if url.include?('changedSince')
+  final_url = catalogue_url + '/' + url unless url.include?('changedSince')
   return Typhoeus::Request.get(final_url,
-                               headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
+                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' },
                                :ssl_verifyhost => 0)
 end
 
 def generic_put_catalogue(url)
-  return Typhoeus::Request.put('http://centralcatalogue.com:3200/api/v1/locations/' + url,
-                               headers: { 'x-api-key' => '3049ae6c-1ba8-463e-a18b-c511fd7ec0b2' },
+  return Typhoeus::Request.put(catalogue_url + '/' + url,
+                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' },
                                :ssl_verifyhost => 0)
 end
 
 # For checking changes since X date.
 def generic_get_rvparky_1(url)
-  return Typhoeus::Request.get('https://www.rvparky.com/_ws/' + url, :ssl_verifyhost => 0)
+  return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0)
 end
 
 # For checking locations.
 def generic_get_rvparky_2(url, follow=false)
-  return Typhoeus::Request.get('https://www.rvparky.com/_ws2/' + url, :ssl_verifyhost => 0, followlocation: follow)
+  return Typhoeus::Request.get(rvparky_url(2) + url, :ssl_verifyhost => 0, followlocation: follow)
 end
 
 def generic_put_rvparky(url)
-  return Typhoeus::Request.put('https://www.rvparky.com/_ws/' + url, :ssl_verifyhost => 0)
+  return Typhoeus::Request.put(rvparky_url + url, :ssl_verifyhost => 0)
 end
 
 def get_web_data(key, type, follow=false)

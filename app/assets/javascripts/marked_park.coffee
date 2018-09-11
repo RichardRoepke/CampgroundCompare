@@ -18,7 +18,9 @@ $ ->
         token = $(element).data("element")
         foundElement = document.getElementById(token)
         foundElement.value = $(element).data("transfer")
-        validateField(foundElement.value, $(element).context.value, $(foundElement).data("row"))
+        mirrorToken = $(foundElement).data("mirror")
+        mirrorElement = document.getElementById(mirrorToken)
+        validateField(foundElement.value, mirrorElement.value, $(foundElement).data("row"))
   $("input[data-copy]").click ->
     destination = $(this).data("element")
     origin = $(this).data("mirror")
@@ -30,7 +32,9 @@ $ ->
     token = $(this).data("element")
     foundElement = document.getElementById(token)
     foundElement.value = $(this).data("transfer")
-    validateField(foundElement.value, $(this).context.value, $(foundElement).data("row"))
+    mirrorToken = $(foundElement).data("mirror")
+    mirrorElement = document.getElementById(mirrorToken)
+    validateField(foundElement.value, mirrorElement.value, $(foundElement).data("row"))
   $("input[data-submit]").click (event) ->
     elements = document.querySelectorAll("tr")
     for element in elements
