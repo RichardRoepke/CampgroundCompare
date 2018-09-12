@@ -137,6 +137,16 @@ class MarkedParkController < ApplicationController
     end
   end
 
+  def delete
+    @park = MarkedPark.find(params[:id])
+
+    if params[:commit].present? && params[:commit].include?('Remove')
+      flash[:ALERT] = @park.name + ' has been removed from the list.'
+      @park.destroy
+      redirect_to marked_park_index_path(page: session[:page])
+    end
+  end
+
   def submit_changes
     result = update_single_park(params[:id], process_changes(params))
 

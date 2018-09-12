@@ -1,0 +1,13 @@
+<% provide(:title, @title) %>
+
+<%= render 'layouts/park_tabs' %>
+
+<br />
+
+<h4><%= @park.name %> <%= generate_badge(@park.status, @park.editable) %></h4>
+
+<br />
+
+<%= bootstrap_form_tag do |f| %>
+  <%= f.submit 'Remove Entry', class: "btn btn-danger" %>
+<% end %>

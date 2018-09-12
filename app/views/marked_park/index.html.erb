@@ -53,6 +53,10 @@
               <i class="fas fa-sync"></i>
             <% end %>
 
+            <%= link_to(marked_park_delete_path(park), :class => 'nav-link', method: :get) do %>
+              <i class="fas fa-times-circle"></i>
+            <% end %>
+
             <% # Javascript doesn't load/update properly unless you include method: :get in link_to
             %>
             <%= link_to(marked_park_quick_path(park), :class => 'nav-link', method: :get) do %>
