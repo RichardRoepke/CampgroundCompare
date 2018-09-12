@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_11_184942) do
+ActiveRecord::Schema.define(version: 2018_09_04_152926) do
 
   create_table "differences", force: :cascade do |t|
     t.string "catalogue_field"
@@ -33,8 +33,6 @@ ActiveRecord::Schema.define(version: 2018_09_11_184942) do
     t.string "slug"
     t.boolean "editable"
     t.boolean "force_update", default: false
-    t.boolean "rvparky_connection", default: false
-    t.boolean "catalogue_connection", default: false
     t.index ["uuid"], name: "index_marked_parks_on_uuid", unique: true
   end
 
