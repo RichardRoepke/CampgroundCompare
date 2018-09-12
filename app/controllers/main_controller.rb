@@ -34,16 +34,7 @@ class MainController < ApplicationController
         if changes[:catalogue].is_a?(String)
           problem[:catalogue] = 'Catalogue: ' + changes[:catalogue]
         else
-          changes[:catalogue].each do |entry|
-            new_entry = MarkedPark.new({ uuid: entry[:uuid],
-                                         name: entry[:name],
-                                         slug: entry[:slug],
-                                         status: nil,
-                                         editable: false })
-            new_entry.update_status(entry, nil)
-            new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
-            added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
-          end
+          added = generic_add_park(changes[:catalogue], 'CATALOGUE', redirect)
         end
       end
 
@@ -51,24 +42,7 @@ class MainController < ApplicationController
         if changes[:rvparky].is_a?(String)
           problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
-          changes[:rvparky].each do |entry|
-            result = get_catalogue_location(entry[:slug])
-
-            if result.is_a?(Hash)
-              uuid = result[:uuid]
-              catalogue_response = result
-            else
-              uuid = 'NULL'
-            end
-
-            new_entry = MarkedPark.new({ uuid: uuid,
-                                         name: entry[:name],
-                                         slug: entry[:slug],
-                                         status: nil,
-                                         editable: false })
-            new_entry.update_status(catalogue_response, entry)
-            added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
-          end
+          added = generic_add_park(changes[:rvparky], 'RVPARKY', redirect)
         end
       end
     else
@@ -111,5 +85,38 @@ class MainController < ApplicationController
 
   def password
     @user = User.find(current_user.id)
+  end
+
+  private
+  def generic_add_park(input_hash, type, redirect)
+    num_added = 0
+
+    input_hash.each do |entry|
+      if type == 'RVPARKY'
+        rvparky_response = entry
+        catalogue_check = get_catalogue_location(entry[:slug])
+
+        if catalogue_check.is_a?(Hash)
+          uuid_input = catalogue_check[:uuid]
+          catalogue_response = catalogue_check
+        else
+          uuid_input = 'NULL'
+        end
+      elsif type == 'CATALOGUE'
+        catalogue_response = entry
+        uuid_input = entry[:uuid]
+      end
+
+      new_entry = MarkedPark.new({ uuid: uuid_input,
+                                   name: entry[:name],
+                                   slug: entry[:slug],
+                                   status: nil,
+                                   editable: false })
+      new_entry.update_status(catalogue_response, rvparky_response)
+      new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
+      num_added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
+    end
+
+    return num_added
   end
 end
