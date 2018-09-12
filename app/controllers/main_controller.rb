@@ -5,9 +5,9 @@ class MainController < ApplicationController
 
   def check
     @since = params[:date_since] if params[:date_since].present?
-    @ignore = (params[:wait] == '1') if params[:wait].present?
+    @wait = (params[:wait] == '1') if params[:wait].present?
+    @invalid = (params[:invalid] == '1') if params[:invalid].present?
     @redirect = (params[:redirect] == '1') if params[:redirect].present?
-    puts params[:redirect]
 
     if params[:database].present?
       @check_array = [false, false, false]
@@ -26,15 +26,16 @@ class MainController < ApplicationController
     added = 0
 
     if Date.parse(params[:date_since]) <= Date.current
-      ignore = params[:ignore_wait] == '1'
+      wait = params[:ignore_wait] == '1'
       redirect = params[:redirect] == '1'
-      changes = get_changed_since(params[:date_since], params[:database], ignore)
+      invalid = params[:ignore_invalid] == '1'
+      changes = get_changed_since(params[:date_since], params[:database], wait)
 
       if changes[:catalogue].present?
         if changes[:catalogue].is_a?(String)
           problem[:catalogue] = 'Catalogue: ' + changes[:catalogue]
         else
-          added = generic_add_park(changes[:catalogue], 'CATALOGUE', redirect)
+          added = generic_add_park(changes[:catalogue], 'CATALOGUE', redirect, invalid)
         end
       end
 
@@ -42,7 +43,7 @@ class MainController < ApplicationController
         if changes[:rvparky].is_a?(String)
           problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
-          added = generic_add_park(changes[:rvparky], 'RVPARKY', redirect)
+          added = generic_add_park(changes[:rvparky], 'RVPARKY', redirect, invalid)
         end
       end
     else
@@ -56,6 +57,7 @@ class MainController < ApplicationController
       redirect_to check_path(date_since: params[:date_since],
                              wait: params[:ignore_wait],
                              redirect: params[:redirect],
+                             invalid: params[:ignore_invalid],
                              database: params[:database])
     else
       if added > 0
@@ -66,6 +68,7 @@ class MainController < ApplicationController
         redirect_to check_path(date_since: params[:date_since],
                                wait: params[:ignore_wait],
                                redirect: params[:redirect],
+                               invalid: params[:ignore_invalid],
                                database: params[:database])
       end
     end
@@ -73,6 +76,7 @@ class MainController < ApplicationController
     redirect_to check_path(date_since: params[:date_since],
                            wait: params[:ignore_wait],
                            redirect: params[:redirect],
+                           invalid: params[:ignore_invalid],
                            database: params[:database]),
                            alert: 'A problem occurred. Please adjust your parameters try again.'
     puts '========================================================================='
@@ -88,7 +92,7 @@ class MainController < ApplicationController
   end
 
   private
-  def generic_add_park(input_hash, type, redirect)
+  def generic_add_park(input_hash, type, redirect, invalid)
     num_added = 0
 
     input_hash.each do |entry|
@@ -114,7 +118,8 @@ class MainController < ApplicationController
                                    editable: false })
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
-      num_added += 1 if new_entry.status != 'DELETE ME' && new_entry.save
+      new_entry.destroy unless new_entry.editable?
+      num_added += 1 if new_entry.present? && new_entry.status != 'DELETE ME' && new_entry.save
     end
 
     return num_added

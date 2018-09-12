@@ -9,6 +9,8 @@
 
   <%= tab_generator("Edit Information", edit_marked_park_path(params[:id]), "fas fa-screwdriver") if params[:id].present? %>
 
+  <%= tab_generator("Remove Entry", marked_park_delete_path(params[:id]), "fas fa-times-circle") if params[:id].present? %>
+
   <%= tab_generator("Resolve Differences", marked_park_quick_path(params[:id]), "fas fa-marker") if params[:id].present? && @park.editable? %>
 
   <% if current_page?(marked_park_index_path) %>

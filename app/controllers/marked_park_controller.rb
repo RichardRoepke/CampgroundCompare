@@ -137,6 +137,16 @@ class MarkedParkController < ApplicationController
     end
   end
 
+  def delete
+    @park = MarkedPark.find(params[:id])
+
+    if params[:commit].present? && params[:commit].include?('Remove')
+      flash[:ALERT] = @park.name + ' has been removed from the list.'
+      @park.destroy
+      redirect_to marked_park_index_path(page: session[:page])
+    end
+  end
+
   def submit_changes
     result = update_single_park(params[:id], process_changes(params))
 
@@ -184,52 +194,52 @@ class MarkedParkController < ApplicationController
   end
 
   def autologic
-    result = { status: 'WARNING', message: 'Action could not be parsed.'}
-
     if params[:commit].include?('301 Redirects')
       redirect_parks = MarkedPark.page(params[:page]).where('status LIKE :search', search: "%301%")
       follow_number = 0
       redirect_parks.each do |park|
         follow_result = park.follow_301
-        if follow_result[:status].include?("SUCCESS")
-          # TODO: Update Central Catalogue
-          follow_number += 1
-        end
+        follow_number += 1 if follow_result[:status].include?("SUCCESS")
       end
 
-      result = { status: 'SUCCESS', message: follow_number.to_s + " parks were corrected." } if follow_number > 0
-      result = { status: 'ALERT', message: "No parks were found or corrected." } if follow_number == 0
+      fill_result = { status: 'SUCCESS', message: follow_number.to_s + " parks were corrected." } if follow_number > 0
+      fill_result = { status: 'ALERT', message: "No parks were found or corrected." } if follow_number == 0
     elsif params[:commit].include?('Catalogue Lacks Information')
-      result = autocomplete_parks(true, false, false)
+      fill_result = autocomplete_parks(true, false, false)
     elsif params[:commit].include?('RVParky Lacks Information')
-      result = autocomplete_parks(false, true, false)
+      fill_result = autocomplete_parks(false, true, false)
     elsif params[:commit].include?('Both Lack Information')
-      result = autocomplete_parks(true, false, true)
+      fill_result = autocomplete_parks(true, false, true)
+    elsif params[:commit].include?('Remove All Entries with Invalid Slugs')
+      remove_result = autoremove_parks(true, false)
+    elsif params[:commit].include?('Remove All Entries with Invalid UUIDs')
+      remove_result = autoremove_parks(false, true)
     elsif params[:commit].include?('Multiple Tasks')
-      possible_tasks = ['catalogue_blank', 'rvparky_blank', 'both_blank']
-      tasks_todo = []
-      continue = false
+      fill_tasks = [params['catalogue_blank'] == '1',
+                    params['rvparky_blank'] == '1',
+                    params['both_blank'] == '1']
 
-      possible_tasks.each do |task|
-        # I have no clue why bootstrap forms renders a selected checkbox as '1'
-        continue = true if params[task] == '1'
-        tasks_todo.push(params[task] == '1')
-      end
+      remove_tasks = [params['invalid_slug'] == '1',
+                params['invalid_uuid'] == '1']
 
-      if continue.present?
-        result = autocomplete_parks(tasks_todo[0], tasks_todo[1], tasks_todo[2])
-      else
+      fill_result = autocomplete_parks(fill_tasks[0], fill_tasks[1], fill_tasks[2]) if fill_tasks.any?
+      remove_result = autoremove_parks(remove_tasks[0], remove_tasks[1]) if remove_tasks.any?
+
+      unless fill_tasks.any? || remove_tasks.any?
         flash[:WARNING] = 'No autocompletion tasks were selected'
         redirect_to marked_park_autocomplete_path and return
       end
     end
 
-    flash[result[:status]] = result[:message]
+    flash[fill_result[:status]] = fill_result[:message] if fill_result.present?
+    flash[remove_result[:status]] = remove_result[:message] if remove_result.present?
     redirect_to marked_park_index_path
   end
 
   def autocomplete_parks(do_catalogue, do_rvparky, do_both)
-    output = { status: 'ALERT', message: 'COMPLETED SUCCESSFULLY.'}
+    output = { status: 'INFO', message: ''}
+
+    num_completed = 0
 
     MarkedPark.find_each do |park|
       park.update_status
@@ -239,15 +249,46 @@ class MarkedParkController < ApplicationController
       if park.valid? && park.editable?
         if do_catalogue.present? && park.status == 'CATALOGUE LACKS INFORMATION'
           result = update_single_park(park.id, park.get_blank_differences(true, false))
+          num_completed += 1 if result[:catalogue][:status].include?('SUCCESS')
         elsif do_rvparky.present? && park.status == 'RVPARKY LACKS INFORMATION'
           result = update_single_park(park.id, park.get_blank_differences(false, true))
+          num_completed += 1 if result[:rvparky][:status].include?('SUCCESS')
         elsif do_both.present? && park.status == 'BOTH LACK INFORMATION'
           result = update_single_park(park.id, park.get_blank_differences(true, true))
+          num_completed += 1 if result[:catalogue][:status].include?('SUCCESS') && result[:rvparky][:status].include?('SUCCESS')
         end
 
         park.save
       end
     end
+
+    output[:message] = num_completed.to_s + ' parks were automatically completed.'
+    output[:status] = 'SUCCESS' if num_completed > 0
+
+    return output
+  end
+
+  def autoremove_parks(do_slug, do_uuid)
+    output = { status: 'INFO', message: ''}
+
+    num_completed = 0
+
+    MarkedPark.find_each do |park|
+      park.update_status
+      park.destroy if park.status == 'DELETE ME'
+      park.save if park.valid?
+
+      if park.valid?
+        if do_slug.present? && park.status == 'SLUG IS MISSING'
+          num_completed += 1 if park.destroy
+        elsif do_uuid.present? && park.present? && park.status == 'UUID IS MISSING'
+          num_completed += 1 if park.destroy
+        end
+      end
+    end
+
+    output[:message] = num_completed.to_s + ' parks were automatically removed.'
+    output[:status] = 'WARNING' if num_completed > 0
 
     return output
   end

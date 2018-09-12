@@ -35,7 +35,7 @@ class MarkedPark < ApplicationRecord
   end
 
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    unless self.uuid == 'NULL' || self.slug == 'NULL'
+    unless self.uuid.include?('NULL') || self.slug.include?('NULL')
       if catalogue_input.blank?
         catalogue_input = get_catalogue_location(self.uuid)
       end
@@ -64,8 +64,8 @@ class MarkedPark < ApplicationRecord
         self.status = 'INVALID CONNECTIONS'
       end
     else
-      self.status = 'SLUG IS MISSING' if self.slug == 'NULL'
-      self.status = 'UUID IS MISSING' if self.uuid == 'NULL'
+      self.status = 'SLUG IS MISSING' if self.slug.include?('NULL')
+      self.status = 'UUID IS MISSING' if self.uuid.include?('NULL')
     end
 
     self.force_update = !self.force_update

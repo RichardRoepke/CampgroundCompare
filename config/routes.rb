@@ -17,6 +17,8 @@ Rails.application.routes.draw do
 
   get '/marked_park/:id/quick', to: 'marked_park#quick', as: :marked_park_quick
   post '/marked_park/:id/quick', to: 'marked_park#submit_changes'
+  get '/marked_park/:id/delete', to: 'marked_park#delete', as: :marked_park_delete
+  post '/marked_park/:id/delete', to: 'marked_park#delete'
   get '/marked_park/status', to: 'marked_park#status'
   get '/marked_park/autocomplete', to: 'marked_park#autocomplete', as: :marked_park_auto
   post '/marked_park/autocomplete', to: 'marked_park#autologic'

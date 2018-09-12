@@ -24,7 +24,7 @@ end
 
 private
 def catalogue_url
-  return 'http://centralcatalogue.com:3200/api/v1/locations'
+  return 'https://centralcatalogue.com/api/v1/locations'
 end
 
 def rvparky_url(type=nil)
