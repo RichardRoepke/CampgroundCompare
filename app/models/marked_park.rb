@@ -178,6 +178,7 @@ class MarkedPark < ApplicationRecord
     location = get_rvparky_location(self.slug, true)
     if location[:slug].present?
       self.slug = location[:slug]
+      update_catalogue_location(self.uuid, 'location[slug]=' + location[:slug])
       self.update_status
       self.destroy if self.status == 'DELETE ME'
       self.save if self.valid?

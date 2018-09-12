@@ -50,7 +50,7 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
         end
 
         if response[:totalPages] > page
-          next_page_array = get_changed_since(date, ignore_wait, (page + 1))
+          next_page_array = get_catalogue_since(date, ignore_wait, (page + 1))
           # If next_page_array is a string then an error must have occured so
           # don't append it to the current array.
           result = result + next_page_array unless next_page_array.is_a?(String)

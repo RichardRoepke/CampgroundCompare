@@ -70,15 +70,20 @@ class MarkedParkController < ApplicationController
       flash[result[:status]] = result[:message]
 
       if result[:status].include?("SUCCESS")
-        # TODO: Update Central Catalogue database.
         redirect_to marked_park_index_path(page: session[:page])
       else
         redirect_back(fallback_location: root_path)
       end
     else
       park = MarkedPark.find(params[:id])
-      park.uuid = params[:marked_park][:uuid]
-      park.slug = params[:marked_park][:slug]
+      park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid].present?
+      if params[:marked_park][:slug].present?
+        park.slug = params[:marked_park][:slug]
+        # The uuids must come from the Catalogue and aren't stored on RVParky's end,
+        # so we don't worry about updating them. The slugs are stored on the Catalogue's end,
+        # so they need to be updated when changed.
+        update_catalogue_location(park.uuid, 'location[slug]=' + params[:marked_park][:slug])
+      end
       park.update_status
       park.destroy if park.status == 'DELETE ME'
       park.save if park.valid?
