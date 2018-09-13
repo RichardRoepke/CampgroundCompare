@@ -88,11 +88,8 @@ class MarkedParkController < ApplicationController
       park.destroy if park.status == 'DELETE ME'
       park.save if park.valid?
 
-      if park.valid?
+      if park.present?
         flash[:success] = 'Park was successfully updated.'
-        redirect_to marked_park_index_path(page: session[:page])
-      elsif park.present?
-        flash[:success] = 'No differences found after update.'
         redirect_to marked_park_index_path(page: session[:page])
       else
         flash[:ALERT] = 'Invalid Information.'
@@ -133,7 +130,7 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
       end
     else
-      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved.'
+      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved. Please check that the UUID and Slug are valid.'
     end
   end
 
@@ -169,7 +166,6 @@ class MarkedParkController < ApplicationController
   end
 
   def status
-    puts params.inspect
     if params[:format].present?
       single_park = MarkedPark.find(params[:format])
       single_park.update_status
@@ -349,25 +345,6 @@ class MarkedParkController < ApplicationController
     @title = 'Parks'
   end
 
-  def calculate_new_status(catalogue, rvparky)
-    # We don't worry about the case where both are none since that should never happen.
-    if rvparky.include?("NONE")
-      return 'CATALOGUE UPDATING' if catalogue.include?('SUCCESS')
-      return 'CATALOGUE ERROR' # Catalogue failed
-    end
-
-    if catalogue.include?("NONE")
-      return 'RVPARKY UPDATING' if rvparky.include?('SUCCESS')
-      return 'RVPARKY ERROR' # RVParky failed
-    end
-
-    # Updates were sent to both databases.
-    return 'BOTH UPDATING' if catalogue.include?('SUCCESS') && rvparky.include?('SUCCESS')
-    return 'CATALOGUE UPDATING, RVPARKY ERROR' if catalogue.include?('SUCCESS') && rvparky.include?('ALERT')
-    return 'CATALOGUE ERROR, RVPARKY UPDATING' if catalogue.include?('ALERT') && rvparky.include?('SUCCESS')
-    return 'ERROR UPDATING'
-  end
-
   def update_single_park(id, processed_inputs)
     result = { catalogue: { status: 'CAT NONE',
                             message: '' },
@@ -407,5 +384,24 @@ class MarkedParkController < ApplicationController
     park.save
 
     return result
+  end
+
+  def calculate_new_status(catalogue, rvparky)
+    # We don't worry about the case where both are none since that should never happen.
+    if rvparky.include?("NONE")
+      return 'CATALOGUE UPDATING' if catalogue.include?('SUCCESS')
+      return 'CATALOGUE ERROR' # Catalogue failed
+    end
+
+    if catalogue.include?("NONE")
+      return 'RVPARKY UPDATING' if rvparky.include?('SUCCESS')
+      return 'RVPARKY ERROR' # RVParky failed
+    end
+
+    # Updates were sent to both databases.
+    return 'BOTH UPDATING' if catalogue.include?('SUCCESS') && rvparky.include?('SUCCESS')
+    return 'CATALOGUE UPDATING, RVPARKY ERROR' if catalogue.include?('SUCCESS') && rvparky.include?('ALERT')
+    return 'CATALOGUE ERROR, RVPARKY UPDATING' if catalogue.include?('ALERT') && rvparky.include?('SUCCESS')
+    return 'ERROR UPDATING'
   end
 end

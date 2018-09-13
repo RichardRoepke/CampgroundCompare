@@ -68,6 +68,8 @@ class MarkedPark < ApplicationRecord
       self.status = 'UUID IS MISSING' if self.uuid.include?('NULL')
     end
 
+    # To ensure that updated_at is set to the current time if everything else remains the same.
+    # Otherwise the status would constantly be checked if the model is a day old.
     self.force_update = !self.force_update
     self.save
   end
@@ -173,6 +175,8 @@ class MarkedPark < ApplicationRecord
   end
 
   def follow_301
+    # Currently works for RVParky slugs only, but Central Catalogue shouldn't
+    # return 301 statuses so it shouldn't be a problem.
     result = { message: nil, status: nil }
 
     location = get_rvparky_location(self.slug, true)
