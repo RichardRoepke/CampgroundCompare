@@ -54,24 +54,20 @@ class MainController < ApplicationController
       flash['CATALOGUE ALERT'] = problem[:catalogue] if problem[:catalogue].present?
       flash['RVPARKY ALERT'] = problem[:rvparky] if problem[:rvparky].present?
       flash['NOTICE'] = problem[:general] if problem[:general].present?
-      redirect_to check_path(date_since: params[:date_since],
-                             wait: params[:ignore_wait],
-                             redirect: params[:redirect],
-                             invalid: params[:ignore_invalid],
-                             database: params[:database])
     else
       if added > 0
         flash[:success] = added.to_s + ' new parks were marked as changed.'
-        redirect_to marked_park_index_path
+        redirect_to marked_park_index_path and return
       else
         flash['NOTICE'] = 'No new changes were found.'
-        redirect_to check_path(date_since: params[:date_since],
+      end
+    end
+
+    redirect_to check_path(date_since: params[:date_since],
                                wait: params[:ignore_wait],
                                redirect: params[:redirect],
                                invalid: params[:ignore_invalid],
                                database: params[:database])
-      end
-    end
   rescue => exception
     redirect_to check_path(date_since: params[:date_since],
                            wait: params[:ignore_wait],

@@ -1,6 +1,6 @@
 def get_catalogue_location(uuid)
   return get_web_data(uuid, 'CATALOGUE') unless uuid.include?('NULL')
-  return 404
+  return 404 # We already know what the result of an invalid UUID would be, so no point checking.
 end
 
 def get_rvparky_location(slug, follow=false)
@@ -42,6 +42,7 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
     response = hash_string_to_sym(temp_response)
 
     if response[:records] > 0
+      # If the response is short enough or the user doesn't mind waiting.
       if response[:totalPages] < 5 || ignore_wait.present?
         response[:data].each do |value|
           info = value
@@ -66,6 +67,16 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
   return result
 end
 
+
+################################################################################
+# The call to get a list of changes from RVParky is somewhat complicated.
+#
+# Changes are given in blocks of 50 individual changes, which might include
+# duplicate parks. A 'date' is provided which is the time of the last change, so
+# to find the total list of changes since the requested date, each 'date' has to
+# be followed in turn. Only once the end of the chain is reached can we then
+# evaluate how many changes exist.
+################################################################################
 def get_rvparky_since(date, ignore_wait)
   result = []
 
@@ -80,6 +91,8 @@ def get_rvparky_since(date, ignore_wait)
         id_array = process_updates(response["updates"]) + further_ids
 
         if id_array.length < 1000 || ignore_wait.present?
+          # The list of changes are given as IDs only, so this retrieves the
+          # actual parks.
           id_array.each do |id|
             location = get_web_data(id.to_s, 'RVPARKY')
             result.push(location) if location.is_a?(Hash)
@@ -113,6 +126,8 @@ def get_rvparky_since_recursion(date, ignore_wait, level=0)
         next_level = get_rvparky_since_recursion(response["date"], ignore_wait, level + 1)
 
         if next_level.is_a?(String)
+          # A string means that the recursion went too deep and processing
+          # everything would take an excessive amount of time.
           result = next_level
         else
           result = process_updates(response["updates"]) + next_level
@@ -130,13 +145,13 @@ def generic_get_catalogue(url)
   final_url = catalogue_url + '?' + url if url.include?('changedSince')
   final_url = catalogue_url + '/' + url unless url.include?('changedSince')
   return Typhoeus::Request.get(final_url,
-                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' },
+                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' }, #TODO: Store this in a more secure fashion.
                                :ssl_verifyhost => 0)
 end
 
 def generic_put_catalogue(url)
   return Typhoeus::Request.put(catalogue_url + '/' + url,
-                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' },
+                               headers: { 'x-api-key' => '3b8fbfa8-7513-41e3-a771-f404e635fd5e' }, #TODO: Store this in a more secure fashion.
                                :ssl_verifyhost => 0)
 end
 
