@@ -26,16 +26,16 @@ class MainController < ApplicationController
     added = 0
 
     if Date.parse(params[:date_since]) <= Date.current
-      wait = params[:ignore_wait] == '1'
-      redirect = params[:redirect] == '1'
-      invalid = params[:ignore_invalid] == '1'
+      wait = (params[:ignore_wait] == '1')
+      redirect = (params[:redirect] == '1')
+      invalid = (params[:ignore_invalid] == '1')
       changes = get_changed_since(params[:date_since], params[:database], wait)
 
       if changes[:catalogue].present?
         if changes[:catalogue].is_a?(String)
           problem[:catalogue] = 'Catalogue: ' + changes[:catalogue]
         else
-          added = generic_add_park(changes[:catalogue], 'CATALOGUE', redirect, invalid)
+          added += generic_add_park(changes[:catalogue], 'CATALOGUE', redirect, invalid)
         end
       end
 
@@ -43,11 +43,11 @@ class MainController < ApplicationController
         if changes[:rvparky].is_a?(String)
           problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
-          added = generic_add_park(changes[:rvparky], 'RVPARKY', redirect, invalid)
+          added += generic_add_park(changes[:rvparky], 'RVPARKY', redirect, invalid)
         end
       end
     else
-      problem[:general] = 'Please select a date in the present or past.'
+      problem[:general] = "Please select a date equal to or before today's."
     end
 
     if problem[:catalogue].present? || problem[:rvparky].present? || problem[:general].present?
@@ -75,9 +75,6 @@ class MainController < ApplicationController
                            invalid: params[:ignore_invalid],
                            database: params[:database]),
                            alert: 'A problem occurred. Please adjust your parameters try again.'
-    puts '========================================================================='
-    puts exception.inspect
-    puts '========================================================================='
   end
 
   def home
@@ -114,7 +111,7 @@ class MainController < ApplicationController
                                    editable: false })
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
-      new_entry.destroy unless new_entry.editable?
+      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
       num_added += 1 if new_entry.present? && new_entry.status != 'DELETE ME' && new_entry.save
     end
 

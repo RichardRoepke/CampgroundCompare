@@ -6,7 +6,6 @@ class MembershipValidator
   attr_accessor :name
   attr_accessor :type
 
-  validates :name, presence: true
   validates :type, presence: true
 
   validates :type, inclusion: { in: %w{ DISCOUNT RATING MEMBER\ ORGANIZATION AFFILIATE } }
@@ -14,5 +13,6 @@ class MembershipValidator
   def initialize(input)
     @name = input[:name]
     @type = input[:type]
+    @name = 'EMPTY' if @name.blank?
   end
 end

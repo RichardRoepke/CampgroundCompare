@@ -45,42 +45,42 @@
 
   <br />
 
-  <div class="panel-group" id="accordion">
-    <%= collapse_button_generator('Amenities') if @catalogue.amenities.present? %>
+  <div class="panel-group" id="accordionC">
+    <%= collapse_button_generator('Amenities', 'C') if @catalogue.amenities.present? %>
 
-    <%= collapse_button_generator('Cobrands') if @catalogue.cobrands.present? %>
+    <%= collapse_button_generator('Cobrands', 'C') if @catalogue.cobrands.present? %>
 
     <%= collapse_button_generator('Images', 'C') if @catalogue.images.present? %>
 
-    <%= collapse_button_generator('Memberships') if @catalogue.memberships.present? %>
+    <%= collapse_button_generator('Memberships', 'C') if @catalogue.memberships.present? %>
 
-    <%= collapse_button_generator('Nearbies') if @catalogue.nearbies.present? %>
+    <%= collapse_button_generator('Nearbies', 'C') if @catalogue.nearbies.present? %>
 
-    <%= collapse_button_generator('Payments') if @catalogue.payments.present? %>
+    <%= collapse_button_generator('Payments', 'C') if @catalogue.payments.present? %>
 
-    <%= collapse_button_generator('Rates') if @catalogue.rates.present? %>
+    <%= collapse_button_generator('Rates', 'C') if @catalogue.rates.present? %>
 
     <%= collapse_button_generator('Reviews', 'C') if @catalogue.reviews.present? %>
 
-    <%= collapse_button_generator('Tags') if @catalogue.tags.present? %>
+    <%= collapse_button_generator('Tags', 'C') if @catalogue.tags.present? %>
 
-    <%= collapse_generator('Amenities', generate_amenities_entry, @catalogue.amenities) if @catalogue.amenities.present? %>
+    <%= collapse_generator('Amenities', generate_amenities_entry, @catalogue.amenities, 'C') if @catalogue.amenities.present? %>
 
-    <%= collapse_generator('Cobrands', generate_cobrands_entry, @catalogue.cobrands) if @catalogue.cobrands.present? %>
+    <%= collapse_generator('Cobrands', generate_cobrands_entry, @catalogue.cobrands, 'C') if @catalogue.cobrands.present? %>
 
     <%= collapse_generator('Images', generate_cimages_entry, @catalogue.images, 'C') if @catalogue.images.present? %>
 
-    <%= collapse_generator('Memberships', generate_memberships_entry, @catalogue.memberships) if @catalogue.memberships.present? %>
+    <%= collapse_generator('Memberships', generate_memberships_entry, @catalogue.memberships, 'C') if @catalogue.memberships.present? %>
 
-    <%= collapse_generator('Nearbies', generate_nearbies_entry, @catalogue.nearbies) if @catalogue.nearbies.present? %>
+    <%= collapse_generator('Nearbies', generate_nearbies_entry, @catalogue.nearbies, 'C') if @catalogue.nearbies.present? %>
 
-    <%= collapse_generator('Payments', generate_payments_entry, @catalogue.payments) if @catalogue.payments.present? %>
+    <%= collapse_generator('Payments', generate_payments_entry, @catalogue.payments, 'C') if @catalogue.payments.present? %>
 
-    <%= collapse_generator('Rates', generate_rates_entry, @catalogue.rates) if @catalogue.rates.present? %>
+    <%= collapse_generator('Rates', generate_rates_entry, @catalogue.rates, 'C') if @catalogue.rates.present? %>
 
     <%= collapse_generator('Reviews', generate_creviews_entry, @catalogue.reviews, 'C') if @catalogue.reviews.present? %>
 
-    <%= collapse_generator('Tags', generate_tags_entry, @catalogue.tags) if @catalogue.tags.present? %>
+    <%= collapse_generator('Tags', generate_tags_entry, @catalogue.tags, 'C') if @catalogue.tags.present? %>
   </div>
 
   <hr />
@@ -176,7 +176,7 @@
 
   <br />
 
-  <div class="panel-group" id="accordion">
+  <div class="panel-group" id="accordionR">
     <%= collapse_button_generator('Images', 'R') if @rvparky.images.present? %>
 
     <%= collapse_button_generator('Reviews' , 'R') if @rvparky.reviews.present? %>

@@ -265,7 +265,7 @@ class MarkedParkController < ApplicationController
   end
 
   def autoremove_parks(do_slug, do_uuid)
-    output = { status: 'INFO', message: ''}
+    output = { status: 'INFO', message: '' }
 
     num_completed = 0
 

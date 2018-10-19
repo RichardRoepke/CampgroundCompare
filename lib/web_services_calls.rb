@@ -71,11 +71,11 @@ end
 ################################################################################
 # The call to get a list of changes from RVParky is somewhat complicated.
 #
-# Changes are given in blocks of 50 individual changes, which might include
-# duplicate parks. A 'date' is provided which is the time of the last change, so
-# to find the total list of changes since the requested date, each 'date' has to
-# be followed in turn. Only once the end of the chain is reached can we then
-# evaluate how many changes exist.
+# The service returns a block of 50 individual changes, which might include
+# duplicate parks and a 'date'/timestamp of the last change, so to find the
+# total list of changes since the requested date, each 'date' has to be
+# followed in turn. Only once the end of the chain is reached can we then
+# evaluate how many changed parks actually exist.
 ################################################################################
 def get_rvparky_since(date, ignore_wait)
   result = []
@@ -160,7 +160,7 @@ def generic_get_rvparky_1(url)
   return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0)
 end
 
-# For checking locations.
+# For getting location details.
 def generic_get_rvparky_2(url, follow=false)
   return Typhoeus::Request.get(rvparky_url(2) + url, :ssl_verifyhost => 0, followlocation: follow)
 end
@@ -190,7 +190,6 @@ def get_web_data(key, type, follow=false)
   return output
 end
 
-# Make sure to convert null to nil somehow.
 def hash_string_to_sym(input_hash)
   result_hash = {}
 

@@ -34,6 +34,9 @@ class MarkedPark < ApplicationRecord
     MarkedPark.where("id < ?", id).last
   end
 
+  # Calling the services for park data is slow, but duplicating the data in the
+  # database makes no sense either. So the *_input fields accept previously
+  # retrieved data to reuse it instead of making yet another call to the services.
   def update_status(catalogue_input=nil, rvparky_input=nil)
     unless self.uuid.include?('NULL') || self.slug.include?('NULL')
       if catalogue_input.blank?
@@ -69,7 +72,7 @@ class MarkedPark < ApplicationRecord
     end
 
     # To ensure that updated_at is set to the current time if everything else remains the same.
-    # Otherwise the status would constantly be checked if the model is a day old.
+    # Otherwise the status would constantly be checked if the model is a day old or more.
     self.force_update = !self.force_update
     self.save
   end
@@ -103,6 +106,7 @@ class MarkedPark < ApplicationRecord
   end
 
   def calculate_differences(catalogue, rvparky)
+    # common_fields is taken from the CommonFields module.
     if self.differences.length < common_fields.length
       populate_differences(catalogue, rvparky)
     else

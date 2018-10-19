@@ -6,22 +6,22 @@ module MarkedParkHelper
     return content_tag('span', text, class: 'badge badge-primary')
   end
 
-  def collapse_button_generator(body, modifier = '')
+  def collapse_button_generator(body, modifier)
     url = '#' + body.downcase + modifier + 'Collapse'
     controls = body.downcase + modifier + 'Collapse'
 
     link_to(body, url, { class: 'btn btn-secondary',
                          'data-toggle'.to_sym => 'collapse',
-                         'data-parent'.to_sym => '#accordion',
+                         'data-parent'.to_sym => '#accordion' + modifier,
                          role: "button",
                          'aria-expanded'.to_sym => "false",
                          'aria-controls'.to_sym => controls })
   end
 
-  def collapse_generator(name, body_function, array, modifier = '')
+  def collapse_generator(name, body_function, array, modifier)
     content_tag(:div, { class: 'collapse',
                         id: name.downcase + modifier + 'Collapse',
-                        'data-parent'.to_sym => '#accordion' }) do
+                        'data-parent'.to_sym => '#accordion' + modifier }) do
       content_tag(:div, class: 'card card-body') do
         content_tag(:ul, class: 'list-group') do
           array.each do |item|
@@ -44,6 +44,8 @@ module MarkedParkHelper
     end
   end
 
+  # f is the highly descriptive object handling user input. It's needed so that
+  # the fields can be properly checked when the user submits info.
   def generate_quick_fields(f, diff)
     row_class = ''
     row_class = 'table-warning' if diff.mismatch?
@@ -74,6 +76,8 @@ module MarkedParkHelper
     end
   end
 
+  # f is the highly descriptive object handling user input. It's needed so that
+  # the fields can be properly checked when the user submits info.
   def generate_quick_entry(f, kind, entry_name, mirror_name, entry_value, mirror_value, current_value, id)
     copy_type = { element: entry_name, mirror: mirror_name, copy: 'true' }
     copy_type[kind.to_sym] = 'true'
@@ -88,6 +92,8 @@ module MarkedParkHelper
     concat(content_tag(:i, 'Originally Blank')) if entry_value.blank?
   end
 
+  # f is the highly descriptive object handling user input. It's needed so that
+  # the fields can be properly checked when the user submits info.
   def generate_quick_global_buttons(f)
     concat(f.submit "Copy All Blank", type: 'button', data: { global: '[data-blank]', type: 'copy' }, class: "btn btn-success")
     concat(' ')
@@ -162,7 +168,7 @@ module MarkedParkHelper
 
   def generate_memberships_entry
     return Proc.new do |membership|
-      concat(membership.name + ' (' + membership.type + ')')
+      concat(membership.name.to_s + ' (' + membership.type + ')')
     end
   end
 
