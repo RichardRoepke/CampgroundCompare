@@ -22,6 +22,12 @@ def update_catalogue_location(uuid, changes)
   return generic_put_catalogue(uuid + '?' + changes).response_code
 end
 
+def create_catalogue_review(uuid, changes)
+  review_string = calc_catalogue_review(changes)
+  return generic_put_catalogue(uuid + '/reviews?' + review_string).response_code if review_string.present?
+  return 404 # If review_string is blank.
+end
+
 private
 def catalogue_url
   return 'https://centralcatalogue.com/api/v1/locations'
@@ -31,6 +37,19 @@ def rvparky_url(type=nil)
   return 'https://www.rvparky.com/_ws' + type.to_s + '/' if type.present?
   return 'https://www.rvparky.com/_ws/'
 end
+
+def calc_catalogue_review(review_hash)
+    result = ''
+
+    review_hash.each do |key, value|
+      result += '%26' unless result.blank? # Add & except for the very first field.
+      result += 'review%5B' + key.to_s + '%5D=' + value.to_s # review[key]=value
+    end
+
+    result.gsub!(' ', '%20') unless result.blank? # Format spaces to work with URLs.
+
+    return result
+  end
 
 def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
   result = []

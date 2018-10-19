@@ -330,12 +330,12 @@ class MarkedParkController < ApplicationController
     catalogue_hash.each do |key, value|
       corresponding_diff = park.differences.find_by(catalogue_field: key)
       unless corresponding_diff.catalogue_value == value
-        result += '%26' unless result.blank?
-        result += 'location%5B' + key.to_s + '%5D=' + value.to_s
+        result += '%26' unless result.blank? # Include & unless first change.
+        result += 'location%5B' + key.to_s + '%5D=' + value.to_s # review[key]=value
       end
     end
 
-    result.gsub!(' ', '%20') unless result.blank?
+    result.gsub!(' ', '%20') unless result.blank? # Format spaces to work with URLs.
 
     return result
   end
