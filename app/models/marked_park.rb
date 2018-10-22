@@ -6,7 +6,7 @@ class MarkedPark < ApplicationRecord
 
   before_create :ensure_unique_uuid
 
-  has_many :differences
+  has_many :differences, dependent: :destroy
 
   def ensure_unique_uuid
     if self.uuid == 'NULL'
@@ -107,16 +107,8 @@ class MarkedPark < ApplicationRecord
 
   def calculate_differences(catalogue, rvparky)
     # common_fields is taken from the CommonFields module.
-    if self.differences.length < common_fields.length
-      populate_differences(catalogue, rvparky)
-    else
-      revaluate_differences(catalogue, rvparky)
-    end
+    populate_differences(catalogue, rvparky)
 
-    return tally_differences
-  end
-
-  def tally_differences
     result = { catalogue_blank: 0,
                rvparky_blank: 0,
                mismatch: 0,
@@ -134,34 +126,28 @@ class MarkedPark < ApplicationRecord
     return result
   end
 
-  def revaluate_differences(catalogue, rvparky)
-    self.differences.each do |diff|
-      diff.catalogue_value = catalogue.public_send(diff.catalogue_field)
-      diff.rvparky_value = rvparky.public_send(diff.rvparky_field)
-      diff.kind = value_compare_result(diff.catalogue_value, diff.rvparky_value)
-      diff.save
-    end
-  end
-
   def populate_differences(catalogue, rvparky)
     # common_fields is taken from the CommonFields module.
     common_fields.each do |catalogue_field, rvparky_field|
+      # Public send is a way to get values using variable keys for hashes.
       catalogue_value = catalogue.public_send(catalogue_field)
       rvparky_value = rvparky.public_send(rvparky_field)
 
-      temp_model = self.differences.find_by(catalogue_field: catalogue_field)
+      if value_compare_result(catalogue_value, rvparky_value) == :match
+        temp_model = self.differences.find_by(catalogue_field: catalogue_field)
+        temp_model.delete unless temp_model.blank?
+      else
+        temp_model = self.differences.find_by(catalogue_field: catalogue_field)
 
-      if temp_model.blank?
-        temp_model = Difference.new()
-        self.differences.push(temp_model)
+        temp_model = self.differences.create() if temp_model.blank?
+
+        temp_model.update({ catalogue_field: catalogue_field,
+                            catalogue_value: catalogue_value,
+                            rvparky_field: rvparky_field,
+                            rvparky_value: rvparky_value,
+                            kind: value_compare_result(catalogue_value, rvparky_value) })
+        temp_model.save if temp_model.valid?
       end
-
-      temp_model.update({ catalogue_field: catalogue_field,
-                          catalogue_value: catalogue_value,
-                          rvparky_field: rvparky_field,
-                          rvparky_value: rvparky_value,
-                          kind: value_compare_result(catalogue_value, rvparky_value) })
-      temp_model.save if temp_model.valid?
     end
   end
 
