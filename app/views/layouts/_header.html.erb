@@ -8,6 +8,8 @@
 
       <%= header_generator('Parks', marked_park_index_path) if current_user.present? %>
 
+      <%= header_generator('Reports', report_path) if current_user.present? %>
+
       <%= header_generator('Manage Users', user_index_path) if current_user.try(:admin?) %>
 
       <%= header_generator('Change Password', password_path) if current_user.present? %>

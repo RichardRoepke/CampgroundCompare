@@ -2,11 +2,6 @@ measure: marked_park
 dimensions:
 - status
 chart:
-  type: horizontalBar
   options:
-    responsive: true
-    aspectRatio: 1
-    width: 1000px
-    maintainAspectRatio: false
-  style:
-    width: 1000px
+    legend:
+      display: false

@@ -80,6 +80,11 @@ class MainController < ApplicationController
   def home
   end
 
+  def report
+    @report_type = ''
+    @report_type = params[:report] if params[:report].present?
+  end
+
   def password
     @user = User.find(current_user.id)
   end

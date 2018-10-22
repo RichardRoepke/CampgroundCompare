@@ -1,3 +1,7 @@
 measure: difference
 dimensions:
 - kind
+chart:
+  options:
+    legend:
+      display: false
