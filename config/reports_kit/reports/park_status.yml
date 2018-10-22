@@ -1,0 +1,8 @@
+measure: marked_park
+dimensions:
+- status
+chart:
+  type: horizontalBar
+  options:
+    responsive: false
+    aspectRatio: 2

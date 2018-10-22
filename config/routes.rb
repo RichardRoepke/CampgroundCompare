@@ -28,6 +28,10 @@ Rails.application.routes.draw do
   resources :user
   resources :marked_park
 
+  Rails.application.routes.draw do
+    mount ReportsKit::Engine, at: '/'
+  end
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
