@@ -17,6 +17,6 @@
 @import "rails_bootstrap_forms";
 
 canvas {
-  height: 300px;
-  width: 1000px;
+  width: 1000px !important;
+  height: 1000px;
 }
