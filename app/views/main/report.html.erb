@@ -1,0 +1,7 @@
+<% provide(:title, "Reports") %>
+
+<%= render 'layouts/report_tabs' %>
+
+<br />
+
+<%= render_report @report_type, actions: [] if @report_type.present? %>

@@ -18,3 +18,8 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require_tree .
+//= require reports_kit/application
+
+window.onload = function() {
+  console.log('FOOBAR');
+};

@@ -12,19 +12,19 @@
 
 ActiveRecord::Schema.define(version: 2018_09_04_152926) do
 
-  create_table "differences", force: :cascade do |t|
+  create_table "differences", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "catalogue_field"
-    t.string "catalogue_value"
+    t.text "catalogue_value"
     t.string "rvparky_field"
-    t.string "rvparky_value"
+    t.text "rvparky_value"
     t.integer "kind"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "marked_park_id"
+    t.bigint "marked_park_id"
     t.index ["marked_park_id"], name: "index_differences_on_marked_park_id"
   end
 
-  create_table "marked_parks", force: :cascade do |t|
+  create_table "marked_parks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "uuid"
     t.string "name"
     t.string "status"
@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 2018_09_04_152926) do
     t.index ["uuid"], name: "index_marked_parks_on_uuid", unique: true
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -54,4 +54,5 @@ ActiveRecord::Schema.define(version: 2018_09_04_152926) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "differences", "marked_parks"
 end

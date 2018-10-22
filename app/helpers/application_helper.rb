@@ -10,7 +10,7 @@ module ApplicationHelper
 
   def header_generator(body, url)
     content_tag :li, class: 'nav-item' do
-      link_to(body, url, class: 'nav-link')
+      link_to(body, url, class: 'nav-link', method: :get)
     end
   end
 

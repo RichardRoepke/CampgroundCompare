@@ -1,0 +1,7 @@
+measure: marked_park
+dimensions:
+- status
+chart:
+  options:
+    legend:
+      display: false
