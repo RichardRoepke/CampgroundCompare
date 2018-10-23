@@ -164,7 +164,7 @@ class MarkedPark < ApplicationRecord
     return :mismatch
   end
 
-  def follow_301
+  def follow_301(catalogue_input=nil, rvparky_input=nil)
     # Currently works for RVParky slugs only, but Central Catalogue shouldn't
     # return 301 statuses so it shouldn't be a problem.
     result = { message: nil, status: nil }
@@ -173,7 +173,7 @@ class MarkedPark < ApplicationRecord
     if location[:slug].present?
       self.slug = location[:slug]
       update_catalogue_location(self.uuid, 'location[slug]=' + location[:slug])
-      self.update_status
+      self.update_status(catalogue_input, rvparky_input)
       self.destroy if self.status == 'DELETE ME'
       self.save if self.valid?
 

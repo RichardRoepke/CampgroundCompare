@@ -109,15 +109,19 @@ class MainController < ApplicationController
         uuid_input = entry[:uuid]
       end
 
-      new_entry = MarkedPark.new({ uuid: uuid_input,
-                                   name: entry[:name],
-                                   slug: entry[:slug],
-                                   status: nil,
-                                   editable: false })
-      new_entry.update_status(catalogue_response, rvparky_response)
-      new_entry.follow_301 if redirect.present? && new_entry.status.include?('301')
-      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
-      num_added += 1 if new_entry.present? && new_entry.status != 'DELETE ME' && new_entry.save
+      unless MarkedPark.exists?(:uuid => uuid_input)
+        new_entry = MarkedPark.create({ uuid: uuid_input,
+                                        name: entry[:name],
+                                        slug: entry[:slug],
+                                        status: nil,
+                                        editable: false })
+        new_entry.save
+        new_entry.update_status(catalogue_response, rvparky_response)
+        new_entry.follow_301(catalogue_response, rvparky_response) if redirect.present? && new_entry.status.include?('301')
+        new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
+        new_entry.destroy if new_entry.status == 'DELETE ME'
+        num_added += 1 if new_entry.present?
+      end
     end
 
     return num_added
