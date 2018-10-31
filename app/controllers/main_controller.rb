@@ -81,8 +81,8 @@ class MainController < ApplicationController
   end
 
   def report
-    @report_type = ''
-    @report_type = params[:report] if params[:report].present?
+    @report_type = 'park_status'
+    @report_type = params[:report]
   end
 
   def password
