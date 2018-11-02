@@ -98,6 +98,8 @@ class MainController < ApplicationController
       new_entry = PendingPark.new(input)
       added += 1 if new_entry.save
     end
+
+    return added
   end
 
   def generic_add_park(input_hash, type, redirect, invalid)

@@ -7,15 +7,15 @@
 default: &default
   adapter: mysql2
   port: 3306
-  username: root
-  password: Master123
+  username: bysuser
+  password: bysuser
   #enable_call: true
   #flags: CLIENT_MULTI_RESULTS
 
 development:
   <<: *default
-  database: compare_development
-  host: 127.0.0.1
+  database: campground_compare
+  host: 10.228.5.81
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
