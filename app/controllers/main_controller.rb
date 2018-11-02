@@ -23,19 +23,21 @@ class MainController < ApplicationController
     problem = { catalogue: nil,
                 rvparky: nil,
                 general: nil }
-    added = 0
 
     if Date.parse(params[:date_since]) <= Date.current
       wait = (params[:ignore_wait] == '1')
       redirect = (params[:redirect] == '1')
       invalid = (params[:ignore_invalid] == '1')
+
+      added = 0
+
       changes = get_changed_since(params[:date_since], params[:database], wait)
 
       if changes[:catalogue].present?
         if changes[:catalogue].is_a?(String)
           problem[:catalogue] = 'Catalogue: ' + changes[:catalogue]
         else
-          added += generic_add_park(changes[:catalogue], 'CATALOGUE', redirect, invalid)
+          added += populate_pending_parks(changes[:catalogue])
         end
       end
 
@@ -43,7 +45,7 @@ class MainController < ApplicationController
         if changes[:rvparky].is_a?(String)
           problem[:rvparky] = 'RVParky: ' + changes[:rvparky]
         else
-          added += generic_add_park(changes[:rvparky], 'RVPARKY', redirect, invalid)
+          added += populate_pending_parks(changes[:rvparky])
         end
       end
     else
@@ -56,8 +58,7 @@ class MainController < ApplicationController
       flash['NOTICE'] = problem[:general] if problem[:general].present?
     else
       if added > 0
-        flash[:success] = added.to_s + ' new parks were marked as changed.'
-        redirect_to marked_park_index_path and return
+        flash[:success] = added.to_s + ' pending parks were marked.'
       else
         flash['NOTICE'] = 'No new changes were found.'
       end
@@ -90,6 +91,15 @@ class MainController < ApplicationController
   end
 
   private
+  def populate_pending_parks(input_array)
+    added = 0
+
+    input_array.each do |input|
+      new_entry = PendingPark.new(input)
+      added += 1 if new_entry.save
+    end
+  end
+
   def generic_add_park(input_hash, type, redirect, invalid)
     num_added = 0
 

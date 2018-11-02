@@ -45,8 +45,9 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
       # If the response is short enough or the user doesn't mind waiting.
       if response[:totalPages] < 5 || ignore_wait.present?
         response[:data].each do |value|
-          info = value
-          info[:slug] = 'NULL' if info[:slug].blank?
+          info = { uuid: value[:uuid],
+                   slug: value[:slug],
+                   rvparky_id: nil }
           result.push(info)
         end
 
@@ -91,11 +92,11 @@ def get_rvparky_since(date, ignore_wait)
         id_array = process_updates(response["updates"]) + further_ids
 
         if id_array.length < 1000 || ignore_wait.present?
-          # The list of changes are given as IDs only, so this retrieves the
-          # actual parks.
           id_array.each do |id|
-            location = get_web_data(id.to_s, 'RVPARKY')
-            result.push(location) if location.is_a?(Hash)
+            info = { uuid: nil,
+                     slug: nil,
+                     rvparky_id: id.to_i }
+            result.push(info)
           end
         else
           result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
