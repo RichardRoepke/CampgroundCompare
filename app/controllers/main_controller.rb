@@ -78,6 +78,12 @@ class MainController < ApplicationController
                            alert: 'A problem occurred. Please adjust your parameters try again.'
   end
 
+  def pending_park
+    puts '=========================================================================='
+    puts params.inspect
+    puts '=========================================================================='
+  end
+
   def home
   end
 

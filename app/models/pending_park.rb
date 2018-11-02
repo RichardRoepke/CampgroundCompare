@@ -1,4 +1,8 @@
 class PendingPark < ApplicationRecord
+  validates :uuid, :uniqueness => { :allow_blank => true }
+  validates :slug, :uniqueness => { :allow_blank => true }
+  validates :rvparky_id, :uniqueness => { :allow_blank => true }
+
   validate :uuid_slug_or_id_present
   validate :ensure_uniqueness
 

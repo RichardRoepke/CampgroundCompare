@@ -21,5 +21,4 @@
 //= require reports_kit/application
 
 window.onload = function() {
-  console.log('FOOBAR');
 };

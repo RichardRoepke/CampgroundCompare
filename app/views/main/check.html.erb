@@ -1,5 +1,7 @@
 <% provide(:title, "Check for Updated Parks") %>
 
+<h4>Check Databases for Changes</h4>
+
 <%= bootstrap_form_tag(url: '/check/since', layout: :horizontal) do |f| %>
   <%= f.date_field :date_since, label: 'Changes Since: ', value: @since %>
   <%= f.form_group :database do %>
@@ -16,5 +18,20 @@
   <%= f.check_box :ignore_wait, checked: @wait do %>
     Select this checkbox to ignore warnings, such as excessively long processing times.
   <% end %>
-  <%= f.primary 'Check' %>
+  <%= f.primary 'Check Databases' %>
 <% end %>
+
+<hr />
+
+<h4>Check Pending Parks</h4>
+
+<div class="progress" total-parks=<%= PendingPark.all.count %>>
+  <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+       role="progressbar"
+       style="width: 0%"></div>
+</div>
+<center>
+  <div>0/<%= PendingPark.all.count.to_s %></div>
+</center>
+
+<input type="button" value="Check Pending Parks" class="btn btn-primary" pending="true">
