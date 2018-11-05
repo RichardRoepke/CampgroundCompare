@@ -1,7 +1,5 @@
 def build_json_response(json_object)
-  json_object.ServiceRequestID "UnitTypeInfoResponse"
+  json_object.ParkStatus(@park_status)
 end
 
-if true
-  build_json_response(json)
-end
+build_json_response(json)

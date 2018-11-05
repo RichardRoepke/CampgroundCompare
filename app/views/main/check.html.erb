@@ -26,14 +26,30 @@
 <h4>Check Pending Parks</h4>
 
 <div class="progress">
-  <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+  <div class="progress-bar progress-bar-striped bg-success"
        role="progressbar"
        style="width: 0%",
-       id="completed-progress"></div>
+       id="new-progress"></div>
+  <div class="progress-bar progress-bar-striped bg-warning"
+       role="progressbar"
+       style="width: 0%",
+       id="old-progress"></div>
+  <div class="progress-bar progress-bar-striped bg-danger"
+       role="progressbar"
+       style="width: 0%",
+       id="failed-progress"></div>
 </div>
 <center>
-  <div>0/<%= PendingPark.all.count.to_s %></div>
+  <div id="progress-number">0/<%= PendingPark.all.count.to_s %></div>
 </center>
+
+<b>
+  <div id="added-parks">0 new parks were added.</div>
+  <div id="old-parks">0 parks were found to have no differences between the databases or were already present.</div>
+  <div id="failed-request">0 requests failed.</div>
+</b>
+
+<br />
 
 <input type="button" value="Check Pending Parks" id="check-pending" class="btn btn-primary" data-pending="true">
 

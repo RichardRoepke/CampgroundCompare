@@ -83,6 +83,12 @@ class MainController < ApplicationController
     puts params.inspect
     puts '=========================================================================='
 
+    if rand(0..1) == 0
+      @park_status = 'ADDED'
+    else
+      @park_status = 'OLD'
+    end
+
     render :pending_park, :content_type => 'text/json'
   end
 

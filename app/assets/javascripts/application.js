@@ -23,16 +23,34 @@
 window.onload = function() {
   $("#check-pending").click(function(){
     var totalParks = parseInt($("#pending-parks").val());
-    var completedRequests = 0;
+    var newParks = 0;
+    var oldParks = 0;
+    var failedRequests = 0;
     for (i = 1; i <= totalParks; i++) {
       $.post('/pending', { id: i }, function(data, status){
-        completedRequests++;
-        updateStatusBars(completedRequests, totalParks);
+        if (status == 'success') {
+          if (data.ParkStatus == 'ADDED'){
+            newParks++;
+          } else {
+            oldParks++;
+          }
+        } else {
+          failedRequests++;
+        }
+        updateStatusBars(newParks, oldParks, failedRequests, totalParks);
       });
     }
   });
 };
 
-function updateStatusBars(completed, maximum) {
-  document.getElementById("completed-progress").style = "width: " + parseFloat(completed/maximum*100) + "%";
+function updateStatusBars(newParks, oldParks, failed, maximum) {
+  document.getElementById("new-progress").style = "width: " + parseFloat(newParks/maximum*100) + "%";
+  document.getElementById("old-progress").style = "width: " + parseFloat(oldParks/maximum*100) + "%";
+  document.getElementById("failed-progress").style = "width: " + parseFloat(failed/maximum*100) + "%";
+
+  document.getElementById("progress-number").innerHTML = parseInt(newParks + oldParks + failed) + "/" + parseInt(maximum);
+
+  document.getElementById("added-parks").innerHTML = parseInt(newParks) + " new parks were added.";
+  document.getElementById("old-parks").innerHTML = parseInt(oldParks) + " parks were found to have no differences between the databases or were already present.";
+  document.getElementById("failed-request").innerHTML = parseInt(failed) + " requests failed.";
 }
