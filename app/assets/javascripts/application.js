@@ -21,4 +21,18 @@
 //= require reports_kit/application
 
 window.onload = function() {
+  $("#check-pending").click(function(){
+    var totalParks = parseInt($("#pending-parks").val());
+    var completedRequests = 0;
+    for (i = 1; i <= totalParks; i++) {
+      $.post('/pending', { id: i }, function(data, status){
+        completedRequests++;
+        updateStatusBars(completedRequests, totalParks);
+      });
+    }
+  });
 };
+
+function updateStatusBars(completed, maximum) {
+  document.getElementById("completed-progress").style = "width: " + parseFloat(completed/maximum*100) + "%";
+}

@@ -28,10 +28,15 @@
 <div class="progress">
   <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
        role="progressbar"
-       style="width: 0%"></div>
+       style="width: 0%",
+       id="completed-progress"></div>
 </div>
 <center>
   <div>0/<%= PendingPark.all.count.to_s %></div>
 </center>
 
-<input type="button" value="Check Pending Parks" class="btn btn-primary" pending="true" data-parks=<%= PendingPark.all.count %>>
+<input type="button" value="Check Pending Parks" id="check-pending" class="btn btn-primary" data-pending="true">
+
+<div class="hidden">
+  <input id="pending-parks" value=<%= PendingPark.all.count %>>
+</div>
