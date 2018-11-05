@@ -65,10 +65,10 @@ class MainController < ApplicationController
     end
 
     redirect_to check_path(date_since: params[:date_since],
-                               wait: params[:ignore_wait],
-                               redirect: params[:redirect],
-                               invalid: params[:ignore_invalid],
-                               database: params[:database])
+                           wait: params[:ignore_wait],
+                           redirect: params[:redirect],
+                           invalid: params[:ignore_invalid],
+                           database: params[:database])
   rescue => exception
     redirect_to check_path(date_since: params[:date_since],
                            wait: params[:ignore_wait],
@@ -78,24 +78,40 @@ class MainController < ApplicationController
                            alert: 'A problem occurred. Please adjust your parameters try again.'
   end
 
-  def pending_park
-    ActiveRecord::Base.transaction do
-      selected_park = PendingPark.lock.first
-
-      if selected_park.present?
-        if selected_park.rvparky_id.present?
-          @park_status = add_rvparky_id_park(selected_park.rvparky_id)
-        else
-          @park_status = add_new_park(selected_park.uuid, selected_park.slug)
-        end
-
-        selected_park.destroy!
-      else
-        @park_status = "NOT FOUND"
+  def add_parks
+    PendingPark.all.each do |park|
+      if park.awaiting_check?
+        #
       end
     end
 
-    render :pending_park, :content_type => 'text/json'
+    PendingPark.all.each do |park|
+      unless park.awaiting_check?
+        park.destroy!
+      end
+    end
+
+    redirect_to check_path(date_since: params[:date_since],
+                           wait: params[:ignore_wait],
+                           redirect: params[:redirect],
+                           invalid: params[:ignore_invalid],
+                           database: params[:database])
+  rescue => exception
+    redirect_to check_path(date_since: params[:date_since],
+                           wait: params[:ignore_wait],
+                           redirect: params[:redirect],
+                           invalid: params[:ignore_invalid],
+                           database: params[:database]),
+                           alert: 'A problem occurred. Please adjust your parameters try again.'
+  end
+
+  def poll_pending_parks
+    @result[:awaiting_check] = PendingPark.where(status: :awaiting_check).count
+    @result[:added] = PendingPark.where(status: :added).count
+    @result[:unneeded] = PendingPark.where(status: :unneeded).count
+    @result[:failed] = PendingPark.where(status: :failed).count
+
+    render :poll_pending_parks, :content_type => 'text/json'
   end
 
   def home
@@ -120,49 +136,6 @@ class MainController < ApplicationController
     end
 
     return added
-  end
-
-  def add_new_park(uuid, slug, catalogue_hash=nil, rvparky_hash=nil)
-    catalogue_response = catalogue_hash
-    catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank?
-
-    rvparky_response = rvparky_hash
-    rvparky_response = get_rvparky_location(slug) if rvparky_response.blank?
-
-    uuid_input = uuid
-    uuid_input = "NULL" if uuid_input.blank?
-
-    slug_input = slug
-    slug_input = "NULL" if slug_input.blank?
-
-    result = "NOT FOUND"
-
-    unless MarkedPark.exists?(:uuid => uuid)
-      new_entry = MarkedPark.create({ uuid: uuid_input,
-                                      name: catalogue_response[:name],
-                                      slug: slug_input,
-                                      status: nil,
-                                      editable: false })
-      new_entry.save
-      new_entry.update_status(catalogue_response, rvparky_response)
-      new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
-      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
-      new_entry.destroy if new_entry.status == 'DELETE ME'
-      if new_entry.present?
-        result = "ADDED"
-      else
-        result = "NOT ADDED"
-      end
-    end
-
-    return result
-  end
-
-  def add_rvparky_id_park(rvparky_id)
-    rvparky_response = get_rvparky_location(rvparky_id.to_s)
-    catalogue_response = get_catalogue_location(rvparky_response[:slug])
-
-    return add_new_park(catalogue_response[:uuid], rvparky_response[:slug], catalogue_response, rvparky_response)
   end
 
   def generic_add_park(input_hash, type, redirect, invalid)

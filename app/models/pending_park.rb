@@ -6,6 +6,8 @@ class PendingPark < ApplicationRecord
   validate :uuid_slug_or_id_present
   validate :ensure_uniqueness
 
+  enum status: [:awaiting_check, :added, :unneeded, :failed]
+
   def uuid_slug_or_id_present
     if uuid.blank? && slug.blank? && rvparky_id.blank?
       errors.add(:invalid, 'UUID or Id must be present.')

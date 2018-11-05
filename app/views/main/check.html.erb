@@ -9,15 +9,6 @@
     <%= f.radio_button :database, 'RVPARKY', label: "RVParky", checked: @check_array[1] %>
     <%= f.radio_button :database, 'BOTH', label: "Both", checked: @check_array[2] %>
   <% end %>
-  <%= f.check_box :redirect, checked: @redirect do %>
-    Automatically follow 301 redirects when encountered
-  <% end %>
-  <%= f.check_box :ignore_invalid, checked: @invalid do %>
-    Only add entries with a valid UUID and Slug.
-  <% end %>
-  <%= f.check_box :ignore_wait, checked: @wait do %>
-    Select this checkbox to ignore warnings, such as excessively long processing times.
-  <% end %>
   <%= f.primary 'Check Databases' %>
 <% end %>
 
@@ -49,9 +40,18 @@
   <div id="failed-request">0 requests failed.</div>
 </b>
 
-<br />
-
-<input type="button" value="Check Pending Parks" id="check-pending" class="btn btn-primary" data-pending="true">
+<%= bootstrap_form_tag(url: '/check/add_parks', layout: :horizontal) do |f| %>
+  <%= f.check_box :redirect, checked: @redirect do %>
+    Automatically follow 301 redirects when encountered
+  <% end %>
+  <%= f.check_box :ignore_invalid, checked: @invalid do %>
+    Only add entries with a valid UUID and Slug.
+  <% end %>
+  <%= f.check_box :ignore_wait, checked: @wait do %>
+    Select this checkbox to ignore warnings, such as excessively long processing times.
+  <% end %>
+  <%= f.primary 'Add Pending Parks' %>
+<% end %>
 
 <div class="hidden">
   <input id="pending-parks" value=<%= PendingPark.all.count %>>

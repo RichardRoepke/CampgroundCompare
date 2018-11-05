@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get '/check', to: 'main#check'
   get '/report', to: 'main#report'
   post '/check/since', to: 'main#check_since'
+  post '/check/add_parks', to: 'main#add_parks'
   post '/pending', to: 'main#pending_park'
 
   get '/user/search', to: 'user#search'
