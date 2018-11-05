@@ -159,7 +159,7 @@ class MainController < ApplicationController
   end
 
   def add_rvparky_id_park(rvparky_id)
-    rvparky_response = get_rvparky_location(rvparky_id)
+    rvparky_response = get_rvparky_location(rvparky_id.to_s)
     catalogue_response = get_catalogue_location(rvparky_response[:slug])
 
     return add_new_park(catalogue_response[:uuid], rvparky_response[:slug], catalogue_response, rvparky_response)
