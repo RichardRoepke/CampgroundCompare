@@ -1,9 +1,10 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://coffeescript.org/
+$("input[data-pending]").on('click', function () {
+  console.log("FOOBAR");
+});
 
+/*
 $ ->
-  $("input[pending]").click ->
+  $("input[data-pending]").click ->
     $.post '/pending',
       { field1: "hello", field2 : "hello2"},
         success  : (data, status, xhr) ->
@@ -12,3 +13,8 @@ $ ->
             console.log("ERROR: " + err)
         complete : (xhr, status) ->
             console.log("COMPLETE")
+
+gah =(test) ->
+  console.log("FOOBAR")
+  test
+  */

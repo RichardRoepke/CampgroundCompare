@@ -82,6 +82,8 @@ class MainController < ApplicationController
     puts '=========================================================================='
     puts params.inspect
     puts '=========================================================================='
+
+    render :pending_park, :content_type => 'text/json'
   end
 
   def home
