@@ -28,15 +28,17 @@ window.onload = function() {
     var failedRequests = 0;
     for (i = 1; i <= totalParks; i++) {
       $.post('/pending', { id: i }, function(data, status){
-        if (status == 'success') {
-          if (data.ParkStatus == 'ADDED'){
-            newParks++;
-          } else {
-            oldParks++;
-          }
-        } else {
+        console.log(data);
+        if (data.ParkStatus == 'ADDED'){
+          newParks++;
+        } else if (data.ParkStatus == 'NOT FOUND') {
           failedRequests++;
+        } else {
+          oldParks++;
         }
+        updateStatusBars(newParks, oldParks, failedRequests, totalParks);
+      }).fail(function(response){
+        failedRequests++;
         updateStatusBars(newParks, oldParks, failedRequests, totalParks);
       });
     }

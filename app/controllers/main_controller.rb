@@ -79,14 +79,20 @@ class MainController < ApplicationController
   end
 
   def pending_park
-    puts '=========================================================================='
-    puts params.inspect
-    puts '=========================================================================='
+    ActiveRecord::Base.transaction do
+      selected_park = PendingPark.lock.first
 
-    if rand(0..1) == 0
-      @park_status = 'ADDED'
-    else
-      @park_status = 'OLD'
+      if selected_park.present?
+        if selected_park.rvparky_id.present?
+          @park_status = add_rvparky_id_park(selected_park.rvparky_id)
+        else
+          @park_status = add_new_park(selected_park.uuid, selected_park.slug)
+        end
+
+        selected_park.destroy!
+      else
+        @park_status = "NOT FOUND"
+      end
     end
 
     render :pending_park, :content_type => 'text/json'
@@ -114,6 +120,49 @@ class MainController < ApplicationController
     end
 
     return added
+  end
+
+  def add_new_park(uuid, slug, catalogue_hash=nil, rvparky_hash=nil)
+    catalogue_response = catalogue_hash
+    catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank?
+
+    rvparky_response = rvparky_hash
+    rvparky_response = get_rvparky_location(slug) if rvparky_response.blank?
+
+    uuid_input = uuid
+    uuid_input = "NULL" if uuid_input.blank?
+
+    slug_input = slug
+    slug_input = "NULL" if slug_input.blank?
+
+    result = "NOT FOUND"
+
+    unless MarkedPark.exists?(:uuid => uuid)
+      new_entry = MarkedPark.create({ uuid: uuid_input,
+                                      name: catalogue_response[:name],
+                                      slug: slug_input,
+                                      status: nil,
+                                      editable: false })
+      new_entry.save
+      new_entry.update_status(catalogue_response, rvparky_response)
+      new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
+      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
+      new_entry.destroy if new_entry.status == 'DELETE ME'
+      if new_entry.present?
+        result = "ADDED"
+      else
+        result = "NOT ADDED"
+      end
+    end
+
+    return result
+  end
+
+  def add_rvparky_id_park(rvparky_id)
+    rvparky_response = get_rvparky_location(rvparky_id)
+    catalogue_response = get_catalogue_location(rvparky_response[:slug])
+
+    return add_new_park(catalogue_response[:uuid], rvparky_response[:slug], catalogue_response, rvparky_response)
   end
 
   def generic_add_park(input_hash, type, redirect, invalid)
