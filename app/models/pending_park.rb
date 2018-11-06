@@ -4,7 +4,7 @@ class PendingPark < ApplicationRecord
   validates :rvparky_id, :uniqueness => { :allow_blank => true }
 
   validate :uuid_slug_or_id_present
-  validate :ensure_uniqueness
+  validate :check_marked_parks
 
   enum status: [:awaiting_check, :added, :unneeded, :failed]
 
@@ -14,13 +14,13 @@ class PendingPark < ApplicationRecord
     end
   end
 
-  def ensure_uniqueness
+  def check_marked_parks
     # Can't check ids without web services calls, unfortunately.
     if slug.present? && MarkedPark.find_by(slug: slug).present?
       errors.add(:invalid, 'Park is already marked in the database.')
     end
 
-    if slug.present? && MarkedPark.find_by(slug: slug).present?
+    if uuid.present? && MarkedPark.find_by(uuid: uuid).present?
       errors.add(:invalid, 'Park is already marked in the database.')
     end
   end

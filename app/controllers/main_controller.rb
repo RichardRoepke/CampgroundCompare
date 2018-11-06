@@ -65,23 +65,36 @@ class MainController < ApplicationController
     end
 
     redirect_to check_path(date_since: params[:date_since],
-                           wait: params[:ignore_wait],
-                           redirect: params[:redirect],
-                           invalid: params[:ignore_invalid],
                            database: params[:database])
   rescue => exception
     redirect_to check_path(date_since: params[:date_since],
-                           wait: params[:ignore_wait],
-                           redirect: params[:redirect],
-                           invalid: params[:ignore_invalid],
                            database: params[:database]),
                            alert: 'A problem occurred. Please adjust your parameters try again.'
   end
 
   def add_parks
+    added = 0
+    old = 0
+    failed = 0
+    invalid = (params[:ignore_invalid] == '1')
+    redirect = (params[:redirect] == '1')
+
     PendingPark.all.each do |park|
       if park.awaiting_check?
-        #
+        if park.rvparky_id.present?
+          result = add_rvparky_id_park(park.rvparky_id, invalid, redirect)
+        else
+          result = add_new_park(park.uuid, park.slug, invalid, redirect)
+        end
+
+        case result
+        when 'ADDED'
+          park.status = :added
+        when 'NOT ADDED'
+          park.status = :unneeded
+        else
+          park.status = :failed
+        end
       end
     end
 
@@ -91,29 +104,22 @@ class MainController < ApplicationController
       end
     end
 
-    redirect_to check_path(date_since: params[:date_since],
-                           wait: params[:ignore_wait],
-                           redirect: params[:redirect],
-                           invalid: params[:ignore_invalid],
-                           database: params[:database])
+    redirect_to marked_park_path
   rescue => exception
-    redirect_to check_path(date_since: params[:date_since],
-                           wait: params[:ignore_wait],
-                           redirect: params[:redirect],
-                           invalid: params[:ignore_invalid],
-                           database: params[:database]),
+    redirect_to check_path(redirect: params[:redirect],
+                           invalid: params[:ignore_invalid]),
                            alert: 'A problem occurred. Please adjust your parameters try again.'
   end
 
   def pending_park
+    @result = {}
+
     @result[:awaiting_check] = PendingPark.where(status: :awaiting_check).count
     @result[:added] = PendingPark.where(status: :added).count
     @result[:unneeded] = PendingPark.where(status: :unneeded).count
     @result[:failed] = PendingPark.where(status: :failed).count
 
-    puts @result.sum
-
-    if @result.sum != params[:totalParks]
+    if @result.sum{ |k,h| h }.to_i != params[:totalParks].to_i
       @result = "DONE"
     end
 
@@ -142,6 +148,49 @@ class MainController < ApplicationController
     end
 
     return added
+  end
+
+  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil)
+    catalogue_response = catalogue_hash
+    catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank?
+
+    rvparky_response = rvparky_hash
+    rvparky_response = get_rvparky_location(slug) if rvparky_response.blank?
+
+    uuid_input = uuid
+    uuid_input = "NULL" if uuid_input.blank?
+
+    slug_input = slug
+    slug_input = "NULL" if slug_input.blank?
+
+    result = "NOT FOUND"
+
+    unless MarkedPark.exists?(:uuid => uuid)
+      new_entry = MarkedPark.create({ uuid: uuid_input,
+                                      name: catalogue_response[:name],
+                                      slug: slug_input,
+                                      status: nil,
+                                      editable: false })
+      new_entry.save
+      new_entry.update_status(catalogue_response, rvparky_response)
+      new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
+      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
+      new_entry.destroy if new_entry.status == 'DELETE ME'
+      if new_entry.present?
+        result = "ADDED"
+      else
+        result = "NOT ADDED"
+      end
+    end
+
+    return result
+  end
+
+  def add_rvparky_id_park(rvparky_id, invalid, redirect)
+    rvparky_response = get_rvparky_location(rvparky_id.to_s)
+    catalogue_response = get_catalogue_location(rvparky_response[:slug])
+
+    return add_new_park(catalogue_response[:uuid], rvparky_response[:slug], invalid, redirect, catalogue_response, rvparky_response)
   end
 
   def generic_add_park(input_hash, type, redirect, invalid)

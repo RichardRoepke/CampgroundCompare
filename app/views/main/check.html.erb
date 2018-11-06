@@ -47,9 +47,6 @@
   <%= f.check_box :ignore_invalid, checked: @invalid do %>
     Only add entries with a valid UUID and Slug.
   <% end %>
-  <%= f.check_box :ignore_wait, checked: @wait do %>
-    Select this checkbox to ignore warnings, such as excessively long processing times.
-  <% end %>
   <%= f.primary 'Add Pending Parks' %>
 <% end %>
 

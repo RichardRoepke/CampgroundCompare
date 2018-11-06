@@ -22,26 +22,34 @@
 
 window.onload = function() {
   if ($("#pending-parks").val() > 0) {
-    setTimeout(updateStatusBars($("#pending-parks").val()), 10000);
+    setInterval(updateStatusBars, 5000);
   }
 };
 
-function updateStatusBars(totalParks) {
-  var newParks = 10;
-  var oldParks = 10;
-  var failed = 10;
+function updateStatusBars() {
+  var totalParks = $("#pending-parks").val();
+  var newParks = 0;
+  var oldParks = 0;
+  var failed = 0;
 
   $.post('/pending', { totalParks: totalParks }, function(data, status){
     console.log(data);
-    document.getElementById("new-progress").style = "width: " + parseFloat(newParks/totalParks*100) + "%";
-    document.getElementById("old-progress").style = "width: " + parseFloat(oldParks/totalParks*100) + "%";
-    document.getElementById("failed-progress").style = "width: " + parseFloat(failed/totalParks*100) + "%";
 
-    document.getElementById("progress-number").innerHTML = parseInt(newParks + oldParks + failed) + "/" + parseInt(totalParks);
+    if (data.Result != "DONE") {
+      newParks = data.Added;
+      oldParks = data.Unneeded;
+      failed = data.Failed;
 
-    document.getElementById("added-parks").innerHTML = parseInt(newParks) + " new parks were added.";
-    document.getElementById("old-parks").innerHTML = parseInt(oldParks) + " parks were found to have no differences between the databases or were already present.";
-    document.getElementById("failed-request").innerHTML = parseInt(failed) + " requests failed.";
+      document.getElementById("new-progress").style = "width: " + parseFloat(newParks/totalParks*100) + "%";
+      document.getElementById("old-progress").style = "width: " + parseFloat(oldParks/totalParks*100) + "%";
+      document.getElementById("failed-progress").style = "width: " + parseFloat(failed/totalParks*100) + "%";
+
+      document.getElementById("progress-number").innerHTML = parseInt(newParks + oldParks + failed) + "/" + parseInt(totalParks);
+
+      document.getElementById("added-parks").innerHTML = parseInt(newParks) + " new parks were added.";
+      document.getElementById("old-parks").innerHTML = parseInt(oldParks) + " parks were found to have no differences between the databases or were already present.";
+      document.getElementById("failed-request").innerHTML = parseInt(failed) + " requests failed.";
+    }
   }).fail(function(response){
     console.log(response);
   });
