@@ -4,7 +4,7 @@ class PendingPark < ApplicationRecord
   validates :rvparky_id, :uniqueness => { :allow_blank => true }
 
   validate :uuid_slug_or_id_present
-  validate :check_marked_parks
+  validate :check_marked_parks, :on => :create
 
   enum status: [:awaiting_check, :added, :unneeded, :failed]
 

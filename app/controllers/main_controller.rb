@@ -95,6 +95,8 @@ class MainController < ApplicationController
         else
           park.status = :failed
         end
+
+        park.save
       end
     end
 
@@ -104,7 +106,7 @@ class MainController < ApplicationController
       end
     end
 
-    redirect_to marked_park_path
+    redirect_to marked_park_index_path
   rescue => exception
     redirect_to check_path(redirect: params[:redirect],
                            invalid: params[:ignore_invalid]),
@@ -163,11 +165,19 @@ class MainController < ApplicationController
     slug_input = slug
     slug_input = "NULL" if slug_input.blank?
 
+    if catalogue_response.is_a?(Hash)
+      name_input = catalogue_response[:name]
+    elsif rvparky_response.is_a?(Hash)
+      name_input = rvparky_response[:name]
+    else
+      name_input = "UNKNOWN"
+    end
+
     result = "NOT FOUND"
 
     unless MarkedPark.exists?(:uuid => uuid)
       new_entry = MarkedPark.create({ uuid: uuid_input,
-                                      name: catalogue_response[:name],
+                                      name: name_input,
                                       slug: slug_input,
                                       status: nil,
                                       editable: false })
@@ -190,7 +200,14 @@ class MainController < ApplicationController
     rvparky_response = get_rvparky_location(rvparky_id.to_s)
     catalogue_response = get_catalogue_location(rvparky_response[:slug])
 
-    return add_new_park(catalogue_response[:uuid], rvparky_response[:slug], invalid, redirect, catalogue_response, rvparky_response)
+    uuid_input = catalogue_response[:uuid] if catalogue_response.is_a?(Hash)
+    slug_input = rvparky_response[:slug] if rvparky_response.is_a?(Hash)
+
+    if uuid_input.present? || slug_input.present?
+      return add_new_park(uuid_input, rvparky_response[:slug], invalid, redirect, catalogue_response, rvparky_response)
+    else
+      return 'FAILED'
+    end
   end
 
   def generic_add_park(input_hash, type, redirect, invalid)

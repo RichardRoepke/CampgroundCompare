@@ -22,7 +22,7 @@
 
 window.onload = function() {
   if ($("#pending-parks").val() > 0) {
-    setInterval(updateStatusBars, 5000);
+    setInterval(updateStatusBars, 2500);
   }
 };
 
