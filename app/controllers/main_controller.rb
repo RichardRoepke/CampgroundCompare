@@ -105,11 +105,17 @@ class MainController < ApplicationController
                            alert: 'A problem occurred. Please adjust your parameters try again.'
   end
 
-  def poll_pending_parks
+  def pending_park
     @result[:awaiting_check] = PendingPark.where(status: :awaiting_check).count
     @result[:added] = PendingPark.where(status: :added).count
     @result[:unneeded] = PendingPark.where(status: :unneeded).count
     @result[:failed] = PendingPark.where(status: :failed).count
+
+    puts @result.sum
+
+    if @result.sum != params[:totalParks]
+      @result = "DONE"
+    end
 
     render :poll_pending_parks, :content_type => 'text/json'
   end
