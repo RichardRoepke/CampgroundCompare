@@ -28,7 +28,7 @@ class MarkedPark < ApplicationRecord
   # database makes no sense either. So the *_input fields accept previously
   # retrieved data to reuse it instead of making yet another call to the services.
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    unless self.uuid.include?('NULL') || self.slug.include?('NULL')
+    unless self.uuid.present? || self.slug.present?
       if catalogue_input.blank?
         catalogue_input = get_catalogue_location(self.uuid)
       end
@@ -57,8 +57,8 @@ class MarkedPark < ApplicationRecord
         self.status = 'INVALID CONNECTIONS'
       end
     else
-      self.status = 'SLUG IS MISSING' if self.slug.include?('NULL')
-      self.status = 'UUID IS MISSING' if self.uuid.include?('NULL')
+      self.status = 'SLUG IS MISSING' if self.slug.blank?
+      self.status = 'UUID IS MISSING' if self.uuid.blank?
     end
 
     # To ensure that updated_at is set to the current time if everything else remains the same.

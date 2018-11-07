@@ -1,5 +1,5 @@
 def get_catalogue_location(uuid)
-  return get_web_data(uuid, 'CATALOGUE') unless uuid.include?('NULL')
+  return get_web_data(uuid, 'CATALOGUE') unless uuid.blank?
   return 404 # We already know what the result of an invalid UUID would be, so no point checking.
 end
 
