@@ -1,0 +1,7 @@
+measure: difference
+dimensions:
+- catalogue_field
+chart:
+  options:
+    legend:
+      display: false
