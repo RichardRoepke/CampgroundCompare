@@ -25,13 +25,9 @@ class MainController < ApplicationController
                 general: nil }
 
     if Date.parse(params[:date_since]) <= Date.current
-      wait = (params[:ignore_wait] == '1')
-      redirect = (params[:redirect] == '1')
-      invalid = (params[:ignore_invalid] == '1')
-
       added = 0
 
-      changes = get_changed_since(params[:date_since], params[:database], wait)
+      changes = get_changed_since(params[:date_since], params[:database])
 
       if changes[:catalogue].present?
         if changes[:catalogue].is_a?(String)
@@ -159,12 +155,6 @@ class MainController < ApplicationController
     rvparky_response = rvparky_hash
     rvparky_response = get_rvparky_location(slug) if rvparky_response.blank?
 
-    uuid_input = uuid
-    uuid_input = "NULL" if uuid_input.blank?
-
-    slug_input = slug
-    slug_input = "NULL" if slug_input.blank?
-
     if catalogue_response.is_a?(Hash)
       name_input = catalogue_response[:name]
     elsif rvparky_response.is_a?(Hash)
@@ -175,13 +165,12 @@ class MainController < ApplicationController
 
     result = "NOT FOUND"
 
-    unless MarkedPark.exists?(:uuid => uuid)
-      new_entry = MarkedPark.create({ uuid: uuid_input,
-                                      name: name_input,
-                                      slug: slug_input,
-                                      status: nil,
-                                      editable: false })
-      new_entry.save
+    new_entry = MarkedPark.create({ uuid: uuid,
+                                    name: name_input,
+                                    slug: slug,
+                                    status: nil,
+                                    editable: false })
+    if new_entry.save
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
       new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
@@ -191,6 +180,8 @@ class MainController < ApplicationController
       else
         result = "NOT ADDED"
       end
+    else
+      result = "NOT ADDED"
     end
 
     return result

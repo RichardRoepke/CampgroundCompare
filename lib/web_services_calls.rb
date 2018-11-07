@@ -7,14 +7,14 @@ def get_rvparky_location(slug, follow=false)
   return get_web_data(slug, 'RVPARKY', follow)
 end
 
-def get_changed_since(date, method, ignore)
+def get_changed_since(date, method)
   if method == 'CATALOGUE'
-    return { catalogue: get_catalogue_since(date, ignore) }
+    return { catalogue: get_catalogue_since(date) }
   elsif method == 'RVPARKY'
-    return { rvparky: get_rvparky_since(date, ignore) }
+    return { rvparky: get_rvparky_since(date) }
   else
-    return { catalogue: get_catalogue_since(date, ignore),
-             rvparky: get_rvparky_since(date, ignore) }
+    return { catalogue: get_catalogue_since(date),
+             rvparky: get_rvparky_since(date) }
   end
 end
 
@@ -32,7 +32,7 @@ def rvparky_url(type=nil)
   return 'https://www.rvparky.com/_ws/'
 end
 
-def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
+def get_catalogue_since(date, page = 1, per_page = 100)
   result = []
 
   request = generic_get_catalogue('changedSince=' + date + '&page=' + page.to_s + '&per_page=' + per_page.to_s)
@@ -42,23 +42,18 @@ def get_catalogue_since(date, ignore_wait = false, page = 1, per_page = 100)
     response = hash_string_to_sym(temp_response)
 
     if response[:records] > 0
-      # If the response is short enough or the user doesn't mind waiting.
-      if response[:totalPages] < 5 || ignore_wait.present?
-        response[:data].each do |value|
-          info = { uuid: value[:uuid],
-                   slug: value[:slug],
-                   rvparky_id: nil }
-          result.push(info)
-        end
+      response[:data].each do |value|
+        info = { uuid: value[:uuid],
+                 slug: value[:slug],
+                 rvparky_id: nil }
+        result.push(info)
+      end
 
-        if response[:totalPages] > page
-          next_page_array = get_catalogue_since(date, ignore_wait, (page + 1))
-          # If next_page_array is a string then an error must have occured so
-          # don't append it to the current array.
-          result = result + next_page_array unless next_page_array.is_a?(String)
-        end
-      else
-        result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
+      if response[:totalPages] > page
+        next_page_array = get_catalogue_since(date, (page + 1))
+        # If next_page_array is a string then an error must have occured so
+        # don't append it to the current array.
+        result = result + next_page_array unless next_page_array.is_a?(String)
       end
     end
   else
@@ -78,7 +73,7 @@ end
 # followed in turn. Only once the end of the chain is reached can we then
 # evaluate how many changed parks actually exist.
 ################################################################################
-def get_rvparky_since(date, ignore_wait)
+def get_rvparky_since(date)
   result = []
 
   request = generic_get_rvparky_1('LocationIndexUpdates?last_updated=' + date.to_s + 'T00:00:00.000000')
@@ -86,23 +81,15 @@ def get_rvparky_since(date, ignore_wait)
   if request.response_code == 200
     response = JSON.parse(request.response_body)
     if response["updates"].present?
-      further_ids = get_rvparky_since_recursion(response["date"], ignore_wait)
+      further_ids = get_rvparky_since_recursion(response["date"])
 
-      unless further_ids.is_a?(String)
-        id_array = process_updates(response["updates"]) + further_ids
+      id_array = process_updates(response["updates"]) + further_ids
 
-        if id_array.length < 1000 || ignore_wait.present?
-          id_array.each do |id|
-            info = { uuid: nil,
-                     slug: nil,
-                     rvparky_id: id.to_i }
-            result.push(info)
-          end
-        else
-          result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
-        end
-      else
-        result = 'Operation aborted due to the excessive time required. If you wish to proceed regardless, please select the checkbox when resubmitting the form.'
+      id_array.each do |id|
+        info = { uuid: nil,
+                 slug: nil,
+                 rvparky_id: id.to_i }
+        result.push(info)
       end
     else
       result = 'No valid parks found.'
@@ -114,29 +101,18 @@ def get_rvparky_since(date, ignore_wait)
   return result
 end
 
-def get_rvparky_since_recursion(date, ignore_wait, level=0)
+def get_rvparky_since_recursion(date, level=0)
   result = []
 
-  if level < 25 || ignore_wait.present?
-    request = generic_get_rvparky_1('LocationIndexUpdates?last_updated=' + date.to_s)
+  request = generic_get_rvparky_1('LocationIndexUpdates?last_updated=' + date.to_s)
 
-    if request.response_code == 200
-      response = JSON.parse(request.response_body)
+  if request.response_code == 200
+    response = JSON.parse(request.response_body)
 
-      if response["updates"].present?
-        next_level = get_rvparky_since_recursion(response["date"], ignore_wait, level + 1)
-
-        if next_level.is_a?(String)
-          # A string means that the recursion went too deep and processing
-          # everything would take an excessive amount of time.
-          result = next_level
-        else
-          result = process_updates(response["updates"]) + next_level
-        end
-      end
+    if response["updates"].present?
+      next_level = get_rvparky_since_recursion(response["date"], level + 1)
+      result = process_updates(response["updates"]) + next_level
     end
-  else
-    result = 'TOO DEEP'
   end
 
   return result
