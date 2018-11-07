@@ -28,7 +28,7 @@ class MarkedPark < ApplicationRecord
   # database makes no sense either. So the *_input fields accept previously
   # retrieved data to reuse it instead of making yet another call to the services.
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    unless self.uuid.present? || self.slug.present?
+    if self.uuid.present? && self.slug.present?
       if catalogue_input.blank?
         catalogue_input = get_catalogue_location(self.uuid)
       end
