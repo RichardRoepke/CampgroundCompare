@@ -58,8 +58,8 @@ class MarkedParkController < ApplicationController
 
   def edit
     @park = MarkedPark.find(params[:id])
-    @slug = @park.slug if @park.slug.present? && !@park.slug.include?('NULL')
-    @uuid = @park.uuid unless @park.uuid.include?('NULL') #uuid must be present. Slug does not.
+    @slug = @park.slug
+    @uuid = @park.uuid
   end
 
   def update

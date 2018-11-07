@@ -9,7 +9,7 @@ default: &default
   port: 3306
   username: bysuser
   password: bysuser
-  enable_call: true
+  #enable_call: true
   #flags: CLIENT_MULTI_RESULTS
 
 development:

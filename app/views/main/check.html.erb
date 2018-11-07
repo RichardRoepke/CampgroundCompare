@@ -1,5 +1,7 @@
 <% provide(:title, "Check for Updated Parks") %>
 
+<h4>Check Databases for Changes</h4>
+
 <%= bootstrap_form_tag(url: '/check/since', layout: :horizontal) do |f| %>
   <%= f.date_field :date_since, label: 'Changes Since: ', value: @since %>
   <%= f.form_group :database do %>
@@ -7,14 +9,47 @@
     <%= f.radio_button :database, 'RVPARKY', label: "RVParky", checked: @check_array[1] %>
     <%= f.radio_button :database, 'BOTH', label: "Both", checked: @check_array[2] %>
   <% end %>
+  <%= f.primary 'Check Databases' %>
+<% end %>
+
+<hr />
+
+<h4>Check Pending Parks</h4>
+
+<div class="progress">
+  <div class="progress-bar progress-bar-striped bg-success"
+       role="progressbar"
+       style="width: 0%",
+       id="new-progress"></div>
+  <div class="progress-bar progress-bar-striped bg-warning"
+       role="progressbar"
+       style="width: 0%",
+       id="old-progress"></div>
+  <div class="progress-bar progress-bar-striped bg-danger"
+       role="progressbar"
+       style="width: 0%",
+       id="failed-progress"></div>
+</div>
+<center>
+  <div id="progress-number">0/<%= PendingPark.all.count.to_s %></div>
+</center>
+
+<b>
+  <div id="added-parks">0 new parks were added.</div>
+  <div id="old-parks">0 parks were found to have no differences between the databases or were already present.</div>
+  <div id="failed-request">0 requests failed.</div>
+</b>
+
+<%= bootstrap_form_tag(url: '/check/add_parks', layout: :horizontal) do |f| %>
   <%= f.check_box :redirect, checked: @redirect do %>
     Automatically follow 301 redirects when encountered
   <% end %>
   <%= f.check_box :ignore_invalid, checked: @invalid do %>
     Only add entries with a valid UUID and Slug.
   <% end %>
-  <%= f.check_box :ignore_wait, checked: @wait do %>
-    Select this checkbox to ignore warnings, such as excessively long processing times.
-  <% end %>
-  <%= f.primary 'Check' %>
+  <%= f.primary 'Add Pending Parks' %>
 <% end %>
+
+<div class="hidden">
+  <input id="pending-parks" value=<%= PendingPark.all.count %>>
+</div>

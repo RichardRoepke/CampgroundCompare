@@ -34,8 +34,8 @@
     <% @parks.each do |park| %>
       <tr>
         <th scope="row"> <%= park.name %> </th>
-        <td> <%= park.uuid unless park.uuid.include?('NULL') %> </td>
-        <td> <%= park.slug unless park.slug.include?('NULL') %> </td>
+        <td> <%= park.uuid unless park.uuid.blank? %> </td>
+        <td> <%= park.slug unless park.slug.blank? %> </td>
         <td> <%= generate_badge(park.status, park.editable) %>  </td>
         <td>
           <div class="btn-group" role="group" aria-label="User Actions">

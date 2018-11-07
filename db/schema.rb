@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_04_152926) do
+ActiveRecord::Schema.define(version: 2018_11_05_212052) do
 
-  create_table "differences", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "differences", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.string "catalogue_field"
     t.text "catalogue_value"
     t.string "rvparky_field"
@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 2018_09_04_152926) do
     t.index ["marked_park_id"], name: "index_differences_on_marked_park_id"
   end
 
-  create_table "marked_parks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "marked_parks", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.string "uuid"
     t.string "name"
     t.string "status"
@@ -36,7 +36,16 @@ ActiveRecord::Schema.define(version: 2018_09_04_152926) do
     t.index ["uuid"], name: "index_marked_parks_on_uuid", unique: true
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "pending_parks", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "uuid"
+    t.string "slug"
+    t.bigint "rvparky_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
+  end
+
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"

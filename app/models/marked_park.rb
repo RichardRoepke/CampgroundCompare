@@ -2,21 +2,11 @@ require 'web_services_calls'
 
 class MarkedPark < ApplicationRecord
   include CommonFields
-  validates :uuid, uniqueness: true
 
-  before_create :ensure_unique_uuid
+  validates :uuid, :uniqueness => { :allow_blank => true }
+  validates :slug, :uniqueness => { :allow_blank => true }
 
   has_many :differences, dependent: :destroy
-
-  def ensure_unique_uuid
-    if self.uuid == 'NULL'
-      loop do
-        # Gotta have a unique uuid or else the park won't save properly.
-        self.uuid = 'NULL: ' + SecureRandom.uuid.to_s
-        break unless self.class.exists?(:uuid => self.uuid)
-      end
-    end
-  end
 
   after_find do |park|
     update_status if self.updated_at < Date.yesterday
@@ -38,7 +28,7 @@ class MarkedPark < ApplicationRecord
   # database makes no sense either. So the *_input fields accept previously
   # retrieved data to reuse it instead of making yet another call to the services.
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    unless self.uuid.include?('NULL') || self.slug.include?('NULL')
+    if self.uuid.present? && self.slug.present?
       if catalogue_input.blank?
         catalogue_input = get_catalogue_location(self.uuid)
       end
@@ -67,8 +57,8 @@ class MarkedPark < ApplicationRecord
         self.status = 'INVALID CONNECTIONS'
       end
     else
-      self.status = 'SLUG IS MISSING' if self.slug.include?('NULL')
-      self.status = 'UUID IS MISSING' if self.uuid.include?('NULL')
+      self.status = 'SLUG IS MISSING' if self.slug.blank?
+      self.status = 'UUID IS MISSING' if self.uuid.blank?
     end
 
     # To ensure that updated_at is set to the current time if everything else remains the same.
