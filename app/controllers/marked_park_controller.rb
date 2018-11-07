@@ -58,6 +58,7 @@ class MarkedParkController < ApplicationController
 
   def edit
     @park = MarkedPark.find(params[:id])
+    @name = @park.name
     @slug = @park.slug
     @uuid = @park.uuid
   end
@@ -76,12 +77,12 @@ class MarkedParkController < ApplicationController
       end
     else
       park = MarkedPark.find(params[:id])
+      park.name = params[:marked_park][:name] if params[:marked_park][:name].present?
       park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid].present?
       if params[:marked_park][:slug].present?
         park.slug = params[:marked_park][:slug]
-        # The uuids must come from the Catalogue and aren't stored on RVParky's end,
-        # so we don't worry about updating them. The slugs are stored on the Catalogue's end,
-        # so they need to be updated when changed.
+        # Updating the slug on the Catalogue, since they are used to match up parks
+        # with RVParky. RVParky doesn't store uuids so we don't worry about updating them.
         update_catalogue_location(park.uuid, 'location[slug]=' + params[:marked_park][:slug])
       end
       park.update_status

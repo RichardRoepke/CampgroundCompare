@@ -98,8 +98,23 @@ class MainController < ApplicationController
 
     PendingPark.all.each do |park|
       unless park.awaiting_check?
+        added += 1 if park.added?
+        old += 1 if park.unneeded?
+        failed += 1 if park.failed?
         park.destroy!
       end
+    end
+
+    if added > 0
+      flash[:ADDED_SUCCESS] = added.to_s + " new parks were marked."
+    end
+
+    if old > 0
+      flash[:OLD_NOTICE] = old.to_s + " parks had no differences or were already marked."
+    end
+
+    if failed > 0
+      flash[:FAILED_ALERT] = failed.to_s + " parks failed to be included."
     end
 
     redirect_to marked_park_index_path
@@ -150,10 +165,10 @@ class MainController < ApplicationController
 
   def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil)
     catalogue_response = catalogue_hash
-    catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank?
+    catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank? && uuid.present?
 
     rvparky_response = rvparky_hash
-    rvparky_response = get_rvparky_location(slug) if rvparky_response.blank?
+    rvparky_response = get_rvparky_location(slug) if rvparky_response.blank? && slug.present?
 
     if catalogue_response.is_a?(Hash)
       name_input = catalogue_response[:name]

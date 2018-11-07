@@ -9,6 +9,7 @@
 <br />
 
 <%= bootstrap_form_for(@park) do |f| %>
+  <%= f.text_field :name, value: @name %>
   <%= f.text_field :uuid, value: @uuid %>
   <%= f.text_field :slug, value: @slug %>
   <% if @park.status.include? '301' %>
