@@ -188,12 +188,12 @@ class MainController < ApplicationController
     if new_entry.save
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
-      new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
-      new_entry.destroy if new_entry.status == 'DELETE ME'
-      if new_entry.present?
-        result = "ADDED"
-      else
+
+      if (invalid && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
+        new_entry.destroy
         result = "NOT ADDED"
+      else
+        result = "ADDED"
       end
     else
       result = "NOT ADDED"
@@ -210,46 +210,9 @@ class MainController < ApplicationController
     slug_input = rvparky_response[:slug] if rvparky_response.is_a?(Hash)
 
     if uuid_input.present? || slug_input.present?
-      return add_new_park(uuid_input, rvparky_response[:slug], invalid, redirect, catalogue_response, rvparky_response)
+      return add_new_park(uuid_input, slug_input, invalid, redirect, catalogue_response, rvparky_response)
     else
       return 'FAILED'
     end
-  end
-
-  def generic_add_park(input_hash, type, redirect, invalid)
-    num_added = 0
-
-    input_hash.each do |entry|
-      if type == 'RVPARKY'
-        rvparky_response = entry
-        catalogue_check = get_catalogue_location(entry[:slug])
-
-        if catalogue_check.is_a?(Hash)
-          uuid_input = catalogue_check[:uuid]
-          catalogue_response = catalogue_check
-        else
-          uuid_input = 'NULL'
-        end
-      elsif type == 'CATALOGUE'
-        catalogue_response = entry
-        uuid_input = entry[:uuid]
-      end
-
-      unless MarkedPark.exists?(:uuid => uuid_input)
-        new_entry = MarkedPark.create({ uuid: uuid_input,
-                                        name: entry[:name],
-                                        slug: entry[:slug],
-                                        status: nil,
-                                        editable: false })
-        new_entry.save
-        new_entry.update_status(catalogue_response, rvparky_response)
-        new_entry.follow_301(catalogue_response, rvparky_response) if redirect.present? && new_entry.status.include?('301')
-        new_entry.destroy if (invalid && !(new_entry.editable?)) # Destroy all non-editable parks if we don't want invalid parks.
-        new_entry.destroy if new_entry.status == 'DELETE ME'
-        num_added += 1 if new_entry.present?
-      end
-    end
-
-    return num_added
   end
 end

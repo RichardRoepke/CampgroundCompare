@@ -79,11 +79,11 @@ class MarkedParkController < ApplicationController
       park = MarkedPark.find(params[:id])
       park.name = params[:marked_park][:name] if params[:marked_park][:name].present?
       park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid].present?
-      if params[:marked_park][:slug].present?
+      if params[:marked_park][:slug].present? && park.slug != params[:marked_park][:slug]
         park.slug = params[:marked_park][:slug]
         # Updating the slug on the Catalogue, since they are used to match up parks
         # with RVParky. RVParky doesn't store uuids so we don't worry about updating them.
-        update_catalogue_location(park.uuid, 'location[slug]=' + params[:marked_park][:slug])
+        update_catalogue_location(park.uuid, 'location[slug]=' + params[:marked_park][:slug]) if park.uuid.present?
       end
       park.update_status
       park.destroy if park.status == 'DELETE ME'
