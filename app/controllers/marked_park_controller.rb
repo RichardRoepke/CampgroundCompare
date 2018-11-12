@@ -337,10 +337,6 @@ class MarkedParkController < ApplicationController
     return result
   end
 
-  def calc_rvparky_url(rvparky_hash, park)
-    return 'foobar' # Once the API for updating RVParky is known, this will be filled in.
-  end
-
   private
   def provide_title
     @title = 'Parks'
@@ -369,8 +365,10 @@ class MarkedParkController < ApplicationController
       end
     end
 
-    if rvparky_url.present?
-      if false # request.response_code == 201
+    if processed_inputs[:rvparky].present?
+      request = update_rvparky_location(processed_inputs[:rvparky], park.rvparky_id)
+
+      if request == 201
         result[:rvparky][:status] = 'RV SUCCESS'
         result[:rvparky][:message] = 'RVParky: Changes successfully submitted.'
       else

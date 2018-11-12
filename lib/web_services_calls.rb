@@ -1,3 +1,5 @@
+require 'json'
+
 def get_catalogue_location(uuid)
   return get_web_data(uuid, 'CATALOGUE') unless uuid.blank?
   return 404 # We already know what the result of an invalid UUID would be, so no point checking.
@@ -20,6 +22,21 @@ end
 
 def update_catalogue_location(uuid, changes)
   return generic_put_catalogue(uuid + '?' + changes).response_code
+end
+
+def update_rvparky_location(input_hash, park_id)
+  body_hash = { location_id: park_id,
+                source: 'BookYourSite',
+                email: 'rvparkyupdates@bookyoursite.com',
+                notify: '',
+                updates: JSON.encode(input_hash) } # Updates needs to be a JSON string.
+
+  body_hash[:notes] = 'This is a test' if Rails.env.development?
+
+  return Typhoeus::Request.get(rvparky_url(2) + 'UpdateLocation',
+                               body: body_hash.to_json,
+                               cookiefile: "/lib/assets/rvparky_cookies.txt",
+                               :ssl_verifyhost => 0).response_code
 end
 
 private
