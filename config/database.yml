@@ -22,10 +22,11 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: campground_compare_test
+  database: campground_compare
   host: 10.228.5.81
 
 production:
   <<: *default
   database: campground_compare
-  host: ip-10-61-145-9.ec2.internal
+  host: 10.228.5.81
+  #host: ip-10-61-145-9.ec2.internal
