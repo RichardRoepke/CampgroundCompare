@@ -29,14 +29,14 @@ def update_rvparky_location(input_hash, park_id)
                 source: 'BookYourSite',
                 email: 'rvparkyupdates@bookyoursite.com',
                 notify: '',
-                updates: JSON.encode(input_hash) } # Updates needs to be a JSON string.
+                updates: ActiveSupport::JSON.encode(input_hash) } # Updates needs to be a JSON string.
 
-  body_hash[:notes] = 'This is a test' if Rails.env.development?
+  body_hash[:notes] = 'This is a test.' if Rails.env.development?
 
-  return Typhoeus::Request.get(rvparky_url(2) + 'UpdateLocation',
-                               body: body_hash.to_json,
-                               cookiefile: "/lib/assets/rvparky_cookies.txt",
-                               :ssl_verifyhost => 0).response_code
+  return Typhoeus::Request.post(rvparky_url(2) + 'UpdateLocation',
+                                body: body_hash.to_json,
+                                cookiefile: Rails.root.join('lib', 'assets', 'rvparky_cookies.txt'),
+                                :ssl_verifyhost => 0).response_code
 end
 
 private

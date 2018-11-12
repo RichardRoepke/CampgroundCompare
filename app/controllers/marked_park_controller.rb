@@ -351,7 +351,6 @@ class MarkedParkController < ApplicationController
     park = MarkedPark.find(id)
 
     catalogue_url = calc_catalogue_url(processed_inputs[:catalogue], park)
-    rvparky_url = calc_rvparky_url(processed_inputs[:rvparky], park)
 
     if catalogue_url.present?
       request = update_catalogue_location(park.uuid, catalogue_url)
