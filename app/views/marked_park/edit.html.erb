@@ -9,10 +9,10 @@
 <br />
 
 <%= bootstrap_form_for(@park) do |f| %>
-  <%= f.text_field :name, value: @name %>
-  <%= f.text_field :uuid, value: @uuid %>
-  <%= f.text_field :slug, value: @slug %>
-  <%= f.text_field :rvparky_id, value: @id %>
+  <%= f.text_field :name, value: @name, label: 'Park Name' %>
+  <%= f.text_field :uuid, value: @uuid, label: 'Catalogue UUID' %>
+  <%= f.text_field :slug, value: @slug, label: 'Catalogue/RVParky Slug' %>
+  <%= f.text_field :rvparky_id, value: @id, label: 'RVParky ID' %>
   <% if @park.status.include? '301' %>
     <%= f.submit "Follow 301 Code", class: "btn btn-success" %>
   <% end %>

@@ -37,7 +37,12 @@ class MarkedPark < ApplicationRecord
       catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
 
       if rvparky_input.blank?
-        rvparky_input = get_rvparky_location(self.rvparky_id)
+        if rvparky_id.present?
+          rvparky_input = get_rvparky_location(self.rvparky_id)
+        elsif slug.present?
+          rvparky_input = get_rvparky_location(self.slug)
+          rvparky_id = rvparky_input[:id] if rvparky_input.present? && rvparky_input.is_a?(Hash)
+        end
       end
 
       rvparky = RvparkyLocationValidator.new(rvparky_input) if rvparky_input.present? && rvparky_input.is_a?(Hash)

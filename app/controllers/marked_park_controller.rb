@@ -29,7 +29,7 @@ class MarkedParkController < ApplicationController
 
   def show
     if @rvparky.present? && @catalogue.present?
-      @park.update_status(catalogue_temp, rvparky_temp)
+      @park.update_status(@catalogue_hash, @rvparky_hash)
       @park.destroy if @park.status == 'DELETE ME'
       @park.save if @park.valid?
 
@@ -64,10 +64,10 @@ class MarkedParkController < ApplicationController
       end
     else
       park = MarkedPark.find(params[:id])
-      park.name = params[:marked_park][:name] if params[:marked_park][:name].present?
-      park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid].present?
-      park.rvparky_id = params[:marked_park][:rvparky_id] if params[:marked_park][:rvparky_id].present?
-      if params[:marked_park][:slug].present? && park.slug != params[:marked_park][:slug]
+      park.name = params[:marked_park][:name] if params[:marked_park][:name] != park.name
+      park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid] != park.uuid
+      park.rvparky_id = params[:marked_park][:rvparky_id] if params[:marked_park][:rvparky_id] != park.rvparky_id
+      if params[:marked_park][:slug] != park.slug
         park.slug = params[:marked_park][:slug]
         # Updating the slug on the Catalogue, since they are used to match up parks
         # with RVParky. RVParky doesn't store uuids so we don't worry about updating them.
@@ -90,7 +90,7 @@ class MarkedParkController < ApplicationController
   def quick
     if @park.editable?
       if @rvparky.present? && @catalogue.present?
-        @park.update_status(catalogue_temp, rvparky_temp)
+        @park.update_status(@catalogue_hash, @rvparky_hash)
         @park.destroy if @park.status == 'DELETE ME'
         @park.save if @park.valid?
 
@@ -327,13 +327,13 @@ class MarkedParkController < ApplicationController
     @park = MarkedPark.find(params[:id])
 
     if @park.uuid.present?
-      catalogue_temp = get_catalogue_location(@park.uuid)
-      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
+      @catalogue_hash = get_catalogue_location(@park.uuid)
+      @catalogue = CatalogueLocationValidator.new(@catalogue_hash) if @catalogue_hash.present? && @catalogue_hash.is_a?(Hash)
     end
 
     if @park.rvparky_id.present?
-      rvparky_temp = get_rvparky_location(@park.rvparky_id)
-      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
+      @rvparky_hash = get_rvparky_location(@park.rvparky_id)
+      @rvparky = RvparkyLocationValidator.new(@rvparky_hash) if @rvparky_hash.present? && @rvparky_hash.is_a?(Hash)
     end
   end
 

@@ -25,10 +25,15 @@ def get_changed_since(date, method)
 end
 
 def update_catalogue_location(uuid, changes)
-  return generic_put_catalogue(uuid + '?' + changes).response_code
+  if Rails.env.development? || Rails.env.testing?
+    return generic_put_catalogue(uuid + '?' + changes).response_code
+  else
+    return 200
+  end
 end
 
 def update_rvparky_location(input_hash, park_id)
+  if Rails.env.development? || Rails.env.production?
   body_hash = { location_id: park_id,
                 source: 'BookYourSite',
                 email: 'rvparkyupdates@bookyoursite.com',
@@ -41,6 +46,9 @@ def update_rvparky_location(input_hash, park_id)
                                 body: body_hash.to_json,
                                 cookiefile: Rails.root.join('lib', 'assets', 'rvparky_cookies.txt'),
                                 :ssl_verifyhost => 0).response_code
+  else
+    return 200
+  end
 end
 
 private
@@ -154,8 +162,8 @@ def generic_put_catalogue(url)
 end
 
 # For checking changes since X date and getting park information.
-def generic_get_rvparky_1(url)
-  return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0)
+def generic_get_rvparky_1(url, follow)
+  return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0, followlocation: follow)
 end
 
 # For updating parks and getting info from slugs.
