@@ -171,7 +171,7 @@ def get_web_data(key, type, follow=false)
   if type == 'CATALOGUE'
     request = generic_get_catalogue(key)
   elsif type == 'RVPARKY_ID'
-    request = generic_get_rvparky('GetLocationDetail?key_id=' + key, follow)
+    request = generic_get_rvparky_1('GetLocationDetail?key_id=' + key, follow)
   elsif type == 'RVPARKY_SLUG'
     request = generic_get_rvparky_2('Location/' + key, follow)
   else
