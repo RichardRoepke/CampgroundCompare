@@ -162,7 +162,7 @@ def generic_put_catalogue(url)
 end
 
 # For checking changes since X date and getting park information.
-def generic_get_rvparky_1(url, follow)
+def generic_get_rvparky_1(url, follow=false)
   return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0, followlocation: follow)
 end
 

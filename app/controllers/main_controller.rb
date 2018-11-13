@@ -196,7 +196,7 @@ class MainController < ApplicationController
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
 
-      if (invalid && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
+      if (invalid.present? && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
         new_entry.destroy
         result = "NOT ADDED"
       else
@@ -207,6 +207,13 @@ class MainController < ApplicationController
     end
 
     return result
+  rescue => exception
+    puts '==================================================================================='
+    puts uuid.to_s + ', ' + slug.to_s + ', ' + rvparky_id.to_s
+    puts '==================================================================================='
+    puts exception
+    puts '==================================================================================='
+    return 'EXCEPTION'
   end
 
   def add_rvparky_id_park(rvparky_id, invalid, redirect)

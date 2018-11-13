@@ -29,7 +29,7 @@ class MarkedPark < ApplicationRecord
   # database makes no sense either. So the *_input fields accept previously
   # retrieved data to reuse it instead of making yet another call to the services.
   def update_status(catalogue_input=nil, rvparky_input=nil)
-    if self.uuid.present? && self.rvparky_id.present?
+    if self.uuid.present? && (self.rvparky_id.present? || self.slug.present?)
       if catalogue_input.blank?
         catalogue_input = get_catalogue_location(self.uuid)
       end
@@ -37,11 +37,11 @@ class MarkedPark < ApplicationRecord
       catalogue = CatalogueLocationValidator.new(catalogue_input) if catalogue_input.present? && catalogue_input.is_a?(Hash)
 
       if rvparky_input.blank?
-        if rvparky_id.present?
+        if self.rvparky_id.present?
           rvparky_input = get_rvparky_location(self.rvparky_id)
         elsif slug.present?
           rvparky_input = get_rvparky_location(self.slug)
-          rvparky_id = rvparky_input[:id] if rvparky_input.present? && rvparky_input.is_a?(Hash)
+          self.rvparky_id = rvparky_input[:id] if rvparky_input.present? && rvparky_input.is_a?(Hash)
         end
       end
 
@@ -63,8 +63,9 @@ class MarkedPark < ApplicationRecord
         self.status = 'INVALID CONNECTIONS'
       end
     else
-      self.status = 'RVPARKY ID IS MISSING' if self.rvparky_id.blank?
+      self.editable = false
       self.status = 'SLUG IS MISSING' if self.slug.blank?
+      self.status = 'RVPARKY ID IS MISSING' if self.rvparky_id.blank?
       self.status = 'UUID IS MISSING' if self.uuid.blank?
     end
 
