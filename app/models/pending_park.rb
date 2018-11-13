@@ -23,5 +23,9 @@ class PendingPark < ApplicationRecord
     if uuid.present? && MarkedPark.find_by(uuid: uuid).present?
       errors.add(:invalid, 'Park is already marked in the database.')
     end
+
+    if rvparky_id.present? && MarkedPark.find_by(rvparky_id: rvparky_id).present?
+      errors.add(:invalid, 'Park is already marked in the database.')
+    end
   end
 end

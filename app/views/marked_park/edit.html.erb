@@ -12,6 +12,7 @@
   <%= f.text_field :name, value: @name %>
   <%= f.text_field :uuid, value: @uuid %>
   <%= f.text_field :slug, value: @slug %>
+  <%= f.text_field :rvparky_id, value: @id %>
   <% if @park.status.include? '301' %>
     <%= f.submit "Follow 301 Code", class: "btn btn-success" %>
   <% end %>

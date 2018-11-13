@@ -6,7 +6,11 @@ def get_catalogue_location(uuid)
 end
 
 def get_rvparky_location(slug, follow=false)
-  return get_web_data(slug, 'RVPARKY', follow)
+  if slug.is_a?(Integer)
+    return get_web_data(slug.to_s, 'RVPARKY_ID', follow)
+  else
+    return get_web_data(slug, 'RVPARKY_SLUG', follow)
+  end
 end
 
 def get_changed_since(date, method)
@@ -149,12 +153,12 @@ def generic_put_catalogue(url)
                                :ssl_verifyhost => 0)
 end
 
-# For checking changes since X date.
+# For checking changes since X date and getting park information.
 def generic_get_rvparky_1(url)
   return Typhoeus::Request.get(rvparky_url + url, :ssl_verifyhost => 0)
 end
 
-# For getting location details.
+# For updating parks and getting info from slugs.
 def generic_get_rvparky_2(url, follow=false)
   return Typhoeus::Request.get(rvparky_url(2) + url, :ssl_verifyhost => 0, followlocation: follow)
 end
@@ -166,7 +170,9 @@ end
 def get_web_data(key, type, follow=false)
   if type == 'CATALOGUE'
     request = generic_get_catalogue(key)
-  elsif type == 'RVPARKY'
+  elsif type == 'RVPARKY_ID'
+    request = generic_get_rvparky('GetLocationDetail?key_id=' + key, follow)
+  elsif type == 'RVPARKY_SLUG'
     request = generic_get_rvparky_2('Location/' + key, follow)
   else
     return 404

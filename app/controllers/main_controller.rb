@@ -163,7 +163,7 @@ class MainController < ApplicationController
     return added
   end
 
-  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil)
+  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil, rvparky_id = nil)
     catalogue_response = catalogue_hash
     catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank? && uuid.present?
 
@@ -178,11 +178,18 @@ class MainController < ApplicationController
       name_input = "UNKNOWN"
     end
 
+    if rvparky_id.present?
+      id_input = rvparky_id
+    else
+      id_input = rvparky_response[:id]
+    end
+
     result = "NOT FOUND"
 
     new_entry = MarkedPark.create({ uuid: uuid,
                                     name: name_input,
                                     slug: slug,
+                                    rvparky_id: id_input,
                                     status: nil,
                                     editable: false })
     if new_entry.save
@@ -210,7 +217,7 @@ class MainController < ApplicationController
     slug_input = rvparky_response[:slug] if rvparky_response.is_a?(Hash)
 
     if uuid_input.present? || slug_input.present?
-      return add_new_park(uuid_input, slug_input, invalid, redirect, catalogue_response, rvparky_response)
+      return add_new_park(uuid_input, slug_input, invalid, redirect, catalogue_response, rvparky_response, rvparky_id)
     else
       return 'FAILED'
     end

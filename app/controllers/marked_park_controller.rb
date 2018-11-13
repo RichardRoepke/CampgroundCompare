@@ -3,6 +3,7 @@ require 'web_services_calls'
 class MarkedParkController < ApplicationController
   include CommonFields
   before_action :provide_title
+  before_action :provide_locations, only: [:quick, :show]
 
   def index
     # Using the session to mark which index page the user was last at.
@@ -10,7 +11,7 @@ class MarkedParkController < ApplicationController
 
     park_list = MarkedPark.page(params[:page])
 
-    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search OR status LIKE :search',
+    park_list = park_list.where('name LIKE :search OR slug LIKE :search OR uuid LIKE :search OR status LIKE :search OR rvparky_id LIKE :search',
                                 search: "%#{session[:filter]}%") if session[:filter].present?
     park_list = park_list.where("editable = '1'") if session[:editable].present?
 
@@ -27,21 +28,6 @@ class MarkedParkController < ApplicationController
   end
 
   def show
-    @catalogue = nil
-    @rvparky = nil
-
-    @park = MarkedPark.find(params[:id])
-
-    if @park.uuid.present?
-      catalogue_temp = get_catalogue_location(@park.uuid)
-      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
-    end
-
-    if @park.slug.present?
-      rvparky_temp = get_rvparky_location(@park.slug)
-      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
-    end
-
     if @rvparky.present? && @catalogue.present?
       @park.update_status(catalogue_temp, rvparky_temp)
       @park.destroy if @park.status == 'DELETE ME'
@@ -60,6 +46,7 @@ class MarkedParkController < ApplicationController
     @park = MarkedPark.find(params[:id])
     @name = @park.name
     @slug = @park.slug
+    @id = @park.rvparky_id
     @uuid = @park.uuid
   end
 
@@ -79,6 +66,7 @@ class MarkedParkController < ApplicationController
       park = MarkedPark.find(params[:id])
       park.name = params[:marked_park][:name] if params[:marked_park][:name].present?
       park.uuid = params[:marked_park][:uuid] if params[:marked_park][:uuid].present?
+      park.rvparky_id = params[:marked_park][:rvparky_id] if params[:marked_park][:rvparky_id].present?
       if params[:marked_park][:slug].present? && park.slug != params[:marked_park][:slug]
         park.slug = params[:marked_park][:slug]
         # Updating the slug on the Catalogue, since they are used to match up parks
@@ -100,22 +88,7 @@ class MarkedParkController < ApplicationController
   end
 
   def quick
-    @park = MarkedPark.find(params[:id])
-
     if @park.editable?
-      @catalogue = nil
-      @rvparky = nil
-
-      if @park.uuid.present?
-        catalogue_temp = get_catalogue_location(@park.uuid)
-        @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
-      end
-
-      if @park.slug.present?
-        rvparky_temp = get_rvparky_location(@park.slug)
-        @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
-      end
-
       if @rvparky.present? && @catalogue.present?
         @park.update_status(catalogue_temp, rvparky_temp)
         @park.destroy if @park.status == 'DELETE ME'
@@ -131,7 +104,7 @@ class MarkedParkController < ApplicationController
         redirect_to marked_park_path(@park), alert: 'Could not connect to the required web services.'
       end
     else
-      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved. Please check that the UUID and Slug are valid.'
+      redirect_to marked_park_path(@park), alert: 'Marked Park is unable to have its differences resolved. Please check that the UUID, Slug and ID are valid.'
     end
   end
 
@@ -208,19 +181,22 @@ class MarkedParkController < ApplicationController
     elsif params[:commit].include?('Both Lack Information')
       fill_result = autocomplete_parks(true, false, true)
     elsif params[:commit].include?('Remove All Entries with Invalid Slugs')
-      remove_result = autoremove_parks(true, false)
+      remove_result = autoremove_parks(true, false, false)
     elsif params[:commit].include?('Remove All Entries with Invalid UUIDs')
-      remove_result = autoremove_parks(false, true)
+      remove_result = autoremove_parks(false, true, false)
+    elsif params[:commit].include?('Remove All Entries with Invalid RVParky IDs')
+      remove_result = autoremove_parks(false, false, true)
     elsif params[:commit].include?('Multiple Tasks')
       fill_tasks = [params['catalogue_blank'] == '1',
                     params['rvparky_blank'] == '1',
                     params['both_blank'] == '1']
 
       remove_tasks = [params['invalid_slug'] == '1',
-                params['invalid_uuid'] == '1']
+                      params['invalid_id'] == '1',
+                      params['invalid_uuid'] == '1']
 
       fill_result = autocomplete_parks(fill_tasks[0], fill_tasks[1], fill_tasks[2]) if fill_tasks.any?
-      remove_result = autoremove_parks(remove_tasks[0], remove_tasks[1]) if remove_tasks.any?
+      remove_result = autoremove_parks(remove_tasks[0], remove_tasks[1], remove_tasks[2]) if remove_tasks.any?
 
       unless fill_tasks.any? || remove_tasks.any?
         flash[:WARNING] = 'No autocompletion tasks were selected'
@@ -265,7 +241,7 @@ class MarkedParkController < ApplicationController
     return output
   end
 
-  def autoremove_parks(do_slug, do_uuid)
+  def autoremove_parks(do_slug, do_uuid, do_id)
     output = { status: 'INFO', message: '' }
 
     num_completed = 0
@@ -279,6 +255,8 @@ class MarkedParkController < ApplicationController
         if do_slug.present? && park.status == 'SLUG IS MISSING'
           num_completed += 1 if park.destroy
         elsif do_uuid.present? && park.present? && park.status == 'UUID IS MISSING'
+          num_completed += 1 if park.destroy
+        elsif do_id.present? && park.present? && park.status == 'RVPARKY ID IS MISSING'
           num_completed += 1 if park.destroy
         end
       end
@@ -340,6 +318,23 @@ class MarkedParkController < ApplicationController
   private
   def provide_title
     @title = 'Parks'
+  end
+
+  def provide_locations
+    @catalogue = nil
+    @rvparky = nil
+
+    @park = MarkedPark.find(params[:id])
+
+    if @park.uuid.present?
+      catalogue_temp = get_catalogue_location(@park.uuid)
+      @catalogue = CatalogueLocationValidator.new(catalogue_temp) if catalogue_temp.present? && catalogue_temp.is_a?(Hash)
+    end
+
+    if @park.rvparky_id.present?
+      rvparky_temp = get_rvparky_location(@park.rvparky_id)
+      @rvparky = RvparkyLocationValidator.new(rvparky_temp) if rvparky_temp.present? && rvparky_temp.is_a?(Hash)
+    end
   end
 
   def update_single_park(id, processed_inputs)

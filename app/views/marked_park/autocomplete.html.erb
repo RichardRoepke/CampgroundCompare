@@ -13,6 +13,7 @@
   <%= f.submit 'Fill Parks Where Both Lack Information (If Possible)', class: "btn btn-warning" %>
   <%= f.submit 'Remove All Entries with Invalid Slugs', class: "btn btn-danger" %>
   <%= f.submit 'Remove All Entries with Invalid UUIDs', class: "btn btn-danger" %>
+  <%= f.submit 'Remove All Entries with Invalid RVParky IDs', class: "btn btn-danger" %>
   <hr />
   <%= f.form_group do %>
     <%= f.check_box :catalogue_blank, label: "Fill Parks Where Catalogue Lacks Information" %>
@@ -20,6 +21,7 @@
     <%= f.check_box :both_blank, label: "Fill Parks Where Both Lack Information (If Possible)" %>
     <%= f.check_box :invalid_slug, label: "Remove All Entries with Invalid Slugs" %>
     <%= f.check_box :invalid_uuid, label: "Remove All Entries with Invalid UUIDs" %>
+    <%= f.check_box :invalid_id, label: "Remove All Entries with Invalid RVParky IDs" %>
   <% end %>
   <%= f.primary 'Perform Multiple Tasks' %>
 <% end %>
