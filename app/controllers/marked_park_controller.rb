@@ -350,6 +350,7 @@ class MarkedParkController < ApplicationController
     if catalogue_url.present?
       request = update_catalogue_location(park.uuid, catalogue_url)
 
+      # Catalogue Response is 201 created, not 200 success like most others.
       if request == 201
         result[:catalogue][:status] = 'CAT SUCCESS'
         result[:catalogue][:message] = 'Central Catalogue: Changes successfully submitted.'
@@ -362,7 +363,7 @@ class MarkedParkController < ApplicationController
     if processed_inputs[:rvparky].present?
       request = update_rvparky_location(processed_inputs[:rvparky], park.rvparky_id)
 
-      if request == 201
+      if request == 200
         result[:rvparky][:status] = 'RV SUCCESS'
         result[:rvparky][:message] = 'RVParky: Changes successfully submitted.'
       else

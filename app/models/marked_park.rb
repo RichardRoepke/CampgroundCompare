@@ -104,7 +104,6 @@ class MarkedPark < ApplicationRecord
   end
 
   def calculate_differences(catalogue, rvparky)
-    # common_fields is taken from the CommonFields module.
     populate_differences(catalogue, rvparky)
 
     result = { catalogue_blank: 0,
