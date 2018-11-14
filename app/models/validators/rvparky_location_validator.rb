@@ -16,8 +16,8 @@ class RvparkyLocationValidator
   attr_accessor :city
   attr_accessor :review_count
   attr_accessor :reservation_url
-  attr_accessor :longitude
-  attr_accessor :latitude
+  attr_accessor :lon
+  attr_accessor :lat
   attr_accessor :sites
   attr_accessor :discounts
   attr_accessor :closed
