@@ -108,7 +108,7 @@
 
   <%= field_value_styler('Reservation:', @rvparky.reservation_url) if @rvparky.reservation_url.present? %>
 
-  <%= field_value_styler('GPS Coordinates:', '(' + @rvparky.latitude.to_s + ', ' + @rvparky.longitude.to_s + ')') if @rvparky.latitude.present? && @rvparky.longitude.present? %>
+  <%= field_value_styler('GPS Coordinates:', '(' + @rvparky.lat.to_s + ', ' + @rvparky.lon.to_s + ')') if @rvparky.lat.present? && @rvparky.lon.present? %>
 
   <%= field_value_styler('Inseason:', @rvparky.inSeasonDates) if @rvparky.inSeasonDates.present? %>
 

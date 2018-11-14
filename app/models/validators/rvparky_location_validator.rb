@@ -16,8 +16,8 @@ class RvparkyLocationValidator
   attr_accessor :city
   attr_accessor :review_count
   attr_accessor :reservation_url
-  attr_accessor :longitude
-  attr_accessor :latitude
+  attr_accessor :lon
+  attr_accessor :lat
   attr_accessor :sites
   attr_accessor :discounts
   attr_accessor :closed
@@ -53,8 +53,8 @@ class RvparkyLocationValidator
   validates :region, presence: true
 
   validates :rating, numericality: true
-  validates :longitude, numericality: true, allow_blank: true
-  validates :latitude, numericality: true, allow_blank: true
+  validates :lon, numericality: true, allow_blank: true
+  validates :lat, numericality: true, allow_blank: true
   validates :sites, numericality: { only_integer: true }
   validates :review_count, numericality: { only_integer: true }, allow_blank: true
 
@@ -77,8 +77,8 @@ class RvparkyLocationValidator
     @city = input[:city]
     @review_count = input[:review_count]
     @reservation_url = input[:reservation_url]
-    @longitude = input[:longitude]
-    @latitude = input[:latitude]
+    @lon = input[:lon]
+    @lat = input[:lat]
     @sites = input[:sites]
     @discounts = input[:discounts]
     @closed = input[:closed]
@@ -148,7 +148,7 @@ class RvparkyLocationValidator
 
   def pair_lat_long
     # XNOR Long and Lat. True if both are present or neither are. False otherwise.
-    unless (@longitude.present? && @latitude.present?) || (@longitude.blank? && @latitude.blank?)
+    unless (@lon.present? && @lat.present?) || (@lon.blank? && @lat.blank?)
       errors.add(:lat_long, 'Longitude and Latitude must both be present or both be blank.')
     end
   end

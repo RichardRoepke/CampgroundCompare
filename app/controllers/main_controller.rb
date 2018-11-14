@@ -163,7 +163,7 @@ class MainController < ApplicationController
     return added
   end
 
-  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil)
+  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil, rvparky_id = nil)
     catalogue_response = catalogue_hash
     catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank? && uuid.present?
 
@@ -178,18 +178,25 @@ class MainController < ApplicationController
       name_input = "UNKNOWN"
     end
 
+    if rvparky_id.present?
+      id_input = rvparky_id
+    else
+      id_input = rvparky_response[:id]
+    end
+
     result = "NOT FOUND"
 
     new_entry = MarkedPark.create({ uuid: uuid,
                                     name: name_input,
                                     slug: slug,
+                                    rvparky_id: id_input,
                                     status: nil,
                                     editable: false })
     if new_entry.save
       new_entry.update_status(catalogue_response, rvparky_response)
       new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
 
-      if (invalid && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
+      if (invalid.present? && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
         new_entry.destroy
         result = "NOT ADDED"
       else
@@ -200,6 +207,13 @@ class MainController < ApplicationController
     end
 
     return result
+  rescue => exception
+    puts '==================================================================================='
+    puts uuid.to_s + ', ' + slug.to_s + ', ' + rvparky_id.to_s
+    puts '==================================================================================='
+    puts exception
+    puts '==================================================================================='
+    return 'EXCEPTION'
   end
 
   def add_rvparky_id_park(rvparky_id, invalid, redirect)
@@ -210,7 +224,7 @@ class MainController < ApplicationController
     slug_input = rvparky_response[:slug] if rvparky_response.is_a?(Hash)
 
     if uuid_input.present? || slug_input.present?
-      return add_new_park(uuid_input, slug_input, invalid, redirect, catalogue_response, rvparky_response)
+      return add_new_park(uuid_input, slug_input, invalid, redirect, catalogue_response, rvparky_response, rvparky_id)
     else
       return 'FAILED'
     end

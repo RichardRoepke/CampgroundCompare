@@ -25,6 +25,7 @@
     <tr>
       <th scope="col">Name</th>
       <th scope="col">UUID</th>
+      <th scope="col">RVParky ID</th>
       <th scope="col">Slug</th>
       <th scope="col">Status</th>
       <th scope="col">Actions</th>
@@ -35,6 +36,7 @@
       <tr>
         <th scope="row"> <%= park.name %> </th>
         <td> <%= park.uuid unless park.uuid.blank? %> </td>
+        <td> <%= park.rvparky_id unless park.rvparky_id.blank? %> </td>
         <td> <%= park.slug unless park.slug.blank? %> </td>
         <td> <%= generate_badge(park.status, park.editable) %>  </td>
         <td>
