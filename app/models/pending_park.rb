@@ -10,7 +10,7 @@ class PendingPark < ApplicationRecord
 
   def uuid_slug_or_id_present
     if uuid.blank? && slug.blank? && rvparky_id.blank?
-      errors.add(:invalid, 'UUID or Id must be present.')
+      errors.add(:invalid, 'UUID or slug or id must be present.')
     end
   end
 

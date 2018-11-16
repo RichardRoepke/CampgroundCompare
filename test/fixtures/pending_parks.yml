@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  uuid: MyString
-  slug: MyString
-  rvparky_id: 4
+  uuid: aa
+  slug: validslug
+  rvparky_id: 14
 
 two:
-  uuid: MyString
-  slug: MyString
-  rvparky_id: 4
+  uuid: bb
+  slug: validerslug
+  rvparky_id: 2
