@@ -11,6 +11,8 @@ class MarkedPark < ApplicationRecord
 
   after_find do |park|
     update_status if self.updated_at < Date.yesterday
+
+    self.destroy if self.status == 'DELETE ME'
   end
 
   def self.field_includes(field, substring)

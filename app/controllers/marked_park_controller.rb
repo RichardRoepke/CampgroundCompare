@@ -180,11 +180,11 @@ class MarkedParkController < ApplicationController
       fill_result = autocomplete_parks(false, true, false)
     elsif params[:commit].include?('Both Lack Information')
       fill_result = autocomplete_parks(true, false, true)
-    elsif params[:commit].include?('Remove All Entries with Invalid Slugs')
+    elsif params[:commit].include?('Remove All Entries with Blank Slugs')
       remove_result = autoremove_parks(true, false, false)
-    elsif params[:commit].include?('Remove All Entries with Invalid UUIDs')
+    elsif params[:commit].include?('Remove All Entries with Blank UUIDs')
       remove_result = autoremove_parks(false, true, false)
-    elsif params[:commit].include?('Remove All Entries with Invalid RVParky IDs')
+    elsif params[:commit].include?('Remove All Entries with Blank RVParky IDs')
       remove_result = autoremove_parks(false, false, true)
     elsif params[:commit].include?('Multiple Tasks')
       fill_tasks = [params['catalogue_blank'] == '1',
@@ -252,11 +252,11 @@ class MarkedParkController < ApplicationController
       park.save if park.valid?
 
       if park.valid?
-        if do_slug.present? && park.status == 'SLUG IS MISSING'
+        if do_slug.present? && park.slug.blank?
           num_completed += 1 if park.destroy
-        elsif do_uuid.present? && park.present? && park.status == 'UUID IS MISSING'
+        elsif do_uuid.present? && park.present? && park.uuid.blank?
           num_completed += 1 if park.destroy
-        elsif do_id.present? && park.present? && park.status == 'RVPARKY ID IS MISSING'
+        elsif do_id.present? && park.present? && park.rvparky_id.blank?
           num_completed += 1 if park.destroy
         end
       end
