@@ -245,36 +245,6 @@ class CatalogueLocationValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'address must be present' do
-    @validator.address = nil
-    assert_not @validator.valid?
-  end
-
-  test 'city must be present' do
-    @validator.city = nil
-    assert_not @validator.valid?
-  end
-
-  test 'stateName must be present' do
-    @validator.stateName = nil
-    assert_not @validator.valid?
-  end
-
-  test 'stateCode must be present' do
-    @validator.stateCode = nil
-    assert_not @validator.valid?
-  end
-
-  test 'countryName must be present' do
-    @validator.countryName = nil
-    assert_not @validator.valid?
-  end
-
-  test 'countryCode must be present' do
-    @validator.countryCode = nil
-    assert_not @validator.valid?
-  end
-
   test 'check_validator_array processes errors correctly' do
     @validator.amenities[0].name = nil
     assert_not @validator.valid?
