@@ -110,11 +110,11 @@ class MainController < ApplicationController
     end
 
     if old > 0
-      flash[:OLD_NOTICE] = old.to_s + " parks had no differences or were already marked."
+      flash[:OLD_NOTICE] = old.to_s + " parks did not need to be marked."
     end
 
     if failed > 0
-      flash[:FAILED_ALERT] = failed.to_s + " parks failed to be included."
+      flash[:FAILED_ALERT] = failed.to_s + " parks failed."
     end
 
     redirect_to marked_park_index_path
@@ -163,7 +163,7 @@ class MainController < ApplicationController
     return added
   end
 
-  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil, rvparky_id = nil)
+  def add_new_park(uuid, slug, invalid, redirect, catalogue_hash=nil, rvparky_hash=nil, rvparky_id=nil)
     catalogue_response = catalogue_hash
     catalogue_response = get_catalogue_location(uuid) if catalogue_response.blank? && uuid.present?
 
@@ -186,33 +186,32 @@ class MainController < ApplicationController
 
     result = "NOT FOUND"
 
-    new_entry = MarkedPark.create({ uuid: uuid,
-                                    name: name_input,
-                                    slug: slug,
-                                    rvparky_id: id_input,
-                                    status: nil,
-                                    editable: false })
-    if new_entry.save
-      new_entry.update_status(catalogue_response, rvparky_response)
-      new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
+    if rvparky_response.blank? || rvparky_response[:category] == 'RvPark'
+      new_entry = MarkedPark.create({ uuid: uuid,
+                                      name: name_input,
+                                      slug: slug,
+                                      rvparky_id: id_input,
+                                      status: nil,
+                                      editable: false })
+      if new_entry.save
+        new_entry.update_status(catalogue_response, rvparky_response)
+        new_entry.follow_301(catalogue_response, rvparky_response) if new_entry.status.include?('301')
 
-      if (invalid.present? && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
-        new_entry.destroy
-        result = "NOT ADDED"
+        if (invalid.present? && !(new_entry.editable?)) || new_entry.status == 'DELETE ME'
+          new_entry.destroy
+          result = "NOT ADDED"
+        else
+          result = "ADDED"
+        end
       else
-        result = "ADDED"
+        result = "NOT ADDED"
       end
-    else
+    else # If rvparky_reponse is present but the location isn't an RvPark, don't add it.
       result = "NOT ADDED"
     end
 
     return result
   rescue => exception
-    puts '==================================================================================='
-    puts uuid.to_s + ', ' + slug.to_s + ', ' + rvparky_id.to_s
-    puts '==================================================================================='
-    puts exception
-    puts '==================================================================================='
     return 'EXCEPTION'
   end
 
