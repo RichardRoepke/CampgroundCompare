@@ -110,11 +110,11 @@ class MainController < ApplicationController
     end
 
     if old > 0
-      flash[:OLD_NOTICE] = old.to_s + " parks had no differences or were already marked."
+      flash[:OLD_NOTICE] = old.to_s + " parks did not need to be marked."
     end
 
     if failed > 0
-      flash[:FAILED_ALERT] = failed.to_s + " parks failed to be included."
+      flash[:FAILED_ALERT] = failed.to_s + " parks failed."
     end
 
     redirect_to marked_park_index_path
@@ -186,7 +186,7 @@ class MainController < ApplicationController
 
     result = "NOT FOUND"
 
-    if rvparky_reponse.blank? || rvparky_response[:category] == 'RvPark'
+    if rvparky_response.blank? || rvparky_response[:category] == 'RvPark'
       new_entry = MarkedPark.create({ uuid: uuid,
                                       name: name_input,
                                       slug: slug,
@@ -212,11 +212,6 @@ class MainController < ApplicationController
 
     return result
   rescue => exception
-    puts '==================================================================================='
-    puts uuid.to_s + ', ' + slug.to_s + ', ' + rvparky_id.to_s
-    puts '==================================================================================='
-    puts exception
-    puts '==================================================================================='
     return 'EXCEPTION'
   end
 
