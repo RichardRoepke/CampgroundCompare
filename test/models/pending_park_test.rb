@@ -9,6 +9,10 @@ class PendingParkTest < ActiveSupport::TestCase
     @park = PendingPark.new(@params)
   end
 
+  test 'pending park was created as valid' do
+    assert @park.valid?
+  end
+
   test 'pending park uuid must be unique if present' do
     @park.uuid = 'aa'
     assert_not @park.valid?
