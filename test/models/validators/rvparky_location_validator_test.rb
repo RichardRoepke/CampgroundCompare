@@ -14,8 +14,8 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
                 city: 'Test City',
                 review_count: 2,
                 reservation_url: 'reservation@park.com',
-                longitude: 7.7,
-                latitude: 3.3,
+                lon: 7.7,
+                lat: 3.3,
                 sites: 5,
                 discounts: 'temp',
                 closed: 'temp',
@@ -92,8 +92,8 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
     assert @validator.city == @params[:city]
     assert @validator.review_count == @params[:review_count]
     assert @validator.reservation_url == @params[:reservation_url]
-    assert @validator.longitude == @params[:longitude]
-    assert @validator.latitude == @params[:latitude]
+    assert @validator.lon == @params[:lon]
+    assert @validator.lat == @params[:lat]
     assert @validator.sites == @params[:sites]
     assert @validator.discounts == @params[:discounts]
     assert @validator.closed == @params[:closed]
@@ -148,7 +148,7 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
 
   test 'attributes must be processed correctly.' do
     @positive_attributes = ['cat', 'dump_station', 'pullThruSites', 'electric', 'waterfront']
-    @negative_attributes = ['cableTv', 'wiFi', 'handicap', 'longitude', 'latitude', 'id']
+    @negative_attributes = ['cableTv', 'wiFi', 'handicap', 'lon', 'lat', 'id']
     @nonexistent_attributes = ['frogRain', 'peace', 'shotput']
 
     @positive_attributes.each do |value|
@@ -184,11 +184,6 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
     assert_not @validator.valid?
   end
 
-  test 'city must be present' do
-    @validator.city = nil
-    assert_not @validator.valid?
-  end
-
   test 'sites must be present' do
     @validator.sites = nil
     assert_not @validator.valid?
@@ -218,30 +213,30 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
   end
 
   test 'longitude must be a number' do
-    @validator.longitude = 'number'
+    @validator.lon = 'number'
     assert_not @validator.valid?
 
-    @validator.longitude = { number: 7 }
+    @validator.lon = { number: 7 }
     assert_not @validator.valid?
 
-    @validator.longitude = [4]
+    @validator.lon = [4]
     assert_not @validator.valid?
 
-    @validator.longitude = 2
+    @validator.lon = 2
     assert @validator.valid?
   end
 
   test 'latitude must be a number' do
-    @validator.latitude = 'number'
+    @validator.lat = 'number'
     assert_not @validator.valid?
 
-    @validator.latitude = { number: 7 }
+    @validator.lat = { number: 7 }
     assert_not @validator.valid?
 
-    @validator.latitude = [4]
+    @validator.lat = [4]
     assert_not @validator.valid?
 
-    @validator.latitude = 2
+    @validator.lat = 2
     assert @validator.valid?
   end
 
@@ -285,20 +280,20 @@ class RvparkyLocationValidatorTest < ActiveSupport::TestCase
   end
 
   test 'long and lat must be both present or both blank' do
-    @validator.longitude = nil
-    @validator.latitude = nil
+    @validator.lon = nil
+    @validator.lat = nil
     assert @validator.valid?
 
-    @validator.longitude = 2
-    @validator.latitude = nil
+    @validator.lon = 2
+    @validator.lat = nil
     assert_not @validator.valid?
 
-    @validator.longitude = nil
-    @validator.latitude = 3
+    @validator.lon = nil
+    @validator.lat = 3
     assert_not @validator.valid?
 
-    @validator.longitude = 3
-    @validator.latitude = 4
+    @validator.lon = 3
+    @validator.lat = 4
     assert @validator.valid?
   end
 end

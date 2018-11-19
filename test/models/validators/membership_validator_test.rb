@@ -12,11 +12,6 @@ class MembershipValidatorTest < ActiveSupport::TestCase
     assert @validator.type == @params[:type]
   end
 
-  test 'name should be present' do
-    @validator.name = nil
-    assert_not @validator.valid?
-  end
-
   test 'type should be present' do
     @validator.type = nil
     assert_not @validator.valid?

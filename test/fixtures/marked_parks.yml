@@ -1,11 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  uuid: NULL
-  name: MyString
-  status: MyString
+  uuid: test
+  slug: newslug
+  rvparky_id: 3
+  name: Valid Park
+  status: NULL
 
 two:
-  uuid: NULL
-  name: MyString
-  status: MyString
+  uuid: aaaaaaaaaaah
+  slug: newerslug
+  rvparky_id: 7
+  name: Amazing Park
+  status: NULL

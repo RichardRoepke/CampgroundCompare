@@ -56,7 +56,7 @@ require 'test_helper'
     assert_not @difference.match?
 
     @difference.kind = :match
-    assert @difference.valid?
+    assert_not @difference.valid?
     assert_not @difference.rvparky_blank?
     assert_not @difference.catalogue_blank?
     assert_not @difference.mismatch?
